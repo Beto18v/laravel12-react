@@ -7,8 +7,8 @@ use Inertia\Inertia;
 
 class MapaController extends Controller
 {
-    public function Index()
+    public function index()
     {
-        return Inertia::render('Mapa/index', []);
+        return Inertia::render('Dashboard/Mapa/index', []);
     }
 }

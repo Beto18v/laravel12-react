@@ -16,7 +16,7 @@ export default function Dashboard() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
-            <main className="flex-1 overflow-y-auto p-6">
+            <main className="flex-1 overflow-y-auto bg-gradient-to-r from-green-400 to-blue-500 p-6 dark:from-green-600 dark:to-blue-700">
                 <div className="container mx-auto">
                     {/* Título de la página */}
                     <h1 className="mb-6 text-2xl font-bold text-gray-800 dark:text-gray-200">Panel de Control</h1>

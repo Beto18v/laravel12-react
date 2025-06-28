@@ -7,8 +7,8 @@ use Inertia\Inertia;
 
 class SolicitudesController extends Controller
 {
-    public function Index()
+    public function index()
     {
-        return Inertia::render('Solicitudes/index', []);
+        return Inertia::render('Dashboard/Solicitudes/index', []);
     }
 }

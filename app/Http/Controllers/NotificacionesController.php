@@ -7,8 +7,8 @@ use Inertia\Inertia;
 
 class NotificacionesController extends Controller
 {
-    public function Index()
+    public function index()
     {
-        return Inertia::render('Notificaciones/index', []);
+        return Inertia::render('Dashboard/Notificaciones/index', []);
     }
 }

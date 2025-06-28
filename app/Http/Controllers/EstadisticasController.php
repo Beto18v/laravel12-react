@@ -7,8 +7,8 @@ use Inertia\Inertia;
 
 class EstadisticasController extends Controller
 {
-    public function Index()
+    public function index()
     {
-        return Inertia::render('Estadisticas/index', []);
+        return Inertia::render('Dashboard/Estadisticas/index', []);
     }
 }

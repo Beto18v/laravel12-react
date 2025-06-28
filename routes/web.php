@@ -14,6 +14,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::get('favoritos', [App\Http\Controllers\FavoritosController::class, 'index'])->name('favoritos.index');
+    Route::get('solicitudes', [App\Http\Controllers\SolicitudesController::class, 'index'])->name('solicitudes.index');
+    Route::get('donaciones', [App\Http\Controllers\DonacionesController::class, 'index'])->name('donaciones.index');
+    Route::get('mapa', [App\Http\Controllers\MapaController::class, 'index'])->name('mapa.index');
+    Route::get('estadisticas', [App\Http\Controllers\EstadisticasController::class, 'index'])->name('estadisticas.index');
+    Route::get('notificaciones', [App\Http\Controllers\NotificacionesController::class, 'index'])->name('notificaciones.index');
 });
 
 require __DIR__ . '/settings.php';
