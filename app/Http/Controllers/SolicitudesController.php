@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class FavoritosController extends Controller
+class SolicitudesController extends Controller
 {
     public function Index()
     {
