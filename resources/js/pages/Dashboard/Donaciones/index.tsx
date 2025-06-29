@@ -1,7 +1,8 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
-import { SetStateAction, useState } from 'react';
+import { useState } from 'react';
+import FormularioDonacion from './components/formulario-donacion'; // Importa el nuevo componente
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -12,72 +13,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function DonationsSummary() {
     const [showDonationFormModal, setShowDonationFormModal] = useState(false);
-    const [montoSeleccionado, setMontoSeleccionado] = useState('');
-    const [montoPersonalizado, setMontoPersonalizado] = useState('');
-    const [formaDePago, setFormaDePago] = useState('tarjeta');
-    const [formData, setFormData] = useState({
-        nombre: '',
-        email: '',
-        numeroTarjeta: '',
-        fechaExpiracion: '',
-        cvv: '',
-        direccion: '',
-        ciudad: '',
-        pais: '',
-        codigoPostal: '',
-    });
-    const [mostrarAgradecimiento, setMostrarAgradecimiento] = useState(false);
-
-    const handleMontoClick = (monto: SetStateAction<string>) => {
-        setMontoSeleccionado(monto);
-        setMontoPersonalizado('');
-    };
-
-    const handleMontoPersonalizadoChange = (e: { target: { value: SetStateAction<string> } }) => {
-        setMontoPersonalizado(e.target.value);
-        setMontoSeleccionado('');
-    };
-
-    const handleInputChange = (e: { target: { name: any; value: any } }) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
-    };
-
-    const handleSubmitDonationForm = (e: { preventDefault: () => void }) => {
-        e.preventDefault();
-        console.log('Donación enviada:', { monto: montoFinal, ...formData });
-        setMostrarAgradecimiento(true);
-    };
-
-    const montoFinal = montoSeleccionado || montoPersonalizado;
-
-    const resetDonationForm = () => {
-        setMontoSeleccionado('');
-        setMontoPersonalizado('');
-        setFormaDePago('tarjeta');
-        setFormData({
-            nombre: '',
-            email: '',
-            numeroTarjeta: '',
-            fechaExpiracion: '',
-            cvv: '',
-            direccion: '',
-            ciudad: '',
-            pais: '',
-            codigoPostal: '',
-        });
-        setMostrarAgradecimiento(false);
-    };
-
-    const handleCloseModal = () => {
-        setShowDonationFormModal(false);
-        resetDonationForm();
-    };
-
-    const donations = [
+    const [donations, setDonations] = useState([
         {
             id: 1,
             donor: 'María López',
@@ -92,12 +28,12 @@ export default function DonationsSummary() {
             date: '2023-11-11',
             type: 'Monetaria',
         },
-    ];
+    ]);
 
     const stats = {
-        totalAmount: 575000,
-        averageAmount: 115000,
-        donorsCount: 5,
+        totalAmount: donations.reduce((acc, curr) => acc + curr.amount, 0),
+        averageAmount: donations.length > 0 ? donations.reduce((acc, curr) => acc + curr.amount, 0) / donations.length : 0,
+        donorsCount: new Set(donations.map((d) => d.donor)).size,
         monthlyGrowth: '+12%',
     };
 
@@ -108,6 +44,10 @@ export default function DonationsSummary() {
             currency: 'COP',
             minimumFractionDigits: 0,
         }).format(numericAmount);
+    };
+
+    const handleNewDonation = (newDonation: any) => {
+        setDonations([newDonation, ...donations]);
     };
 
     return (
@@ -189,83 +129,19 @@ export default function DonationsSummary() {
                     {/* Botón de acción */}
                     <div className="mt-6 text-center">
                         <button
-                            onClick={() => {
-                                resetDonationForm();
-                                setShowDonationFormModal(true);
-                            }}
+                            onClick={() => setShowDonationFormModal(true)}
                             className="rounded-lg bg-purple-600 px-4 py-2 text-white transition hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-800"
                         >
                             Quiero donar
                         </button>
                     </div>
 
-                    {/* Modal para el formulario de donación */}
-                    {showDonationFormModal && (
-                        <div className="bg-opacity-75 fixed inset-0 z-50 flex items-center justify-center bg-black p-4">
-                            <div className="max-h-[95vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white shadow-xl dark:bg-gray-800">
-                                <div className="p-6 sm:p-8">
-                                    <div className="mb-6 flex items-center justify-between">
-                                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                                            {mostrarAgradecimiento ? 'Gracias por Donar' : 'Realizar una Donación'}
-                                        </h2>
-                                        <button
-                                            onClick={handleCloseModal}
-                                            className="text-gray-500 transition hover:text-gray-700 dark:text-gray-400 dark:hover:text-white"
-                                            aria-label="Cerrar"
-                                        >
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                className="h-6 w-6"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke="currentColor"
-                                            >
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
-                                    </div>
-
-                                    {mostrarAgradecimiento ? (
-                                        <div className="text-center">
-                                            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
-                                                <svg
-                                                    className="h-8 w-8 text-green-600 dark:text-green-300"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    viewBox="0 0 24 24"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                            </div>
-                                            <p className="mb-6 text-lg text-gray-600 dark:text-gray-300">
-                                                Tu generosa contribución de {formatCurrency(montoFinal)} ayudará a muchas mascotas. Hemos enviado un
-                                                recibo a tu correo electrónico ({formData.email}).
-                                            </p>
-                                            <button
-                                                onClick={() => {
-                                                    resetDonationForm();
-                                                }}
-                                                className="mr-2 rounded-lg bg-blue-600 px-6 py-2 text-white transition hover:bg-blue-700"
-                                            >
-                                                Realizar otra donación
-                                            </button>
-                                            <button
-                                                onClick={handleCloseModal}
-                                                className="rounded-lg bg-gray-300 px-6 py-2 text-gray-800 transition hover:bg-gray-400 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
-                                            >
-                                                Cerrar
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <form onSubmit={handleSubmitDonationForm}>
-                                            {/* Resto del formulario de donación (igual que en tu código original) */}
-                                        </form>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                    {/* Renderiza el componente del formulario modal */}
+                    <FormularioDonacion
+                        showModal={showDonationFormModal}
+                        onClose={() => setShowDonationFormModal(false)}
+                        onDonationSubmit={handleNewDonation}
+                    />
                 </div>
             </main>
         </AppLayout>
