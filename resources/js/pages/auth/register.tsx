@@ -12,14 +12,16 @@ type RegisterForm = {
     email: string;
     password: string;
     password_confirmation: string;
+    role: string; // Añade role
 };
 
-export default function Register() {
+export default function Register({ role }: { role: string }) {
     const { data, setData, post, processing, errors, reset } = useForm<Required<RegisterForm>>({
         name: '',
         email: '',
         password: '',
         password_confirmation: '',
+        role: role, // Valor por defecto;
     });
 
     const submit: FormEventHandler = (e) => {
@@ -38,6 +40,8 @@ export default function Register() {
 
                 <Head title="Register" />
                 <form className="flex flex-col gap-6" onSubmit={submit}>
+                    {/* Añade un campo oculto para el rol */}
+                    <input type="hidden" value={data.role} onChange={(e) => setData('role', e.target.value)} />
                     <div className="grid gap-6">
                         <div className="grid gap-2">
                             <Label htmlFor="name">Nombre</Label>

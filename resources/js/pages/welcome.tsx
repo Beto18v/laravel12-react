@@ -94,7 +94,7 @@ export default function Welcome() {
                                     Iniciar sesión
                                 </Link>
                                 <Link
-                                    href={route('register')}
+                                    href={route('register.options')}
                                     className="rounded-lg bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
                                 >
                                     Registrarse
