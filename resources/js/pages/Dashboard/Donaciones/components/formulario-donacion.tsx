@@ -1,20 +1,23 @@
-import { useForm } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler, useEffect, useState } from 'react';
 
+interface Shelter {
+    id: number;
+    name: string;
+}
 interface FormularioDonacionProps {
     showModal: boolean;
     onClose: () => void;
+    shelters: Shelter[];
 }
 
-export default function FormularioDonacion({ showModal, onClose }: FormularioDonacionProps) {
+export default function FormularioDonacion({ showModal, onClose, shelters }: FormularioDonacionProps) {
+    const { auth } = usePage().props as any;
     const { data, setData, post, processing, errors, reset, wasSuccessful, clearErrors } = useForm({
-        donor_name: '',
-        donor_email: '',
+        donor_name: auth.user.name || '',
+        donor_email: auth.user.email || '',
         amount: '',
-        // Campos de tarjeta solo para el frontend, no se envían al backend
-        numeroTarjeta: '',
-        fechaExpiracion: '',
-        cvv: '',
+        shelter_id: '',
     });
 
     const [montoSeleccionado, setMontoSeleccionado] = useState('');
@@ -46,13 +49,9 @@ export default function FormularioDonacion({ showModal, onClose }: FormularioDon
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
-        // El hook `useForm` ya sabe qué datos enviar.
-        // La llamada a `post` solo necesita la ruta y las opciones.
         post(route('donaciones.store'), {
             preserveScroll: true,
-            onSuccess: () => {
-                // El `useEffect` se encargará de mostrar el agradecimiento
-            },
+            onSuccess: () => {},
         });
     };
 
@@ -68,15 +67,13 @@ export default function FormularioDonacion({ showModal, onClose }: FormularioDon
     };
 
     const handleOtraDonacion = () => {
-        reset();
+        reset('amount', 'shelter_id');
         setMontoSeleccionado('');
         setMontoPersonalizado('');
         setMostrarAgradecimiento(false);
     };
 
-    if (!showModal) {
-        return null;
-    }
+    if (!showModal) return null;
 
     return (
         <div className="bg-opacity-75 fixed inset-0 z-50 flex items-center justify-center bg-black p-4">
@@ -111,8 +108,7 @@ export default function FormularioDonacion({ showModal, onClose }: FormularioDon
                                 </svg>
                             </div>
                             <p className="mb-6 text-lg text-gray-600 dark:text-gray-300">
-                                Tu generosa contribución ayudará a muchas mascotas. Hemos enviado un recibo a tu correo electrónico (
-                                {data.donor_email}).
+                                Tu generosa contribución ayudará a muchas mascotas. Hemos enviado un recibo a tu correo electrónico.
                             </p>
                             <button
                                 onClick={handleOtraDonacion}
@@ -130,6 +126,25 @@ export default function FormularioDonacion({ showModal, onClose }: FormularioDon
                     ) : (
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div>
+                                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Selecciona un refugio</label>
+                                <select
+                                    name="shelter_id"
+                                    value={data.shelter_id}
+                                    onChange={(e) => setData('shelter_id', e.target.value)}
+                                    className="w-full rounded-lg border-gray-300 p-3 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                    required
+                                >
+                                    <option value="">-- Elige un refugio --</option>
+                                    {shelters.map((shelter) => (
+                                        <option key={shelter.id} value={shelter.id}>
+                                            {shelter.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                {errors.shelter_id && <p className="mt-2 text-sm text-red-500">{errors.shelter_id}</p>}
+                            </div>
+
+                            <div>
                                 <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Selecciona un monto (COP)</label>
                                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                                     {['20000', '50000', '100000', '200000'].map((monto) => (
@@ -137,11 +152,7 @@ export default function FormularioDonacion({ showModal, onClose }: FormularioDon
                                             key={monto}
                                             type="button"
                                             onClick={() => handleMontoClick(monto)}
-                                            className={`rounded-lg p-3 text-center transition ${
-                                                data.amount === monto
-                                                    ? 'bg-purple-600 text-white shadow-lg ring-2 ring-purple-400'
-                                                    : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'
-                                            }`}
+                                            className={`rounded-lg p-3 text-center transition ${data.amount === monto ? 'bg-purple-600 text-white shadow-lg ring-2 ring-purple-400' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'}`}
                                         >
                                             {formatCurrency(monto)}
                                         </button>
@@ -164,39 +175,10 @@ export default function FormularioDonacion({ showModal, onClose }: FormularioDon
                                 />
                             </div>
 
-                            <div className="space-y-4 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    <div>
-                                        <input
-                                            name="donor_name"
-                                            value={data.donor_name}
-                                            onChange={(e) => setData('donor_name', e.target.value)}
-                                            placeholder="Nombre completo"
-                                            className="w-full rounded-lg border-gray-300 p-3 dark:border-gray-600 dark:bg-gray-700"
-                                            required
-                                        />
-                                        {errors.donor_name && <p className="mt-2 text-sm text-red-500">{errors.donor_name}</p>}
-                                    </div>
-                                    <div>
-                                        <input
-                                            name="donor_email"
-                                            type="email"
-                                            value={data.donor_email}
-                                            onChange={(e) => setData('donor_email', e.target.value)}
-                                            placeholder="Correo electrónico"
-                                            className="w-full rounded-lg border-gray-300 p-3 dark:border-gray-600 dark:bg-gray-700"
-                                            required
-                                        />
-                                        {errors.donor_email && <p className="mt-2 text-sm text-red-500">{errors.donor_email}</p>}
-                                    </div>
-                                </div>
-                                <p className="text-xs text-gray-500">Por ahora, solo simulamos el registro. No se procesarán pagos reales.</p>
-                            </div>
-
                             <div className="mt-8 text-right">
                                 <button
                                     type="submit"
-                                    disabled={processing || !data.amount}
+                                    disabled={processing || !data.amount || !data.shelter_id}
                                     className="rounded-lg bg-purple-600 px-6 py-3 text-white transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     {processing ? 'Procesando...' : `Donar ${data.amount ? formatCurrency(data.amount) : ''}`}
