@@ -11,7 +11,17 @@ class Shelter extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'user_id'];
+    protected $fillable = [
+        'name',
+        'user_id',
+        'description',
+        'address',
+        'city',
+        'phone',
+        'bank_name',
+        'account_type',
+        'account_number',
+    ];
 
     public function user(): BelongsTo
     {

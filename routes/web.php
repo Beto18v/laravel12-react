@@ -21,7 +21,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('solicitudes', [App\Http\Controllers\SolicitudesController::class, 'index'])->name('solicitudes.index');
     Route::get('donaciones', [App\Http\Controllers\DonacionesController::class, 'index'])->name('donaciones.index');
     Route::post('donaciones', [App\Http\Controllers\DonacionesController::class, 'store'])->name('donaciones.store');
-    Route::get('shelter/register', [App\Http\Controllers\ShelterController::class, 'create'])->name('shelter.register');
     Route::post('shelter/register', [App\Http\Controllers\ShelterController::class, 'store'])->name('shelter.store');
     Route::get('mapa', [App\Http\Controllers\MapaController::class, 'index'])->name('mapa.index');
     Route::get('estadisticas', [App\Http\Controllers\EstadisticasController::class, 'index'])->name('estadisticas.index');
