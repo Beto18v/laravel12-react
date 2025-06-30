@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+Route::get('/productos', fn() => Inertia::render('Productos'))->name('productos');
+
+
 Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
@@ -23,6 +26,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('mapa', [App\Http\Controllers\MapaController::class, 'index'])->name('mapa.index');
     Route::get('estadisticas', [App\Http\Controllers\EstadisticasController::class, 'index'])->name('estadisticas.index');
     Route::get('notificaciones', [App\Http\Controllers\NotificacionesController::class, 'index'])->name('notificaciones.index');
+    
+    Route::get('/productos-mascotas', fn () => Inertia::render('Cliente/ProductosMascotas'))->name('productos.mascotas');
+
+    Route::get('/registrar-productos', fn () => Inertia::render('Aliado/RegistrarProducto'))->name('productos.registrar');
+    Route::post('/productos/store', [ProductoController::class, 'store']);
+
+    Route::get('/registrar-mascotas', fn () => Inertia::render('Aliado/RegistrarMascota'))->name('mascotas.registrar');
+    Route::post('/mascotas/store', [MascotaController::class, 'store']);
 });
 
 require __DIR__ . '/settings.php';
