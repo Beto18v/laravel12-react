@@ -71,11 +71,9 @@ export default function Welcome() {
                         <h1 className="hidden font-bold text-blue-600 md:block dark:text-blue-400">ADOPTAFÁCIL</h1>
                     </div>
                     <nav className="hidden space-x-6 md:flex">
-                        <Link href="/perros" className="font-medium text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">PERROS</Link>
-                        <Link href="/gatos" className="font-medium text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">GATOS</Link>
-                        <Link href={route('productos')} className="...">PRODUCTOS</Link>                       
-                        <Link href="/registro-opciones" className="font-medium text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">REGISTRARSE</Link>
-                        <Link href="#" className="font-medium text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">CONTACTO</Link>
+                        <Link href={route('productos')} className="font-medium text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">PRODUCTOS</Link>
+                        <Link href="/mascotas" className="font-medium text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">MASCOTAS</Link>
+                        <Link href="#contacto" className="font-medium text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">CONTACTO</Link>
                     </nav>
                     <div className="flex items-center space-x-4">
                         {auth?.user ? (
