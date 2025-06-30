@@ -1,40 +1,23 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-import FormularioDonacion from './components/formulario-donacion'; // Importa el nuevo componente
+import FormularioDonacion from './components/formulario-donacion';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Donaciones',
-        href: '/donaciones',
+        href: route('donaciones.index'),
     },
 ];
 
 export default function DonationsSummary() {
+    const { donations } = usePage().props as any;
     const [showDonationFormModal, setShowDonationFormModal] = useState(false);
-    const [donations, setDonations] = useState([
-        {
-            id: 1,
-            donor: 'María López',
-            amount: 150000,
-            date: '2023-11-14',
-            type: 'Monetaria',
-        },
-        {
-            id: 2,
-            donor: 'Pedro Gómez',
-            amount: 75000,
-            date: '2023-11-11',
-            type: 'Monetaria',
-        },
-    ]);
 
     const stats = {
-        totalAmount: donations.reduce((acc, curr) => acc + curr.amount, 0),
-        averageAmount: donations.length > 0 ? donations.reduce((acc, curr) => acc + curr.amount, 0) / donations.length : 0,
-        donorsCount: new Set(donations.map((d) => d.donor)).size,
-        monthlyGrowth: '+12%',
+        totalAmount: donations.reduce((acc: number, curr: any) => acc + parseFloat(curr.amount), 0),
+        donorsCount: new Set(donations.map((d: any) => d.donor_name)).size,
     };
 
     const formatCurrency = (amount: string | number | bigint) => {
@@ -46,10 +29,6 @@ export default function DonationsSummary() {
         }).format(numericAmount);
     };
 
-    const handleNewDonation = (newDonation: any) => {
-        setDonations([newDonation, ...donations]);
-    };
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Resumen de Donaciones" />
@@ -57,28 +36,18 @@ export default function DonationsSummary() {
                 <div className="container mx-auto">
                     <div className="mb-6 flex items-center justify-between">
                         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Resumen de Donaciones</h1>
-                        <button className="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-200 dark:hover:text-blue-100">
-                            Ver todas
-                        </button>
+                        <button className="rounded-lg bg-green-600 px-4 py-2 text-white transition hover:bg-green-700">Generar reporte</button>
                     </div>
 
                     {/* Tarjetas de estadísticas */}
-                    <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+                    <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="rounded-lg bg-purple-50 p-4 dark:bg-purple-900">
                             <h3 className="text-sm font-medium text-purple-700 dark:text-purple-300">Total Recaudado</h3>
                             <p className="text-xl font-bold text-purple-800 dark:text-purple-200">{formatCurrency(stats.totalAmount)}</p>
                         </div>
-                        <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900">
-                            <h3 className="text-sm font-medium text-blue-700 dark:text-blue-300">Promedio</h3>
-                            <p className="text-xl font-bold text-blue-800 dark:text-blue-200">{formatCurrency(stats.averageAmount)}</p>
-                        </div>
                         <div className="rounded-lg bg-green-50 p-4 dark:bg-green-900">
-                            <h3 className="text-sm font-medium text-green-700 dark:text-green-300">Donantes</h3>
+                            <h3 className="text-sm font-medium text-green-700 dark:text-green-300">Total Donantes</h3>
                             <p className="text-xl font-bold text-green-800 dark:text-green-200">{stats.donorsCount}</p>
-                        </div>
-                        <div className="rounded-lg bg-orange-50 p-4 dark:bg-orange-900">
-                            <h3 className="text-sm font-medium text-orange-700 dark:text-orange-300">Crecimiento</h3>
-                            <p className="text-xl font-bold text-orange-800 dark:text-orange-200">{stats.monthlyGrowth}</p>
                         </div>
                     </div>
 
@@ -97,27 +66,21 @@ export default function DonationsSummary() {
                                         <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300">
                                             Fecha
                                         </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300">
-                                            Tipo
-                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
-                                    {donations.map((donation) => (
+                                    {donations.map((donation: any) => (
                                         <tr key={donation.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                                             <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900 dark:text-white">
-                                                {donation.donor}
+                                                {donation.donor_name}
                                             </td>
                                             <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
                                                 <span className="font-medium text-green-600 dark:text-green-400">
                                                     {formatCurrency(donation.amount)}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">{donation.date}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className="inline-flex rounded-full bg-purple-100 px-2 text-xs leading-5 font-semibold text-purple-800 dark:bg-purple-900 dark:text-purple-300">
-                                                    {donation.type}
-                                                </span>
+                                            <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
+                                                {new Date(donation.created_at).toLocaleDateString()}
                                             </td>
                                         </tr>
                                     ))}
@@ -136,12 +99,7 @@ export default function DonationsSummary() {
                         </button>
                     </div>
 
-                    {/* Renderiza el componente del formulario modal */}
-                    <FormularioDonacion
-                        showModal={showDonationFormModal}
-                        onClose={() => setShowDonationFormModal(false)}
-                        onDonationSubmit={handleNewDonation}
-                    />
+                    <FormularioDonacion showModal={showDonationFormModal} onClose={() => setShowDonationFormModal(false)} />
                 </div>
             </main>
         </AppLayout>
