@@ -4,10 +4,12 @@ import { Head, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import FormularioDonacion from './components/formulario-donacion';
 import FormularioFundacion from './components/formulario-fundacion';
+// Asegúrate de que esta importación sea correcta
+import { generateDonationsReport } from '@/lib/reportGenerator';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Donaciones', href: route('donaciones.index') }];
 
-// --- COMPONENTE REUTILIZABLE: Formato de Moneda ---
+// --- COMPONENTES REUTILIZABLES ---
 const formatCurrency = (amount: string | number | bigint) => {
     const numericAmount = typeof amount === 'string' ? Number(amount) : amount;
     return new Intl.NumberFormat('es-CO', {
@@ -17,7 +19,6 @@ const formatCurrency = (amount: string | number | bigint) => {
     }).format(numericAmount);
 };
 
-// --- COMPONENTE REUTILIZABLE: Tabla de Donaciones ---
 const DonationsTable = ({ donations, userRole }: any) => (
     <div className="overflow-hidden rounded-lg bg-white shadow dark:bg-gray-800">
         <div className="overflow-x-auto">
@@ -52,7 +53,7 @@ const DonationsTable = ({ donations, userRole }: any) => (
     </div>
 );
 
-// --- VISTA PARA CLIENTES ---
+// --- VISTAS ESPECÍFICAS PARA CADA ROL ---
 const ClientView = ({ donations, stats, onDonateClick }: any) => (
     <>
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -77,7 +78,6 @@ const ClientView = ({ donations, stats, onDonateClick }: any) => (
     </>
 );
 
-// --- VISTA PARA ALIADOS Y ADMINS ---
 const AllyAdminView = ({ donations, stats, userRole }: any) => (
     <>
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -94,7 +94,7 @@ const AllyAdminView = ({ donations, stats, userRole }: any) => (
     </>
 );
 
-// --- COMPONENTE PRINCIPAL QUE DECIDE QUÉ MOSTRAR ---
+// --- COMPONENTE PRINCIPAL ---
 export default function DonationsSummary() {
     const { donations, shelters, auth } = usePage().props as any;
     const { user } = auth;
@@ -106,20 +106,24 @@ export default function DonationsSummary() {
         donationsCount: donations.length,
     };
 
+    const handleGenerateReport = () => {
+        if (donations.length === 0) {
+            alert('No hay donaciones para generar un reporte.');
+            return;
+        }
+        generateDonationsReport(donations, user);
+    };
+
     const renderContentByRole = () => {
-        // 1. Si el usuario es un 'aliado' y NO tiene una fundación registrada, muestra el formulario de registro.
         if (user.role === 'aliado' && !user.shelter) {
             return <FormularioFundacion />;
         }
-        // 2. Si es un 'cliente', muestra la vista del cliente.
         if (user.role === 'cliente') {
             return <ClientView donations={donations} stats={stats} onDonateClick={() => setShowDonationFormModal(true)} />;
         }
-        // 3. Si es 'admin' o un 'aliado' que YA tiene fundación, muestra la vista consolidada.
         if (user.role === 'admin' || (user.role === 'aliado' && user.shelter)) {
             return <AllyAdminView donations={donations} stats={stats} userRole={user.role} />;
         }
-        // Fallback por si acaso
         return <p>Vista no disponible.</p>;
     };
 
@@ -132,15 +136,16 @@ export default function DonationsSummary() {
                         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
                             {user.role === 'aliado' && !user.shelter ? 'Registro de Fundación' : 'Donaciones'}
                         </h1>
-                        {/* El botón de reporte se muestra si NO estás en la vista de registro de fundación */}
                         {!(user.role === 'aliado' && !user.shelter) && (
-                            <button className="rounded-lg bg-green-600 px-4 py-2 text-white transition hover:bg-green-700">Generar reporte</button>
+                            <button
+                                onClick={handleGenerateReport}
+                                className="rounded-lg bg-green-600 px-4 py-2 text-white transition hover:bg-green-700"
+                            >
+                                Generar reporte
+                            </button>
                         )}
                     </div>
-
                     {renderContentByRole()}
-
-                    {/* El modal para donar solo se crea si el rol es cliente, para optimizar */}
                     {user.role === 'cliente' && (
                         <FormularioDonacion showModal={showDonationFormModal} onClose={() => setShowDonationFormModal(false)} shelters={shelters} />
                     )}

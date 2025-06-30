@@ -1,10 +1,16 @@
+import InputError from '@/components/input-error';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler, useEffect, useState } from 'react';
 
+// Definimos explícitamente los tipos de datos que esperamos para mayor seguridad
 interface Shelter {
     id: number;
     name: string;
 }
+
 interface FormularioDonacionProps {
     showModal: boolean;
     onClose: () => void;
@@ -12,7 +18,9 @@ interface FormularioDonacionProps {
 }
 
 export default function FormularioDonacion({ showModal, onClose, shelters }: FormularioDonacionProps) {
+    // Tomamos los datos del usuario autenticado para pre-llenar los campos
     const { auth } = usePage().props as any;
+
     const { data, setData, post, processing, errors, reset, wasSuccessful, clearErrors } = useForm({
         donor_name: auth.user.name || '',
         donor_email: auth.user.email || '',
@@ -125,23 +133,53 @@ export default function FormularioDonacion({ showModal, onClose, shelters }: For
                         </div>
                     ) : (
                         <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* --- SECCIÓN DE DATOS DEL DONANTE (AQUÍ ESTÁN LOS CAMPOS FALTANTES) --- */}
+                            <fieldset className="space-y-4 rounded-lg border p-4 dark:border-gray-700">
+                                <legend className="px-2 font-medium text-gray-700 dark:text-gray-300">Tus Datos</legend>
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                    <div>
+                                        <Label htmlFor="donor_name">Nombre del Donante</Label>
+                                        <Input
+                                            id="donor_name"
+                                            value={data.donor_name}
+                                            readOnly
+                                            className="mt-1 cursor-not-allowed bg-gray-100 dark:bg-gray-700"
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label htmlFor="donor_email">Correo Electrónico</Label>
+                                        <Input
+                                            id="donor_email"
+                                            type="email"
+                                            value={data.donor_email}
+                                            readOnly
+                                            className="mt-1 cursor-not-allowed bg-gray-100 dark:bg-gray-700"
+                                        />
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                            {/* --- SECCIÓN DE LA DONACIÓN --- */}
                             <div>
-                                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Selecciona un refugio</label>
+                                <Label htmlFor="shelter_id" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Selecciona una fundación
+                                </Label>
                                 <select
+                                    id="shelter_id"
                                     name="shelter_id"
                                     value={data.shelter_id}
                                     onChange={(e) => setData('shelter_id', e.target.value)}
                                     className="w-full rounded-lg border-gray-300 p-3 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                                     required
                                 >
-                                    <option value="">-- Elige un refugio --</option>
+                                    <option value="">-- Elige una fundación --</option>
                                     {shelters.map((shelter) => (
                                         <option key={shelter.id} value={shelter.id}>
                                             {shelter.name}
                                         </option>
                                     ))}
                                 </select>
-                                {errors.shelter_id && <p className="mt-2 text-sm text-red-500">{errors.shelter_id}</p>}
+                                <InputError message={errors.shelter_id} className="mt-2" />
                             </div>
 
                             <div>
@@ -158,31 +196,31 @@ export default function FormularioDonacion({ showModal, onClose, shelters }: For
                                         </button>
                                     ))}
                                 </div>
-                                {errors.amount && <p className="mt-2 text-sm text-red-500">{errors.amount}</p>}
+                                <InputError message={errors.amount} className="mt-2" />
                             </div>
 
                             <div>
-                                <label htmlFor="custom-amount" className="mb-2 block text-sm text-gray-700 dark:text-gray-300">
+                                <label htmlFor="custom-amount" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                                     O ingresa un monto personalizado
                                 </label>
-                                <input
+                                <Input
                                     id="custom-amount"
                                     type="number"
                                     value={montoPersonalizado}
                                     onChange={handleMontoPersonalizadoChange}
                                     placeholder="Ej: 30000"
-                                    className="w-full rounded-lg border-gray-300 p-3 dark:border-gray-600 dark:bg-gray-700"
+                                    className="w-full"
                                 />
                             </div>
 
                             <div className="mt-8 text-right">
-                                <button
+                                <Button
                                     type="submit"
                                     disabled={processing || !data.amount || !data.shelter_id}
                                     className="rounded-lg bg-purple-600 px-6 py-3 text-white transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     {processing ? 'Procesando...' : `Donar ${data.amount ? formatCurrency(data.amount) : ''}`}
-                                </button>
+                                </Button>
                             </div>
                         </form>
                     )}
