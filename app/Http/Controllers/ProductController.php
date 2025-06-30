@@ -13,7 +13,10 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
+        $products = Product::all();
+        return inertia('Cliente/Productos', [
+            'products' => $products
+        ]);
     }
 
     /**

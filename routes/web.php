@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\MascotaController;
 
 Route::get('/productos', fn() => Inertia::render('Productos'))->name('productos');
 
@@ -29,14 +30,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('estadisticas', [App\Http\Controllers\EstadisticasController::class, 'index'])->name('estadisticas.index');
     Route::get('notificaciones', [App\Http\Controllers\NotificacionesController::class, 'index'])->name('notificaciones.index');
     
-    Route::get('/productos-mascotas', fn () => Inertia::render('Cliente/ProductosMascotas'))->name('productos.mascotas');
+    Route::get('/productos-mascotas', [\App\Http\Controllers\ProductosMascotasController::class, 'index'])->name('productos.mascotas');
 
     Route::get('/registrar-productos', fn () => Inertia::render('Aliado/RegistrarProducto'))->name('productos.registrar');
     Route::post('/productos/store', [ProductoController::class, 'store']);
 
     Route::get('/registrar-mascotas', fn () => Inertia::render('Aliado/RegistrarMascota'))->name('mascotas.registrar');
     Route::post('/mascotas/store', [MascotaController::class, 'store']);
+    // Route::get('/mascotas', [MascotaController::class, 'index'])->name('mascotas.index');
 });
+
+Route::get('/mascotas-img/{filename}', function ($filename) {
+    $path = storage_path('app/public/mascotas/' . $filename);
+    if (!\Illuminate\Support\Facades\File::exists($path)) {
+        abort(404);
+    }
+    return response()->file($path);
+})->where('filename', '.*');
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
