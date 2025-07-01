@@ -24,10 +24,8 @@ class MascotaController extends Controller
     {
         $data = $request->validated();
         $data['user_id'] = Auth::id();
-        if ($request->hasFile('imagen') && $request->file('imagen')->isValid()) {
+        if ($request->hasFile('imagen')) {
             $data['imagen'] = $request->file('imagen')->store('mascotas', 'public');
-        } else {
-            $data['imagen'] = null;
         }
         Mascota::create($data);
         return redirect()->back()->with('success', 'Mascota registrada correctamente');

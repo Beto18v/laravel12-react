@@ -23,4 +23,14 @@ class ProductosMascotasController extends Controller
             'items' => $items
         ]);
     }
+    public function store(\App\Http\Requests\StoreProductRequest $request)
+    {
+        $data = $request->validated();
+        $data['user_id'] = auth()->id();
+        if ($request->hasFile('imagen')) {
+            $data['imagen'] = $request->file('imagen')->store('productos', 'public');
+        }
+        Product::create($data);
+        return redirect()->back()->with('success', 'Producto registrado correctamente');
+    }
 }

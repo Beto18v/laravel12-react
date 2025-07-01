@@ -105,6 +105,15 @@ export default function ProductosMascotas() {
                                             {item.tipo === 'producto' ? 'Producto' : 'Mascota'}
                                         </span>
                                     </div>
+                                    {/* Imagen */}
+                                    {item.imagen && (
+                                        <img
+                                            src={`/storage/${item.imagen}`}
+                                            alt={item.nombre}
+                                            className="w-32 h-32 object-cover rounded mb-4 border border-gray-200 shadow"
+                                            onError={(e) => (e.currentTarget.style.display = 'none')}
+                                        />
+                                    )}
                                     <h2 className="mt-4 mb-2 text-center text-xl font-semibold dark:text-white">{item.nombre}</h2>
                                     <p className="mb-4 line-clamp-3 flex-grow text-center text-sm text-gray-600 dark:text-gray-400">
                                         {item.descripcion}

@@ -11,7 +11,8 @@ class StoreProductRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        // Solo usuarios autenticados tipo 'aliado' pueden registrar productos
+        return auth()->check() && auth()->user()->role === 'aliado';
     }
 
     /**
@@ -22,7 +23,10 @@ class StoreProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
+            'precio' => 'required|numeric|min:0',
+            'imagen' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ];
     }
 }

@@ -17,10 +17,10 @@ class StoreMascotaRequest extends FormRequest
         return [
             'nombre' => 'required|string|max:255',
             'especie' => 'required|string|max:255',
-            'raza' => 'required|string|max:255',
-            'edad' => 'required|integer|min:0',
-            'descripcion' => 'required|string',
-            'imagen' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'raza' => 'nullable|string|max:255',
+            'edad' => 'nullable|integer|min:0',
+            'descripcion' => 'nullable|string',
+            'imagen' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ];
     }
 }

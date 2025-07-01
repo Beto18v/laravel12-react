@@ -1,7 +1,7 @@
 // resources/js/pages/Aliado/RegistrarProducto.tsx
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import AppLayout from '../../../layouts/app-layout';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -24,6 +24,9 @@ export default function RegistrarProducto() {
         imagen: null,
     });
 
+    const [mensaje, setMensaje] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
 
@@ -39,6 +42,12 @@ export default function RegistrarProducto() {
         e.preventDefault();
         post('/productos/store', {
             forceFormData: true,
+            onSuccess: () => {
+                setData({ nombre: '', descripcion: '', precio: '', imagen: null });
+                setMensaje('¡Producto registrado correctamente!');
+                if (fileInputRef.current) fileInputRef.current.value = '';
+                setTimeout(() => setMensaje(null), 3500);
+            },
         });
     };
 
@@ -48,6 +57,10 @@ export default function RegistrarProducto() {
             <main className="flex-1 overflow-y-auto bg-gradient-to-r from-green-400 to-blue-500 p-6 dark:from-green-600 dark:to-blue-700">
                 <div className="mx-auto max-w-3xl space-y-6 rounded-2xl bg-gray-100 p-8 shadow-lg dark:bg-gray-800">
                     <h1 className="text-center text-3xl font-bold text-gray-800 dark:text-gray-100">Registrar Nuevo Producto</h1>
+
+                    {mensaje && (
+                        <div className="mb-4 rounded bg-green-100 p-3 text-green-800 shadow">{mensaje}</div>
+                    )}
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
@@ -96,6 +109,7 @@ export default function RegistrarProducto() {
                                 name="imagen"
                                 accept="image/*"
                                 onChange={handleChange}
+                                ref={fileInputRef}
                                 className="w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-green-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-green-700 hover:file:bg-green-100 dark:file:bg-green-900 dark:file:text-green-300"
                                 required
                             />
