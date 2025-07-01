@@ -1,6 +1,6 @@
 export default function HeroSection() {
     return (
-        <section className="relative bg-gradient-to-r from-green-400 to-blue-500 py-20 dark:from-green-600 dark:to-blue-700">
+        <section className="relative bg-gradient-to-r from-green-400 to-blue-500 py-20 pt-35 dark:from-green-600 dark:to-blue-700">
             <div className="container mx-auto px-4 text-center">
                 <h2 className="mb-6 text-4xl font-bold">Encuentra a tu nuevo mejor amigo</h2>
                 <p className="mx-auto mb-8 max-w-2xl text-xl">Conectamos a mascotas necesitadas con hogares amorosos desde 2025</p>

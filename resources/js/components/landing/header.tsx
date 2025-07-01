@@ -4,75 +4,115 @@ import { useState } from 'react';
 import Logo from '../../../../public/Logo/Logo.png';
 import LogoWhite from '../../../../public/Logo/LogoWhite.png';
 
+import { useScroll } from '@/hooks/use-scroll';
+import { cn } from '@/lib/utils';
+
 export default function Header() {
     const { props } = usePage<SharedData>();
     const auth = props.auth || { user: null };
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const scrolled = useScroll();
+
+    const baseButtonClasses = 'rounded-lg px-4 py-2 font-medium transition-colors duration-300 ease-in-out';
 
     return (
-        <header className="dark:shadow-dark relative z-20 bg-white shadow-md dark:bg-gray-800">
+        <header
+            className={cn(
+                'fixed top-0 left-0 z-50 w-full transition-all duration-300 ease-in-out',
+                scrolled || isMenuOpen ? 'bg-white/95 shadow-md dark:bg-gray-800/95' : 'bg-black/20',
+                'backdrop-blur-sm',
+            )}
+        >
             <div className="container mx-auto flex items-center justify-between px-4 py-3">
-                {/* Logo */}
                 <Link href={route('landing')} className="flex flex-shrink-0 items-center space-x-2">
-                    <img src={Logo} alt="Logo Adoptafácil" className="block h-12 w-auto dark:hidden" />
-                    <img src={LogoWhite} alt="Logo Adoptafácil" className="hidden h-12 w-auto dark:block" />
-                    <h1 className="hidden font-bold text-blue-600 md:block dark:text-blue-400">ADOPTAFÁCIL</h1>
+                    <img src={scrolled || isMenuOpen ? Logo : LogoWhite} alt="Logo Adoptafácil" className="h-12 w-auto transition-all" />
+                    <h1
+                        className={cn(
+                            'hidden font-bold transition-colors md:block',
+                            scrolled || isMenuOpen ? 'text-blue-600 dark:text-blue-400' : 'text-white',
+                        )}
+                    >
+                        ADOPTAFÁCIL
+                    </h1>
                 </Link>
-
-                {/* Menú para Escritorio */}
+                {/* --- MENÚ DE ESCRITORIO ACTUALIZADO --- */}
                 <nav className="hidden space-x-6 md:flex">
                     <Link
                         href={route('productos')}
-                        className="font-medium text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
+                        className={cn(
+                            'font-medium transition-colors',
+                            scrolled || isMenuOpen ? 'text-gray-700 hover:text-blue-600 dark:text-gray-300' : 'text-white hover:text-gray-200',
+                        )}
                     >
                         PRODUCTOS
                     </Link>
-                    <Link href="/mascotas" className="font-medium text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
+                    <Link
+                        href="/mascotas"
+                        className={cn(
+                            'font-medium transition-colors',
+                            scrolled || isMenuOpen ? 'text-gray-700 hover:text-blue-600 dark:text-gray-300' : 'text-white hover:text-gray-200',
+                        )}
+                    >
                         MASCOTAS
                     </Link>
                     <Link
                         href={route('refugios')}
-                        className="font-medium text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
+                        className={cn(
+                            'font-medium transition-colors',
+                            scrolled || isMenuOpen ? 'text-gray-700 hover:text-blue-600 dark:text-gray-300' : 'text-white hover:text-gray-200',
+                        )}
                     >
                         REFUGIOS
                     </Link>
-                    <Link href="#contacto" className="font-medium text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
-                        CONTACTO
+                    <Link
+                        href={route('comunidad')}
+                        className={cn(
+                            'font-medium transition-colors',
+                            scrolled || isMenuOpen ? 'text-gray-700 hover:text-blue-600 dark:text-gray-300' : 'text-white hover:text-gray-200',
+                        )}
+                    >
+                        COMUNIDAD
                     </Link>
                 </nav>
 
-                {/* Contenedor para botones de Auth y menú hamburguesa */}
                 <div className="flex items-center">
-                    {/* Botones de Login/Registro para Escritorio */}
-                    <div className="hidden items-center space-x-4 md:flex">
+                    {/* ... Botones de Auth (sin cambios) ... */}
+                    <div className="hidden items-center space-x-2 md:flex">
                         {auth?.user ? (
-                            <Link href={route('dashboard')} className="rounded-lg bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700">
+                            <Link href={route('dashboard')} className={cn(baseButtonClasses, 'bg-blue-600 text-white hover:bg-blue-700')}>
                                 Dashboard
                             </Link>
                         ) : (
                             <>
                                 <Link
                                     href={route('login')}
-                                    className="font-medium text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
+                                    className={cn(
+                                        baseButtonClasses,
+                                        'bg-blue-200 text-blue-800 hover:bg-blue-300 dark:bg-blue-600/70 dark:text-blue-200 dark:hover:bg-blue-600',
+                                    )}
                                 >
                                     Iniciar sesión
                                 </Link>
                                 <Link
                                     href={route('register.options')}
-                                    className="rounded-lg bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
+                                    className={cn(
+                                        baseButtonClasses,
+                                        'bg-green-200 text-green-800 hover:bg-green-300 dark:bg-green-600/70 dark:text-green-200 dark:hover:bg-green-600',
+                                    )}
                                 >
                                     Registrarse
                                 </Link>
                             </>
                         )}
                     </div>
-
-                    {/* Botón de Hamburguesa para Móvil */}
                     <div className="flex items-center md:hidden">
                         <button
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                             type="button"
-                            className="inline-flex items-center justify-center rounded-md p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                            className={cn(
+                                'inline-flex items-center justify-center rounded-md p-2 transition-colors',
+                                scrolled || isMenuOpen ? 'text-gray-700 dark:text-gray-300' : 'text-white',
+                            )}
                             aria-controls="mobile-menu"
                             aria-expanded={isMenuOpen}
                         >
@@ -88,8 +128,8 @@ export default function Header() {
                 </div>
             </div>
 
-            {/* Menú Desplegable (Móvil) */}
-            <div className={`md:hidden ${isMenuOpen ? 'block' : 'hidden'}`} id="mobile-menu">
+            {/* --- MENÚ MÓVIL ACTUALIZADO --- */}
+            <div className={cn('md:hidden', isMenuOpen ? 'block' : 'hidden')} id="mobile-menu">
                 <div className="space-y-1 px-2 pt-2 pb-3">
                     <Link
                         href={route('productos')}
@@ -110,12 +150,14 @@ export default function Header() {
                         REFUGIOS
                     </Link>
                     <Link
-                        href="#contacto"
+                        href={route('comunidad')}
                         className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700"
                     >
-                        CONTACTO
+                        COMUNIDAD
                     </Link>
+
                     <div className="mt-4 border-t border-gray-200 pt-4 dark:border-gray-600">
+                        {/* ... Botones de Auth para móvil (sin cambios) ... */}
                         {auth?.user ? (
                             <Link
                                 href={route('dashboard')}
@@ -124,20 +166,20 @@ export default function Header() {
                                 Dashboard
                             </Link>
                         ) : (
-                            <>
+                            <div className="space-y-2">
                                 <Link
                                     href={route('login')}
-                                    className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700"
+                                    className="block w-full rounded-md bg-blue-200 px-3 py-2 text-center text-base font-medium text-blue-800 hover:bg-blue-300 dark:bg-blue-600/70 dark:text-blue-200 dark:hover:bg-blue-600"
                                 >
                                     Iniciar sesión
                                 </Link>
                                 <Link
                                     href={route('register.options')}
-                                    className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700"
+                                    className="block w-full rounded-md bg-green-200 px-3 py-2 text-center text-base font-medium text-green-800 hover:bg-green-300 dark:bg-green-600/70 dark:text-green-200 dark:hover:bg-green-600"
                                 >
                                     Registrarse
                                 </Link>
-                            </>
+                            </div>
                         )}
                     </div>
                 </div>
