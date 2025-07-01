@@ -78,7 +78,7 @@ export default function Productos() {
     }, [filters]);
 
     return (
-        <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-900">
+        <div className="flex min-h-screen flex-col bg-white dark:bg-gray-800">
             <Head title="Productos" />
             <Header />
 
