@@ -51,10 +51,10 @@ export default function ProductosMascotas() {
                     <div className="animate-fade-in flex items-center gap-3 rounded-lg border-l-4 border-yellow-400 bg-yellow-50 p-4 text-yellow-800 shadow-lg dark:border-yellow-600 dark:bg-gray-800 dark:text-yellow-300">
                         <span className="text-2xl">💡</span>
                         <div>
-                            <p className="font-semibold">¿Por qué comprar desde aquí?</p>
+                            <p className="font-semibold">¿Por qué comprar y adoptar desde aquí?</p>
                             <p className="text-sm">
-                                Al comprar productos y mascotas en la plataforma, accedes a beneficios como trazabilidad, seguridad y una cuota
-                                moderadora reducida para servicios veterinarios.
+                                Al comprar productos y adoptar mascotas en la plataforma, accedes a beneficios como trazabilidad, seguridad y una
+                                cuota moderadora reducida para servicios veterinarios.
                             </p>
                         </div>
                     </div>
@@ -67,7 +67,7 @@ export default function ProductosMascotas() {
                     )}
 
                     {/* Filtros con estilo adaptado */}
-                    <div className="flex flex-col items-center gap-4 rounded-lg bg-white/80 p-4 shadow-lg backdrop-blur-sm md:flex-row dark:bg-gray-800/80">
+                    <div className="mx-auto flex max-w-2xl flex-col items-center justify-center gap-4 rounded-lg bg-white/80 p-4 shadow-lg backdrop-blur-sm md:flex-row dark:bg-gray-800/80">
                         <input
                             type="text"
                             value={busqueda}
