@@ -10,16 +10,16 @@ class ProductosMascotasController extends Controller
 {
     public function index()
     {
-        $productos = Product::with('user')->get()->map(function($p) {
+        $productos = Product::with('user')->get()->map(function ($p) {
             $p->tipo = 'producto';
             return $p;
         });
-        $mascotas = Mascota::with('user')->get()->map(function($m) {
+        $mascotas = Mascota::with('user')->get()->map(function ($m) {
             $m->tipo = 'mascota';
             return $m;
         });
         $items = $productos->merge($mascotas)->values();
-        return Inertia::render('Cliente/ProductosMascotas', [
+        return Inertia::render('Dashboard/VerMascotasProductos/productos-mascotas', [
             'items' => $items
         ]);
     }

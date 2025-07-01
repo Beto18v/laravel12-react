@@ -2,7 +2,7 @@
 import { type BreadcrumbItem } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-import AppLayout from '../../layouts/app-layout';
+import AppLayout from '../../../layouts/app-layout';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {

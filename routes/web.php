@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\MascotaController;
+use App\Http\Controllers\ProductController;
 
 Route::get('/productos', fn() => Inertia::render('Productos'))->name('productos');
 
@@ -29,13 +30,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('mapa', [App\Http\Controllers\MapaController::class, 'index'])->name('mapa.index');
     Route::get('estadisticas', [App\Http\Controllers\EstadisticasController::class, 'index'])->name('estadisticas.index');
     Route::get('notificaciones', [App\Http\Controllers\NotificacionesController::class, 'index'])->name('notificaciones.index');
-    
+
     Route::get('/productos-mascotas', [\App\Http\Controllers\ProductosMascotasController::class, 'index'])->name('productos.mascotas');
 
-    Route::get('/registrar-productos', fn () => Inertia::render('Aliado/RegistrarProducto'))->name('productos.registrar');
-    Route::post('/productos/store', [ProductoController::class, 'store']);
+    Route::get('/registrar-productos', fn() => Inertia::render('Dashboard/RegistrarMascotasProductos/registrar-producto'))->name('productos.registrar');
+    Route::post('/productos/store', [ProductController::class, 'store']);
 
-    Route::get('/registrar-mascotas', fn () => Inertia::render('Aliado/RegistrarMascota'))->name('mascotas.registrar');
+    Route::get('/registrar-mascotas', fn() => Inertia::render('Dashboard/RegistrarMascotasProductos/registrar-mascota'))->name('mascotas.registrar');
     Route::post('/mascotas/store', [MascotaController::class, 'store']);
     // Route::get('/mascotas', [MascotaController::class, 'index'])->name('mascotas.index');
 });
