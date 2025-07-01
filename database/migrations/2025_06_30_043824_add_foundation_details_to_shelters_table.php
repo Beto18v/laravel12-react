@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('city')->nullable()->after('address');
             $table->string('phone')->nullable()->after('city');
             $table->string('bank_name')->nullable()->after('phone');
-            $table->string('account_type')->nullable()->after('bank_name');
+            $table->enum('account_type', ['Ahorros', 'Corriente']);
             $table->string('account_number')->nullable()->after('account_type');
         });
     }

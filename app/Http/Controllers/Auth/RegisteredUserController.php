@@ -37,7 +37,7 @@ class RegisteredUserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'in:cliente,aliado'], // Valida el rol
+            'role' => ['required', 'in:cliente,aliado'], // Validamos que el rol sea uno de los permitidos
         ]);
 
         $user = User::create([

@@ -134,7 +134,7 @@ export default function DonationsSummary() {
                 <div className="container mx-auto space-y-6">
                     <div className="flex items-center justify-between">
                         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-                            {user.role === 'aliado' && !user.shelter ? 'Registro de Fundación' : 'Donaciones'}
+                            {user.role === 'aliado' && !user.shelter ? '' : 'Donaciones'}
                         </h1>
                         {!(user.role === 'aliado' && !user.shelter) && (
                             <button

@@ -1,3 +1,4 @@
+// resources/js/Pages/Dashboard/Donaciones/components/FormularioFundacion.tsx
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,10 +7,8 @@ import { useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 
 export default function FormularioFundacion() {
-    // Tomamos los datos del usuario autenticado para pre-llenar el email
     const { auth } = usePage().props as any;
 
-    // Usamos el hook useForm de Inertia para manejar el estado, errores y envío.
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         email: auth.user.email || '',
@@ -18,48 +17,64 @@ export default function FormularioFundacion() {
         city: '',
         phone: '',
         bank_name: '',
-        account_type: '',
+        account_type: 'Ahorros', // Valor inicial por defecto
         account_number: '',
     });
 
-    // Esta función se ejecuta cuando se envía el formulario
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        // Hacemos la petición POST a la ruta 'shelter.store' con los datos del formulario.
         post(route('shelter.store'));
     };
 
+    // Estilo unificado para los campos de entrada
+    const inputStyle =
+        'mt-2 block w-full p-3 bg-gray-200 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400';
+
     return (
-        <div className="rounded-lg bg-white p-8 shadow-lg dark:bg-gray-800">
-            <div className="mb-8 text-center">
-                <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Registra tu Fundación</h1>
+        <div className="mx-auto max-w-4xl space-y-6 rounded-2xl bg-gray-100 p-8 shadow-2xl dark:bg-gray-800">
+            <div className="text-center">
+                <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Registra tu Fundación</h1>
                 <p className="mt-2 text-gray-600 dark:text-gray-300">
                     Completa la siguiente información para que los donantes puedan conocerte y apoyarte.
                 </p>
             </div>
 
             <form onSubmit={submit} className="space-y-8">
-                <fieldset className="space-y-4">
-                    <legend className="mb-4 border-b border-gray-200 pb-2 text-lg font-medium text-gray-900 dark:border-gray-700 dark:text-white">
+                {/* --- INFORMACIÓN GENERAL --- */}
+                <fieldset className="space-y-6">
+                    <legend className="mb-4 border-b border-gray-300 pb-2 text-xl font-semibold text-gray-900 dark:border-gray-600 dark:text-white">
                         Información General
                     </legend>
                     <div>
-                        <Label htmlFor="name">Nombre de la Fundación</Label>
-                        <Input id="name" name="name" value={data.name} onChange={(e) => setData('name', e.target.value)} className="mt-1" required />
+                        <Label htmlFor="name" className="font-semibold text-gray-700 dark:text-gray-300">
+                            Nombre de la Fundación
+                        </Label>
+                        <Input
+                            id="name"
+                            name="name"
+                            value={data.name}
+                            onChange={(e) => setData('name', e.target.value)}
+                            className={inputStyle}
+                            required
+                        />
                         <InputError message={errors.name} className="mt-2" />
                     </div>
                     <div>
-                        <Label htmlFor="email">Correo Electrónico de Contacto</Label>
-                        <Input id="email" name="email" value={data.email} readOnly className="mt-1 cursor-not-allowed bg-gray-100 dark:bg-gray-700" />
+                        <Label htmlFor="email" className="font-semibold text-gray-700 dark:text-gray-300">
+                            Correo Electrónico de Contacto
+                        </Label>
+                        <Input id="email" name="email" value={data.email} readOnly className={`${inputStyle} cursor-not-allowed`} />
                     </div>
                     <div>
-                        <Label htmlFor="description">Descripción o Misión</Label>
+                        <Label htmlFor="description" className="font-semibold text-gray-700 dark:text-gray-300">
+                            Descripción o Misión
+                        </Label>
                         <textarea
                             id="description"
                             name="description"
                             value={data.description}
                             onChange={(e) => setData('description', e.target.value)}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:border-gray-600 dark:bg-gray-900"
+                            className={inputStyle}
                             rows={4}
                             required
                         ></textarea>
@@ -67,43 +82,50 @@ export default function FormularioFundacion() {
                     </div>
                 </fieldset>
 
-                <fieldset className="space-y-4">
-                    <legend className="mb-4 border-b border-gray-200 pb-2 text-lg font-medium text-gray-900 dark:border-gray-700 dark:text-white">
+                {/* --- INFORMACIÓN DE CONTACTO --- */}
+                <fieldset className="space-y-6">
+                    <legend className="mb-4 border-b border-gray-300 pb-2 text-xl font-semibold text-gray-900 dark:border-gray-600 dark:text-white">
                         Información de Contacto
                     </legend>
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <div>
-                            <Label htmlFor="address">Dirección</Label>
+                            <Label htmlFor="address" className="font-semibold text-gray-700 dark:text-gray-300">
+                                Dirección
+                            </Label>
                             <Input
                                 id="address"
                                 name="address"
                                 value={data.address}
                                 onChange={(e) => setData('address', e.target.value)}
-                                className="mt-1"
+                                className={inputStyle}
                                 required
                             />
                             <InputError message={errors.address} className="mt-2" />
                         </div>
                         <div>
-                            <Label htmlFor="city">Ciudad</Label>
+                            <Label htmlFor="city" className="font-semibold text-gray-700 dark:text-gray-300">
+                                Ciudad
+                            </Label>
                             <Input
                                 id="city"
                                 name="city"
                                 value={data.city}
                                 onChange={(e) => setData('city', e.target.value)}
-                                className="mt-1"
+                                className={inputStyle}
                                 required
                             />
                             <InputError message={errors.city} className="mt-2" />
                         </div>
-                        <div>
-                            <Label htmlFor="phone">Teléfono</Label>
+                        <div className="md:col-span-2">
+                            <Label htmlFor="phone" className="font-semibold text-gray-700 dark:text-gray-300">
+                                Teléfono
+                            </Label>
                             <Input
                                 id="phone"
                                 name="phone"
                                 value={data.phone}
                                 onChange={(e) => setData('phone', e.target.value)}
-                                className="mt-1"
+                                className={inputStyle}
                                 required
                             />
                             <InputError message={errors.phone} className="mt-2" />
@@ -111,43 +133,78 @@ export default function FormularioFundacion() {
                     </div>
                 </fieldset>
 
-                <fieldset className="space-y-4">
-                    <legend className="mb-4 border-b border-gray-200 pb-2 text-lg font-medium text-gray-900 dark:border-gray-700 dark:text-white">
+                {/* --- INFORMACIÓN PARA DONACIONES --- */}
+                <fieldset className="space-y-6">
+                    <legend className="mb-4 border-b border-gray-300 pb-2 text-xl font-semibold text-gray-900 dark:border-gray-600 dark:text-white">
                         Información para Donaciones
                     </legend>
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <div>
-                            <Label htmlFor="bank_name">Nombre del Banco</Label>
+                            <Label htmlFor="bank_name" className="font-semibold text-gray-700 dark:text-gray-300">
+                                Nombre del Banco
+                            </Label>
                             <Input
                                 id="bank_name"
                                 name="bank_name"
                                 value={data.bank_name}
                                 onChange={(e) => setData('bank_name', e.target.value)}
-                                className="mt-1"
+                                className={inputStyle}
                                 required
                             />
                             <InputError message={errors.bank_name} className="mt-2" />
                         </div>
+
                         <div>
-                            <Label htmlFor="account_type">Tipo de Cuenta (Ahorros/Corriente)</Label>
-                            <Input
-                                id="account_type"
-                                name="account_type"
-                                value={data.account_type}
-                                onChange={(e) => setData('account_type', e.target.value)}
-                                className="mt-1"
-                                required
-                            />
+                            <Label className="font-semibold text-gray-700 dark:text-gray-300">Tipo de Cuenta</Label>
+                            <div className="mt-2 grid grid-cols-2 gap-3">
+                                <label
+                                    className={`flex cursor-pointer items-center justify-center rounded-lg p-3 text-center text-sm font-medium shadow-sm transition-all ${
+                                        data.account_type === 'Ahorros'
+                                            ? 'bg-indigo-600 text-white ring-2 ring-indigo-500 ring-offset-2 dark:ring-offset-gray-800'
+                                            : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600'
+                                    }`}
+                                >
+                                    <input
+                                        type="radio"
+                                        name="account_type"
+                                        value="Ahorros"
+                                        checked={data.account_type === 'Ahorros'}
+                                        onChange={(e) => setData('account_type', e.target.value)}
+                                        className="sr-only"
+                                    />
+                                    Ahorros
+                                </label>
+                                <label
+                                    className={`flex cursor-pointer items-center justify-center rounded-lg p-3 text-center text-sm font-medium shadow-sm transition-all ${
+                                        data.account_type === 'Corriente'
+                                            ? 'bg-indigo-600 text-white ring-2 ring-indigo-500 ring-offset-2 dark:ring-offset-gray-800'
+                                            : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600'
+                                    }`}
+                                >
+                                    <input
+                                        type="radio"
+                                        name="account_type"
+                                        value="Corriente"
+                                        checked={data.account_type === 'Corriente'}
+                                        onChange={(e) => setData('account_type', e.target.value)}
+                                        className="sr-only"
+                                    />
+                                    Corriente
+                                </label>
+                            </div>
                             <InputError message={errors.account_type} className="mt-2" />
                         </div>
+
                         <div className="md:col-span-2">
-                            <Label htmlFor="account_number">Número de Cuenta</Label>
+                            <Label htmlFor="account_number" className="font-semibold text-gray-700 dark:text-gray-300">
+                                Número de Cuenta
+                            </Label>
                             <Input
                                 id="account_number"
                                 name="account_number"
                                 value={data.account_number}
                                 onChange={(e) => setData('account_number', e.target.value)}
-                                className="mt-1"
+                                className={inputStyle}
                                 required
                             />
                             <InputError message={errors.account_number} className="mt-2" />
@@ -156,7 +213,11 @@ export default function FormularioFundacion() {
                 </fieldset>
 
                 <div className="flex justify-end pt-4">
-                    <Button type="submit" disabled={processing} className="bg-blue-600 px-8 py-3 text-base hover:bg-blue-700">
+                    <Button
+                        type="submit"
+                        disabled={processing}
+                        className="w-full transform rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-3 font-bold text-white shadow-lg transition-transform hover:scale-105 hover:from-indigo-700 hover:to-purple-700 disabled:scale-100 disabled:opacity-50 md:w-auto"
+                    >
                         {processing ? 'Registrando...' : 'Registrar mi Fundación'}
                     </Button>
                 </div>
