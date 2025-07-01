@@ -16,6 +16,7 @@ type ProductoMascota = {
     tipo: 'producto' | 'mascota';
     descripcion: string;
     precio: number;
+    imagen?: string; // <-- Agregado para evitar error
     user?: { name: string };
 };
 
