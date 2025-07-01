@@ -5,12 +5,15 @@ use Inertia\Inertia;
 use App\Http\Controllers\MascotaController;
 use App\Http\Controllers\ProductController;
 
-Route::get('/productos', fn() => Inertia::render('Productos'))->name('productos');
+Route::get('/productos', fn() => Inertia::render('productos'))->name('productos');
 
+Route::get('/refugios', function () {
+    return Inertia::render('refugios');
+})->name('refugios');
 
 Route::get('/', function () {
-    return Inertia::render('welcome');
-})->name('home');
+    return Inertia::render('landing');
+})->name('landing');
 
 Route::get('/registro-opciones', function () {
     return Inertia::render('auth/registro-opciones');
