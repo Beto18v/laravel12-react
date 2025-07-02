@@ -66,7 +66,7 @@ AdoptaFácil es una plataforma web integral diseñada para facilitar la adopció
 6.  **Iniciar el entorno de desarrollo:**
     El proyecto incluye un script para levantar todos los servicios necesarios con un solo comando:
     ```bash
-    npm run dev
+    composer run dev
     ```
     Esto iniciará el servidor de desarrollo de PHP, la cola de trabajos y el compilador de Vite.
 
