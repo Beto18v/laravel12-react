@@ -1,6 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
+import { Inertia } from '@inertiajs/inertia';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -16,7 +17,7 @@ type ProductoMascota = {
     tipo: 'producto' | 'mascota';
     descripcion: string;
     precio: number;
-    imagen?: string; // <-- Agregado para evitar error
+    imagen?: string; // -- Agregado para evitar error
     user?: { name: string };
 };
 
@@ -33,12 +34,71 @@ export default function ProductosMascotas() {
     });
 
     const handleAccion = (item: ProductoMascota) => {
-        setMensaje(
-            item.tipo === 'producto'
-                ? `¡Has solicitado comprar el producto "${item.nombre}"! Pronto te contactaremos.`
-                : `¡Has solicitado adoptar a "${item.nombre}"! Pronto te contactaremos.`,
+        Inertia.post(
+            '/acciones-solicitud/store',
+            {
+                tipo: item.tipo === 'producto' ? 'compra' : 'adopcion',
+                item_id: item.id,
+            },
+            {
+                onSuccess: () => {
+                    setMensaje(
+                        item.tipo === 'producto'
+                            ? `¡Solicitud de compra enviada para "${item.nombre}"! Pronto te contactaremos.`
+                            : `¡Solicitud de adopción enviada para "${item.nombre}"! Pronto te contactaremos.`,
+                    );
+                    // Redirigir o recargar solicitudes
+                    setTimeout(() => setMensaje(null), 3500);
+                },
+                onError: () => {
+                    setMensaje('Ocurrió un error al registrar la solicitud.');
+                    setTimeout(() => setMensaje(null), 3500);
+                },
+            },
         );
-        setTimeout(() => setMensaje(null), 3500);
+    };
+
+    const handleComprar = async (item: ProductoMascota) => {
+        const csrf = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content;
+        console.log('CSRF token usado en fetch:', csrf); // Depuración
+        setMensaje(null);
+        try {
+            const res = await fetch('/pagos/iniciar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrf,
+                },
+                body: JSON.stringify({ producto_id: item.id }),
+                credentials: 'same-origin', // Importante para enviar cookies de sesión
+            });
+            if (!res.ok) {
+                if (res.status === 419) {
+                    setMensaje('Sesión expirada o token CSRF inválido. Recarga la página e inténtalo de nuevo.');
+                } else {
+                    setMensaje('Ocurrió un error al iniciar el pago.');
+                }
+                setTimeout(() => setMensaje(null), 3500);
+                return;
+            }
+            let data;
+            try {
+                data = await res.json();
+            } catch (e) {
+                setMensaje('Respuesta inesperada del servidor.');
+                setTimeout(() => setMensaje(null), 3500);
+                return;
+            }
+            if (data && data.url) {
+                window.location.href = data.url;
+            } else {
+                setMensaje('No se pudo obtener la URL de pago.');
+                setTimeout(() => setMensaje(null), 3500);
+            }
+        } catch (error) {
+            setMensaje('Error de red o del servidor.');
+            setTimeout(() => setMensaje(null), 3500);
+        }
     };
 
     return (
@@ -134,7 +194,7 @@ export default function ProductosMascotas() {
                                     </p>
                                     <button
                                         className="mt-auto w-full rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-500 dark:hover:bg-blue-600"
-                                        onClick={() => handleAccion(item)}
+                                        onClick={() => (item.tipo === 'producto' ? handleComprar(item) : handleAccion(item))}
                                     >
                                         {item.tipo === 'producto' ? 'Comprar' : 'Adoptar'}
                                     </button>

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\MascotaController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PagoController;
 
 Route::get('/', function () {
     return Inertia::render('landing');
@@ -46,6 +47,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/registrar-mascotas', fn() => Inertia::render('Dashboard/RegistrarMascotasProductos/registrar-mascota'))->name('mascotas.registrar');
     Route::post('/mascotas/store', [MascotaController::class, 'store']);
     // Route::get('/mascotas', [MascotaController::class, 'index'])->name('mascotas.index');
+    Route::post('/acciones-solicitud/store', [\App\Http\Controllers\AccionSolicitudController::class, 'store'])->name('acciones-solicitud.store');
+    Route::post('/pagos/iniciar', [PagoController::class, 'iniciarPago']);
+    Route::post('/pagos/webhook', [PagoController::class, 'webhook']);
 });
 
 require __DIR__ . '/settings.php';

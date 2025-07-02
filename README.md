@@ -66,3 +66,24 @@ Este proyecto es una plataforma web desarrollada con **Laravel** (backend/API) y
 **Trabajo realizado el 30/06/2025:**
 - Mejoras en UI/UX, validaciones, subida y visualización de imágenes, y documentación.
 - Pendiente: visualización de imágenes en cards de cliente (ajuste de Apache) y login con Google.
+
+**Trabajo realizado el 01/07/2025 (MercadoPago):**
+- Se integró MercadoPago para el flujo de compra de productos (pendiente de habilitar completamente, aún responde 500 en el backend):
+  - Instalación del SDK oficial de MercadoPago en el backend (`composer require mercadopago/dx-php`).
+  - Se crearon/editaron los siguientes archivos para la integración:
+    - `app/Http/Controllers/PagoController.php`: Controlador que genera la preferencia de pago y calcula la cuota moderadora (15%).
+    - Rutas en `routes/web.php`: POST `/pagos/iniciar` y webhook `/pagos/webhook`.
+    - Edición de `resources/js/pages/Dashboard/VerMascotasProductos/productos-mascotas.tsx`: El frontend envía la solicitud de compra y redirige al usuario a la URL de pago de MercadoPago, con manejo de errores y validación de sesión/CSRF.
+  - Se documentó el flujo: al pagar exitosamente, MercadoPago notifica al backend mediante webhook y se registra la compra.
+- El flujo permite simular un marketplace: el usuario paga, se descuenta la comisión, y el backend registra la transacción.
+- **Pendiente:** Finalizar la configuración del backend para que MercadoPago funcione sin error 500 y habilitar el flujo real de pagos y notificaciones avanzadas si se requiere.
+
+**Centralización y validación en métodos store (01/07/2025):**
+- Se implementó un flujo robusto y centralizado para el registro de productos y mascotas:
+  - Se creó/ajustó el controlador `app/Http/Controllers/ProductosMascotasController.php` para manejar el registro unificado de productos y mascotas, incluyendo validación, subida de imágenes y asociación a usuario.
+  - Se implementaron métodos `store` en controladores como `ShelterController.php` y otros, siguiendo la convención de Laravel para creación de recursos.
+  - Se utilizaron validaciones centralizadas, tanto directamente en el método `store` (`$request->validate([...])`), como con la posibilidad de requests personalizados (`app/Http/Requests/StoreProductRequest.php`, `StoreMascotaRequest.php`, etc.) para mayor escalabilidad.
+  - Se ajustaron las rutas en `routes/web.php` para apuntar a los métodos centralizados y unificados.
+- Este enfoque permite mantener la lógica de validación y almacenamiento en un solo lugar, facilitando el mantenimiento y la extensión del sistema.
+
+_Autor: AGamez10_
