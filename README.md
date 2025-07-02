@@ -1,6 +1,6 @@
 # AdoptaFácil 🐾
 
-![Logo](https://github.com/beto18v/laravel12-react/blob/main/public/Logo/Logo.png?raw=true)
+![Logo](https://github.com/beto18v/laravel12-react/blob/main/public/Logo/Logo.png?raw=true) ![Logo](https://github.com/beto18v/laravel12-react/blob/main/public/Logo/LogoWhite.png?raw=true)
 
 AdoptaFácil es una plataforma web integral diseñada para facilitar la adopción de mascotas, conectar a la comunidad amante de los animales y ofrecer un espacio para que refugios, veterinarias y tiendas puedan gestionar y ofrecer sus servicios y productos.
 
