@@ -14,7 +14,7 @@ export default function ProductCard({ name, category, price, imageUrl }: Product
     return (
         <div className="group relative overflow-hidden rounded-lg shadow-lg transition-all hover:shadow-xl">
             <Link href="#" className="absolute inset-0 z-10">
-                <span className="sr-only">View Product</span>
+                <span className="sr-only">Ver producto</span>
             </Link>
             <img src={imageUrl} alt={name} width={400} height={300} className="h-60 w-full object-cover transition-all group-hover:scale-105" />
             <div className="bg-white p-4 dark:bg-gray-950">

@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, usePage } from '@inertiajs/react';
 import { Inertia } from '@inertiajs/inertia';
+import { Head, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -171,7 +171,7 @@ export default function ProductosMascotas() {
                                         <img
                                             src={`/storage/${item.imagen}`}
                                             alt={item.nombre}
-                                            className="w-32 h-32 object-cover rounded mb-4 border border-gray-200 shadow"
+                                            className="mb-4 h-32 w-32 rounded border border-gray-200 object-cover shadow"
                                             onError={(e) => (e.currentTarget.style.display = 'none')}
                                         />
                                     )}

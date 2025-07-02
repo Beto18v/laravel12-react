@@ -1,11 +1,10 @@
 import AppLayout from '@/layouts/app-layout';
+import { generateDonationsReport } from '@/lib/report-generator';
 import { type BreadcrumbItem } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import FormularioDonacion from './components/formulario-donacion';
 import FormularioFundacion from './components/formulario-fundacion';
-// Asegúrate de que esta importación sea correcta
-import { generateDonationsReport } from '@/lib/reportGenerator';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Donaciones', href: route('donaciones.index') }];
 

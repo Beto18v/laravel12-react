@@ -5,7 +5,7 @@ import autoTable from 'jspdf-autotable';
 interface Donation {
     id: number;
     donor_name: string;
-    amount: string; // El modelo de Laravel lo puede pasar como string
+    amount: string;
     created_at: string;
     shelter?: {
         name: string;
