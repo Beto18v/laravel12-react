@@ -99,7 +99,6 @@ Las contribuciones son bienvenidas. Si deseas colaborar, por favor sigue estos p
 
 ## 📄 Licencia
 
-Este proyecto no especifica una licencia. Te recomendamos añadir un archivo `LICENSE` para definir cómo otros pueden usar tu código.
 
 
 ---------------------------------------------------------------------------------------------
