@@ -161,7 +161,7 @@ export default function Header() {
                         {auth?.user ? (
                             <Link
                                 href={route('dashboard')}
-                                className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700"
+                                className="block w-full rounded-md bg-blue-200 px-3 py-2 text-center text-base font-medium text-blue-800 hover:bg-blue-300 dark:bg-blue-600/70 dark:text-blue-200 dark:hover:bg-blue-600"
                             >
                                 Dashboard
                             </Link>

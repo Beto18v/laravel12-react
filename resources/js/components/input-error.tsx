@@ -2,14 +2,14 @@ import { cn } from '@/lib/utils';
 import { type HTMLAttributes } from 'react';
 
 export default function InputError({ message, className = '', ...props }: HTMLAttributes<HTMLParagraphElement> & { message?: string }) {
-    // ✨ --- DICCIONARIO DE TRADUCCIONES --- ✨
-    // Aquí centralizamos todos los mensajes de validación de Laravel.
+    // Se centralizan todos los mensajes de validación de Laravel.
     const traducciones: { [key: string]: string } = {
         'The password is incorrect.': 'La contraseña es incorrecta.',
         'The email field is required.': 'El campo de email es obligatorio.',
         'The password field must be at least 8 characters.': 'La contraseña debe tener al menos 8 caracteres.',
         'The password field confirmation does not match.': 'Las contraseñas no coinciden.',
         'These credentials do not match our records.': 'Credenciales incorrectas.',
+        'The email has already been taken.': 'Correo electrónico ya en uso.',
     };
 
     // Buscamos si el mensaje en inglés tiene una traducción; si no, usamos el mensaje original.

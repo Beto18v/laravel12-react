@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Validation\ValidationException;
 
 class RegisteredUserController extends Controller
 {
@@ -21,7 +22,7 @@ class RegisteredUserController extends Controller
     public function create(Request $request): Response
     {
         return Inertia::render('auth/register', [
-            'role' => $request->query('role', 'cliente'), // 'cliente' es el rol por defecto
+            'role' => $request->query('role', 'cliente'),
         ]);
     }
 
@@ -33,24 +34,48 @@ class RegisteredUserController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        // 1. Validamos los datos
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'in:cliente,aliado'], // Validamos que el rol sea uno de los permitidos
+            'role' => ['required', 'string', 'in:cliente,aliado'],
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-        ]);
+        // 2. Buscamos al usuario (incluyendo inactivos)
+        $user = User::withTrashed()->where('email', $request->email)->first();
 
+        // 3. Si el usuario existe...
+        if ($user) {
+            // ... y está inactivo
+            if ($user->trashed()) {
+                // Lo restauramos y actualizamos
+                $user->restore();
+                $user->forceFill([
+                    'name' => $request->name,
+                    'password' => Hash::make($request->password),
+                    'role' => $request->role,
+                ])->save();
+            } else {
+                // ... y está activo, lanzamos el error
+                throw ValidationException::withMessages([
+                    'email' => 'The email has already been taken.',
+                ]);
+            }
+        } else {
+            // 4. Si no existe, lo creamos
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => $request->role,
+            ]);
+        }
+
+        // 5. Iniciamos sesión y redirigimos
         event(new Registered($user));
-
         Auth::login($user);
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect(route('dashboard', absolute: false));
     }
 }
