@@ -42,11 +42,6 @@ export function AppSidebar() {
             href: '/donaciones',
             icon: BadgeDollarSign,
         },
-        {
-            title: 'Notificaciones',
-            href: '/notificaciones',
-            icon: BellRing,
-        },
     ];
 
     // Modificación condicional según el rol
@@ -74,7 +69,7 @@ export function AppSidebar() {
             },
             {
                 title: 'Registrar Mascotas',
-                href: route('mascotas.registrar'), // Usando el helper de Ziggy
+                href: route('mascotas.registrar'),
                 icon: PawPrint,
             },
         ];
