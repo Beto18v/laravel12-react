@@ -1,19 +1,26 @@
 import Footer from '@/components/landing/footer';
 import Header from '@/components/landing/header';
+import PetHero from '@/components/mascotas/pet-hero';
 import { Head } from '@inertiajs/react';
 
 export default function Mascotas() {
     return (
-        <>
-            <Head title="Mascotas" />
+        <div className="flex min-h-screen flex-col bg-white dark:bg-gray-800">
+            <Head title="Productos" />
             <Header />
-            <main className="flex-1 pt-24">
-                <div className="container mx-auto px-4 py-12">
-                    <h1 className="mb-8 text-center text-4xl font-bold">Mascotas</h1>
-                    <p className="text-center text-lg text-gray-600 dark:text-gray-300">Aquí encontrarás nuestra lista de mascotas registradas.</p>
+            <PetHero />
+            {/* 2. El <main> ahora empieza directamente con el Hero */}
+            <main className="flex-1">
+                {/* 3. El resto del contenido va debajo del Hero */}
+                <div className="container mx-auto px-4 py-12 md:px-6 md:py-16">
+                    <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
+                        <aside className="lg:col-span-1"></aside>
+                        <section className="lg:col-span-3"></section>
+                    </div>
                 </div>
             </main>
+
             <Footer />
-        </>
+        </div>
     );
 }

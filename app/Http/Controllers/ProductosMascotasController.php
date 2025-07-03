@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Mascota;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 class ProductosMascotasController extends Controller
 {
@@ -26,7 +27,7 @@ class ProductosMascotasController extends Controller
     public function store(\App\Http\Requests\StoreProductRequest $request)
     {
         $data = $request->validated();
-        $data['user_id'] = auth()->id();
+        $data['user_id'] = Auth::id();
         if ($request->hasFile('imagen')) {
             $data['imagen'] = $request->file('imagen')->store('productos', 'public');
         }
