@@ -50,4 +50,5 @@ export interface Shelter {
     city: string;
     phone: string;
     user: User;
+    donations_count?: number;
 }

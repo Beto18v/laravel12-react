@@ -14,10 +14,15 @@ class ShelterController extends Controller
      */
     public function index()
     {
-        // Obtenemos todos los refugios con la información del usuario asociado
-        $shelters = Shelter::with('user')->latest()->get();
+        // 1. Obtenemos los refugios, contamos sus donaciones y los ordenamos
+        $shelters = Shelter::with('user')
+            ->withCount('donations') // Crea la columna 'donations_count'
+            ->orderBy('donations_count', 'desc') // Ordena de mayor a menor
+            ->get();
 
-        // Renderizamos la página de refugios y le pasamos los datos
+        // 2. Renderizamos la vista y le pasamos los datos
+        // Asegúrate de que el nombre de la vista sea el correcto.
+        // En tus archivos parece ser 'refugios.tsx', que se renderiza como 'refugios'.
         return Inertia::render('refugios', [
             'shelters' => $shelters,
         ]);

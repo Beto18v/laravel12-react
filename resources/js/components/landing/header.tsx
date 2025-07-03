@@ -1,5 +1,5 @@
 import { type SharedData } from '@/types';
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react'; // Se importa router
 import { useState } from 'react';
 import Logo from '../../../../public/Logo/Logo.png';
 import LogoWhite from '../../../../public/Logo/LogoWhite.png';
@@ -14,6 +14,11 @@ export default function Header() {
     const scrolled = useScroll();
 
     const baseButtonClasses = 'rounded-lg px-4 py-2 font-medium transition-colors duration-300 ease-in-out';
+
+    // Función para manejar el cierre de sesión
+    const handleLogout = () => {
+        router.post(route('logout'));
+    };
 
     return (
         <header
@@ -35,7 +40,7 @@ export default function Header() {
                         ADOPTAFÁCIL
                     </h1>
                 </Link>
-                {/* --- MENÚ DE ESCRITORIO ACTUALIZADO --- */}
+
                 <nav className="hidden space-x-6 md:flex">
                     <Link
                         href={route('productos')}
@@ -76,12 +81,17 @@ export default function Header() {
                 </nav>
 
                 <div className="flex items-center">
-                    {/* ... Botones de Auth (sin cambios) ... */}
+                    {/* --- BOTONES DE ESCRITORIO ACTUALIZADOS --- */}
                     <div className="hidden items-center space-x-2 md:flex">
                         {auth?.user ? (
-                            <Link href={route('dashboard')} className={cn(baseButtonClasses, 'bg-blue-600 text-white hover:bg-blue-700')}>
-                                Dashboard
-                            </Link>
+                            <>
+                                <Link href={route('dashboard')} className={cn(baseButtonClasses, 'bg-blue-600 text-white hover:bg-blue-700')}>
+                                    Dashboard
+                                </Link>
+                                <button onClick={handleLogout} className={cn(baseButtonClasses, 'bg-red-600 text-white hover:bg-red-700')}>
+                                    Cerrar sesión
+                                </button>
+                            </>
                         ) : (
                             <>
                                 <Link
@@ -105,6 +115,8 @@ export default function Header() {
                             </>
                         )}
                     </div>
+                    {/* --- FIN BOTONES ESCRITORIO --- */}
+
                     <div className="flex items-center md:hidden">
                         <button
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -157,14 +169,21 @@ export default function Header() {
                     </Link>
 
                     <div className="mt-4 border-t border-gray-200 pt-4 dark:border-gray-600">
-                        {/* ... Botones de Auth para móvil (sin cambios) ... */}
                         {auth?.user ? (
-                            <Link
-                                href={route('dashboard')}
-                                className="block w-full rounded-md bg-blue-200 px-3 py-2 text-center text-base font-medium text-blue-800 hover:bg-blue-300 dark:bg-blue-600/70 dark:text-blue-200 dark:hover:bg-blue-600"
-                            >
-                                Dashboard
-                            </Link>
+                            <div className="space-y-2">
+                                <Link
+                                    href={route('dashboard')}
+                                    className="block w-full rounded-md bg-blue-200 px-3 py-2 text-center text-base font-medium text-blue-800 hover:bg-blue-300 dark:bg-blue-600/70 dark:text-blue-200 dark:hover:bg-blue-600"
+                                >
+                                    Dashboard
+                                </Link>
+                                <button
+                                    onClick={handleLogout}
+                                    className="block w-full rounded-md bg-red-200 px-3 py-2 text-center text-base font-medium text-red-800 hover:bg-red-300 dark:bg-red-600/70 dark:text-red-200 dark:hover:bg-red-600"
+                                >
+                                    Cerrar sesión
+                                </button>
+                            </div>
                         ) : (
                             <div className="space-y-2">
                                 <Link
