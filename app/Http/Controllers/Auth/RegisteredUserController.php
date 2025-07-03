@@ -59,7 +59,7 @@ class RegisteredUserController extends Controller
             } else {
                 // ... y está activo, lanzamos el error
                 throw ValidationException::withMessages([
-                    'email' => 'The email has already been taken.',
+                    'email' => 'Correo ya registrado.',
                 ]);
             }
         } else {
