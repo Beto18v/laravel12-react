@@ -10,6 +10,10 @@ Route::get('/', function () {
     return Inertia::render('landing');
 })->name('landing');
 
+Route::get('/mascotas', function () {
+    return Inertia::render('mascotas');
+})->name('mascotas');
+
 Route::get('/productos', fn() => Inertia::render('productos'))->name('productos');
 
 Route::get('/refugios', function () {

@@ -84,7 +84,7 @@ export default function FormularioDonacion({ showModal, onClose, shelters }: For
     if (!showModal) return null;
 
     return (
-        <div className="bg-opacity-75 fixed inset-0 z-50 flex items-center justify-center bg-black p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-transparent backdrop-blur-sm">
             <div className="max-h-[95vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white shadow-xl dark:bg-gray-800">
                 <div className="p-6 sm:p-8">
                     <div className="mb-6 flex items-center justify-between">
