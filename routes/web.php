@@ -5,6 +5,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\MascotaController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PagoController;
+use App\Http\Controllers\ShelterController;
 
 Route::get('/', function () {
     return Inertia::render('landing');
@@ -16,9 +17,8 @@ Route::get('/mascotas', function () {
 
 Route::get('/productos', fn() => Inertia::render('productos'))->name('productos');
 
-Route::get('/refugios', function () {
-    return Inertia::render('refugios');
-})->name('refugios');
+Route::get('/refugios', [ShelterController::class, 'index'])->name('refugios');
+Route::post('/shelters', [ShelterController::class, 'store'])->middleware(['auth', 'verified'])->name('shelters.store');
 
 Route::get('/comunidad', function () {
     return Inertia::render('comunidad');

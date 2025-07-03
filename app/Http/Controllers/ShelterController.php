@@ -10,7 +10,31 @@ use Inertia\Inertia;
 class ShelterController extends Controller
 {
     /**
-     * Store a newly created resource in storage.
+     * Muestra una lista de todos los refugios.
+     */
+    public function index()
+    {
+        // Obtenemos todos los refugios con la información del usuario asociado
+        $shelters = Shelter::with('user')->latest()->get();
+
+        // Renderizamos la página de refugios y le pasamos los datos
+        return Inertia::render('refugios', [
+            'shelters' => $shelters,
+        ]);
+    }
+
+    /**
+     * Muestra el formulario para crear un nuevo refugio.
+     * (Este método probablemente ya lo tienes)
+     */
+    public function create()
+    {
+        return Inertia::render('shelter/register'); // O como se llame tu vista de registro
+    }
+
+    /**
+     * Almacena un nuevo refugio en la base de datos.
+     * (Este método también lo debes tener ya)
      */
     public function store(Request $request)
     {

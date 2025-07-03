@@ -41,3 +41,13 @@ export interface User {
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
 }
+
+export interface Shelter {
+    id: number;
+    name: string;
+    description: string;
+    address: string;
+    city: string;
+    phone: string;
+    user: User;
+}

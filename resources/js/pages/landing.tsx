@@ -68,17 +68,13 @@ export default function Welcome() {
     return (
         <>
             <Head title="Bienvenido" />
-
-            {/* 3. Llama a cada componente de sección y pásale los datos correspondientes */}
             <Header />
-
             <main className="relative z-10 w-full bg-white dark:bg-gray-800">
                 <HeroSection />
                 <PetsSection pets={pets} />
                 <CategoriesSection categories={categories} />
                 <ProductsSection products={products} />
             </main>
-
             <Footer />
         </>
     );
