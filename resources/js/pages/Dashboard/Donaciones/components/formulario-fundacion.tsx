@@ -203,7 +203,7 @@ export default function FormularioFundacion() {
                                 id="account_number"
                                 name="account_number"
                                 value={data.account_number}
-                                onChange={(e) => setData('account_number', e.target.value)}
+                                onChange={(e) => setData('account_number', e.target.value.replace(/[^0-9]/g, ''))}
                                 className={inputStyle}
                                 required
                             />

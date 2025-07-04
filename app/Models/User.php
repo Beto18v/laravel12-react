@@ -10,15 +10,7 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    // Relacion entre User y Shelter
-    public function shelter()
-    {
-        return $this->hasOne(Shelter::class);
-    }
-
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
-
     /**
      * The attributes that are mass assignable.
      *
@@ -53,5 +45,11 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // Relacion entre User y Shelter
+    public function shelter()
+    {
+        return $this->hasOne(Shelter::class);
     }
 }
