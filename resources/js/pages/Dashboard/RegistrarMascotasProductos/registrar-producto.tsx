@@ -58,9 +58,7 @@ export default function RegistrarProducto() {
                 <div className="mx-auto max-w-3xl space-y-6 rounded-2xl bg-gray-100 p-8 shadow-lg dark:bg-gray-800">
                     <h1 className="text-center text-3xl font-bold text-gray-800 dark:text-gray-100">Registrar Nuevo Producto</h1>
 
-                    {mensaje && (
-                        <div className="mb-4 rounded bg-green-100 p-3 text-green-800 shadow">{mensaje}</div>
-                    )}
+                    {mensaje && <div className="mb-4 rounded bg-green-100 p-3 text-green-800 shadow">{mensaje}</div>}
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>

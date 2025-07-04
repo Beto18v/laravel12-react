@@ -10,7 +10,7 @@ export function AppSidebar() {
     const { auth } = usePage<SharedData>().props;
     const user = auth.user;
 
-    // Elementos base del menú
+    // Plantilla Única con TODOS los elementos de navegación
     const baseNavItems: NavItem[] = [
         {
             title: 'Dashboard',
@@ -42,47 +42,40 @@ export function AppSidebar() {
             href: '/donaciones',
             icon: BadgeDollarSign,
         },
+        // --- Items que antes eran específicos de un rol ---
+        {
+            title: 'Productos y Mascotas',
+            href: route('productos.mascotas'),
+            icon: LayoutGrid,
+        },
+        {
+            title: 'Registrar Productos',
+            href: route('productos.registrar'),
+            icon: PackagePlus,
+        },
+        {
+            title: 'Registrar Mascotas',
+            href: route('mascotas.registrar'),
+            icon: PawPrint,
+        },
     ];
 
-    // Modificación condicional según el rol
+    // Lógica de filtrado centralizada
     let finalNavItems: NavItem[] = [];
 
     if (user.role === 'cliente') {
-        finalNavItems = [
-            ...baseNavItems,
-            {
-                title: 'Productos y Mascotas',
-                href: route('productos.mascotas'),
-                icon: LayoutGrid,
-            },
-        ];
+        // Rutas que SÍ debe ver el cliente
+        const allowedHrefs = ['/dashboard', '/favoritos', '/estadisticas', '/mapa', '/donaciones', route('productos.mascotas')];
+        finalNavItems = baseNavItems.filter((item) => allowedHrefs.includes(item.href as string));
     } else if (user.role === 'aliado') {
-        // Oculta favoritos y mapa para aliados
-        const filteredBase = baseNavItems.filter((item) => item.href !== '/favoritos' && item.href !== '/mapa');
-
-        finalNavItems = [
-            ...filteredBase,
-            {
-                title: 'Registrar Productos',
-                href: route('productos.registrar'),
-                icon: PackagePlus,
-            },
-            {
-                title: 'Registrar Mascotas',
-                href: route('mascotas.registrar'),
-                icon: PawPrint,
-            },
-        ];
+        // Rutas que NO debe ver el aliado
+        const disallowedHrefs = ['/favoritos', '/mapa', route('productos.mascotas'), '/productos'];
+        finalNavItems = baseNavItems.filter((item) => !disallowedHrefs.includes(item.href as string));
     } else {
-        // Otros roles (ej. admin) usan todo el menú y mantienen Productos
-        finalNavItems = [
-            ...baseNavItems,
-            {
-                title: 'Productos',
-                href: '/productos',
-                icon: LayoutGrid,
-            },
-        ];
+        // Lógica para otros roles (ej. admin)
+        // El admin no ve las vistas específicas del aliado
+        const disallowedHrefs = [route('productos.registrar'), route('mascotas.registrar')];
+        finalNavItems = baseNavItems.filter((item) => !disallowedHrefs.includes(item.href as string));
     }
 
     return (
@@ -90,7 +83,7 @@ export function AppSidebar() {
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild>
+                        <SidebarMenuButton size="lg" className="justify-center" asChild>
                             <Link href="/dashboard" prefetch>
                                 <AppLogo />
                             </Link>
