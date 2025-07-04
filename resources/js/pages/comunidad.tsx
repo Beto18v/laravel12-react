@@ -1,6 +1,7 @@
 import ComunityHero from '@/components/comunidad/comunity-hero';
 import Footer from '@/components/landing/footer';
 import Header from '@/components/landing/header';
+import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Head } from '@inertiajs/react';
 
 export default function Comunidad() {
@@ -19,8 +20,8 @@ export default function Comunidad() {
                     </div>
                 </div>
             </main>
-
             <Footer />
+            <ThemeSwitcher />
         </div>
     );
 }

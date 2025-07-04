@@ -1,6 +1,7 @@
 import Footer from '@/components/landing/footer';
 import Header from '@/components/landing/header';
 import PetHero from '@/components/mascotas/pet-hero';
+import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Head } from '@inertiajs/react';
 
 export default function Mascotas() {
@@ -21,6 +22,7 @@ export default function Mascotas() {
             </main>
 
             <Footer />
+            <ThemeSwitcher />
         </div>
     );
 }

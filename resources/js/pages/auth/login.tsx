@@ -1,5 +1,6 @@
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
+import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -121,6 +122,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                     </div>
                 </form>
             </div>
+            <ThemeSwitcher />
         </div>
     );
 }

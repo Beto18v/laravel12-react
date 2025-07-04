@@ -8,6 +8,7 @@ import Header from '@/components/landing/header';
 import HeroSection from '@/components/landing/hero-section';
 import PetsSection from '@/components/landing/pets-section';
 import ProductsSection from '@/components/landing/products-section';
+import { ThemeSwitcher } from '@/components/theme-switcher';
 
 export default function Welcome() {
     const { props } = usePage<SharedData>();
@@ -69,13 +70,16 @@ export default function Welcome() {
         <>
             <Head title="Bienvenido" />
             <Header />
+
             <main className="relative z-10 w-full bg-white dark:bg-gray-800">
                 <HeroSection />
                 <PetsSection pets={pets} />
                 <CategoriesSection categories={categories} />
                 <ProductsSection products={products} />
             </main>
+
             <Footer />
+            <ThemeSwitcher />
         </>
     );
 }

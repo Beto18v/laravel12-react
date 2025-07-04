@@ -1,3 +1,4 @@
+import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Button } from '@/components/ui/button';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
@@ -49,6 +50,7 @@ export default function VerifyEmail({ status }: { status?: string }) {
                     </Link>
                 </form>
             </div>
+            <ThemeSwitcher />
         </div>
     );
 }

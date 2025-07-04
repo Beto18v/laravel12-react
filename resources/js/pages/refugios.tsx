@@ -2,6 +2,7 @@ import Footer from '@/components/landing/footer';
 import Header from '@/components/landing/header';
 import ShelterCard from '@/components/refugio/shelter-card';
 import ShelterHero from '@/components/refugio/shelter-hero';
+import { ThemeSwitcher } from '@/components/theme-switcher';
 // 1. Importa el tipo `Shelter` desde tu archivo de tipos
 import { type Shelter } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
@@ -34,6 +35,7 @@ export default function Refugios() {
             </main>
 
             <Footer />
+            <ThemeSwitcher />
         </div>
     );
 }

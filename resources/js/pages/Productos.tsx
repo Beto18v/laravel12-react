@@ -3,6 +3,7 @@ import Header from '@/components/landing/header';
 import ProductCard from '@/components/productos/product-card';
 import ProductFilters from '@/components/productos/product-filters';
 import ProductHero from '@/components/productos/product-hero'; // 1. Importa el nuevo componente
+import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Head } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 
@@ -106,6 +107,7 @@ export default function Productos() {
             </main>
 
             <Footer />
+            <ThemeSwitcher />
         </div>
     );
 }

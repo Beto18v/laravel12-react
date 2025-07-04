@@ -1,4 +1,5 @@
 import InputError from '@/components/input-error';
+import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,7 +29,6 @@ export default function ConfirmPassword() {
                 <img src={Logo} alt="Logo" className="mx-auto mb-8 h-36 w-56" />
 
                 <Head title="Confirmar contraseña" />
-
                 <div className="mb-6 text-center">
                     <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Confirmar contraseña</h2>
                     <p className="mt-2 text-gray-600 dark:text-gray-300">
@@ -65,6 +65,7 @@ export default function ConfirmPassword() {
                     </div>
                 </form>
             </div>
+            <ThemeSwitcher />
         </div>
     );
 }
