@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Head, useForm } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
+import { Link, LoaderCircle } from 'lucide-react';
 import { FormEventHandler } from 'react';
 import Logo from '../../../../public/Logo/Logo.png';
 
@@ -40,8 +40,9 @@ export default function ResetPassword({ token, email }: ResetPasswordProps) {
             {/* Contenedor principal */}
             <div className="container w-full max-w-md rounded-lg border border-white/20 bg-white/10 p-5 text-center shadow-lg backdrop-blur-md transition-transform duration-300 ease-in-out hover:scale-[1.005] hover:shadow-xl">
                 {/* Logo */}
-                <img src={Logo} alt="Logo" className="mx-auto mb-8 h-36 w-56" />
-
+                <Link href={route('landing')}>
+                    <img src={Logo} alt="Logo" className="mx-auto mb-8 h-36 w-56" />
+                </Link>
                 <Head title="Restablecer contraseña" />
                 <form className="flex flex-col gap-6" onSubmit={submit}>
                     <div className="grid gap-6">

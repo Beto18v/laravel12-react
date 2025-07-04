@@ -27,16 +27,16 @@ export default function ForgotPassword({ status }: { status?: string }) {
     return (
         <div className="flex h-screen items-center justify-center bg-gradient-to-r from-green-400 to-blue-500 dark:from-green-600 dark:to-blue-700">
             <div className="container w-full max-w-md rounded-lg border border-white/20 bg-white/10 p-5 text-center shadow-lg backdrop-blur-md transition-transform duration-300 ease-in-out hover:scale-[1.005] hover:shadow-xl">
-                <img src={Logo} alt="Logo" className="mx-auto mb-8 h-36 w-56" />
+                <Link href={route('landing')}>
+                    <img src={Logo} alt="Logo" className="mx-auto mb-8 h-36 w-56" />
+                </Link>{' '}
                 <Head title="Recuperar contraseña" />
                 <div className="mb-6 text-center">
                     <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Recuperar contraseña</h2>
                     <p className="mt-2 text-gray-600 dark:text-gray-300">Ingresa tu correo electrónico para recibir un enlace de recuperación</p>
                 </div>
-
                 {/* Se muestra el mensaje traducido */}
                 {statusMessage && <div className="mb-4 text-center text-sm font-medium text-green-600 dark:text-green-400">{statusMessage}</div>}
-
                 <form className="flex flex-col gap-6" onSubmit={submit}>
                     <div className="grid gap-6">
                         <div className="grid gap-2">

@@ -35,11 +35,7 @@ export default function RegistroOpciones() {
             {/* Header con logo */}
             <div className="pt-10 text-center">
                 <Link href={route('landing')}>
-                    <img
-                        src={Logo}
-                        alt="Logo AdoptaFácil"
-                        className="mx-auto h-20 w-auto cursor-pointer transition-transform duration-300 hover:scale-105"
-                    />
+                    <img src={Logo} alt="Logo" className="mx-auto mb-8 h-36 w-56" />
                 </Link>
                 <h1 className="mt-4 text-3xl font-bold md:text-4xl">Únete a AdoptaFácil</h1>
                 <p className="mx-auto mt-2 max-w-xl px-4 text-white/90">

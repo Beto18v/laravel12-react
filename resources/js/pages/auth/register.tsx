@@ -37,7 +37,9 @@ export default function Register({ role }: { role: string }) {
             {/* Contenedor principal */}
             <div className="container w-full max-w-md rounded-lg border border-white/20 bg-white/10 p-5 text-center shadow-lg backdrop-blur-md transition-transform duration-300 ease-in-out hover:scale-[1.005] hover:shadow-xl">
                 {/* Logo */}
-                <img src={Logo} alt="Logo" className="mx-auto mb-8 h-36 w-56" />
+                <Link href={route('landing')}>
+                    <img src={Logo} alt="Logo" className="mx-auto mb-8 h-36 w-56" />
+                </Link>
 
                 <Head title="Register" />
                 <form className="flex flex-col gap-6" onSubmit={submit}>
@@ -90,7 +92,7 @@ export default function Register({ role }: { role: string }) {
                                 value={data.password}
                                 onChange={(e) => setData('password', e.target.value)}
                                 disabled={processing}
-                                placeholder="Contraseña"
+                                placeholder="Contraseña (Minimo 8 caracteres)"
                                 className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
                             />
                             <InputError message={errors.password} />
