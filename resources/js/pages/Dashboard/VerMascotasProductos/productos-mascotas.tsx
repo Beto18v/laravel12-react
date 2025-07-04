@@ -2,6 +2,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Inertia } from '@inertiajs/inertia';
 import { Head, usePage } from '@inertiajs/react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -17,17 +18,20 @@ type ProductoMascota = {
     tipo: 'producto' | 'mascota';
     descripcion: string;
     precio: number;
-    imagen?: string; // -- Agregado para evitar error
+    imagen?: string;
     user?: { name: string };
 };
 
 export default function ProductosMascotas() {
-    const items = (usePage().props.items ?? []) as ProductoMascota[];
+    const { items = [], auth } = usePage().props as any;
+    const itemsTyped = items as ProductoMascota[];
+    const isAdmin = auth.user?.role === 'admin';
+
     const [busqueda, setBusqueda] = useState('');
     const [filtro, setFiltro] = useState<'todo' | 'producto' | 'mascota'>('todo');
     const [mensaje, setMensaje] = useState<string | null>(null);
 
-    const productosFiltrados = items.filter((producto) => {
+    const productosFiltrados = itemsTyped.filter((producto) => {
         const coincideBusqueda = producto.nombre.toLowerCase().includes(busqueda.toLowerCase());
         const coincideTipo = filtro === 'todo' || producto.tipo === filtro;
         return coincideBusqueda && coincideTipo;
@@ -47,7 +51,6 @@ export default function ProductosMascotas() {
                             ? `¡Solicitud de compra enviada para "${item.nombre}"! Pronto te contactaremos.`
                             : `¡Solicitud de adopción enviada para "${item.nombre}"! Pronto te contactaremos.`,
                     );
-                    // Redirigir o recargar solicitudes
                     setTimeout(() => setMensaje(null), 3500);
                 },
                 onError: () => {
@@ -60,7 +63,6 @@ export default function ProductosMascotas() {
 
     const handleComprar = async (item: ProductoMascota) => {
         const csrf = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content;
-        console.log('CSRF token usado en fetch:', csrf); // Depuración
         setMensaje(null);
         try {
             const res = await fetch('/pagos/iniciar', {
@@ -70,7 +72,7 @@ export default function ProductosMascotas() {
                     'X-CSRF-TOKEN': csrf,
                 },
                 body: JSON.stringify({ producto_id: item.id }),
-                credentials: 'same-origin', // Importante para enviar cookies de sesión
+                credentials: 'same-origin',
             });
             if (!res.ok) {
                 if (res.status === 419) {
@@ -101,14 +103,21 @@ export default function ProductosMascotas() {
         }
     };
 
+    const handleEditar = (id: number) => {
+        // Lógica para editar
+        console.log(`Editar item con ID: ${id}`);
+    };
+
+    const handleEliminar = (id: number) => {
+        // Lógica para eliminar
+        console.log(`Eliminar item con ID: ${id}`);
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Productos y Mascotas" />
-
-            {/* Contenedor principal con fondo gradiente */}
             <main className="flex-1 overflow-y-auto bg-gradient-to-r from-green-400 to-blue-500 p-6 dark:from-green-600 dark:to-blue-700">
                 <div className="mx-auto max-w-7xl space-y-6">
-                    {/* Mensaje informativo */}
                     <div className="animate-fade-in flex items-center gap-3 rounded-lg border-l-4 border-yellow-400 bg-yellow-50 p-4 text-yellow-800 shadow-lg dark:border-yellow-600 dark:bg-gray-800 dark:text-yellow-300">
                         <span className="text-2xl">💡</span>
                         <div>
@@ -120,14 +129,12 @@ export default function ProductosMascotas() {
                         </div>
                     </div>
 
-                    {/* Feedback visual */}
                     {mensaje && (
                         <div className="animate-fade-in rounded-lg border-l-4 border-green-500 bg-green-100 p-4 text-center text-green-800 shadow-lg dark:border-green-600 dark:bg-gray-800 dark:text-green-300">
                             {mensaje}
                         </div>
                     )}
 
-                    {/* Filtros con estilo adaptado */}
                     <div className="mx-auto flex max-w-2xl flex-col items-center justify-center gap-4 rounded-lg bg-white/80 p-4 shadow-lg backdrop-blur-sm md:flex-row dark:bg-gray-800/80">
                         <input
                             type="text"
@@ -147,7 +154,6 @@ export default function ProductosMascotas() {
                         </select>
                     </div>
 
-                    {/* Grid de Productos y Mascotas */}
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         {productosFiltrados.map((item) => (
                             <div
@@ -166,7 +172,6 @@ export default function ProductosMascotas() {
                                             {item.tipo === 'producto' ? 'Producto' : 'Mascota'}
                                         </span>
                                     </div>
-                                    {/* Imagen */}
                                     {item.imagen && (
                                         <img
                                             src={`/storage/${item.imagen}`}
@@ -192,12 +197,30 @@ export default function ProductosMascotas() {
                                         Publicado por:{' '}
                                         <span className="font-semibold text-blue-600 dark:text-blue-400">{item.user?.name || 'Aliado'}</span>
                                     </p>
-                                    <button
-                                        className="mt-auto w-full rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-500 dark:hover:bg-blue-600"
-                                        onClick={() => (item.tipo === 'producto' ? handleComprar(item) : handleAccion(item))}
-                                    >
-                                        {item.tipo === 'producto' ? 'Comprar' : 'Adoptar'}
-                                    </button>
+
+                                    {isAdmin ? (
+                                        <div className="mt-auto flex w-full items-center justify-between pt-4">
+                                            <button
+                                                onClick={() => handleEditar(item.id)}
+                                                className="rounded-full bg-blue-600 p-2 text-white transition hover:bg-blue-700"
+                                            >
+                                                <Pencil size={18} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleEliminar(item.id)}
+                                                className="rounded-full bg-red-600 p-2 text-white transition hover:bg-red-700"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            className="mt-auto w-full rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-500 dark:hover:bg-blue-600"
+                                            onClick={() => (item.tipo === 'producto' ? handleComprar(item) : handleAccion(item))}
+                                        >
+                                            {item.tipo === 'producto' ? 'Comprar' : 'Adoptar'}
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         ))}
