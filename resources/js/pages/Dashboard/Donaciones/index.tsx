@@ -27,6 +27,12 @@ const DonationsTable = ({ donations, userRole }: any) => (
                         <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300">
                             {userRole === 'cliente' ? 'Fundación' : 'Donante'}
                         </th>
+                        {/* AÑADIDO: Condicional para mostrar la columna Refugio para el admin */}
+                        {userRole === 'admin' && (
+                            <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300">
+                                Fundación
+                            </th>
+                        )}
                         <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300">Monto</th>
                         <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300">Fecha</th>
                     </tr>
@@ -37,6 +43,12 @@ const DonationsTable = ({ donations, userRole }: any) => (
                             <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900 dark:text-white">
                                 {userRole === 'cliente' ? (donation.shelter?.name ?? 'N/A') : donation.donor_name}
                             </td>
+                            {/* Celda para mostrar el nombre del refugio */}
+                            {userRole === 'admin' && (
+                                <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
+                                    {donation.shelter?.name ?? 'N/A'}
+                                </td>
+                            )}
                             <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
                                 <span className="font-medium text-green-600 dark:text-green-400">{formatCurrency(donation.amount)}</span>
                             </td>

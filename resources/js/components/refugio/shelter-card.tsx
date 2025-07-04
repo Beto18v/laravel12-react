@@ -23,7 +23,7 @@ export default function ShelterCard({ shelter }: ShelterCardProps) {
 
     return (
         <>
-            <div className="group relative flex h-full transform flex-col overflow-hidden rounded-xl bg-white text-gray-800 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl dark:bg-gray-800 dark:text-gray-200">
+            <div className="group relative flex h-full transform flex-col overflow-hidden rounded-xl bg-white text-gray-800 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl dark:bg-gray-900 dark:text-gray-200">
                 <div className="p-6">
                     <div className="mb-4 flex items-start justify-between">
                         <div className="flex items-center gap-4">

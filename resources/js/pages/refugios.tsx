@@ -11,7 +11,7 @@ export default function Refugios() {
     const { shelters } = usePage().props as unknown as { shelters: Shelter[] };
 
     return (
-        <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-900">
+        <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-800">
             <Head title="Refugios" />
             <Header />
             <ShelterHero />
