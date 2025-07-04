@@ -9,7 +9,7 @@ export function ThemeSwitcher() {
 
     return (
         <div className="fixed right-6 bottom-6 z-50">
-            <DropdownMenu>
+            <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
                     <Button variant="secondary" size="icon" className="h-12 w-12 rounded-full shadow-lg">
                         <Paintbrush className="h-[1.5rem] w-[1.5rem] scale-100 rotate-0 transition-all" />
