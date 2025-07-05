@@ -10,6 +10,8 @@ export default function InputError({ message, className = '', ...props }: HTMLAt
         'The password field confirmation does not match.': 'Las contraseñas no coinciden.',
         'These credentials do not match our records.': 'Credenciales incorrectas.',
         'The email has already been taken.': 'Correo electrónico ya en uso.',
+        'The name has already been taken.': 'El nombre ya está en uso.',
+        'The account number has already been taken.': 'El número de cuenta ya está en uso.',
     };
 
     // Buscamos si el mensaje en inglés tiene una traducción; si no, usamos el mensaje original.
