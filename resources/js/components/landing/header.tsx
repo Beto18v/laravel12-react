@@ -29,7 +29,7 @@ export default function Header() {
             )}
         >
             <div className="container mx-auto flex items-center justify-between px-4 py-3">
-                <Link href={route('landing')} className="flex flex-shrink-0 items-center space-x-2">
+                <Link href={route('index')} className="flex flex-shrink-0 items-center space-x-2">
                     <img src={scrolled || isMenuOpen ? Logo : LogoWhite} alt="Logo Adoptafácil" className="h-12 w-auto transition-all" />
                     <h1
                         className={cn(

@@ -8,8 +8,8 @@ use App\Http\Controllers\PagoController;
 use App\Http\Controllers\ShelterController;
 
 Route::get('/', function () {
-    return Inertia::render('landing');
-})->name('landing');
+    return Inertia::render('index');
+})->name('index');
 
 Route::get('/mascotas', function () {
     return Inertia::render('mascotas');
