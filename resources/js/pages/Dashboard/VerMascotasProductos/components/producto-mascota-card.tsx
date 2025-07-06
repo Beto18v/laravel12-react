@@ -12,6 +12,7 @@ export type CardItem = {
     descripcion: string;
     precio: number | null;
     imagen?: string;
+    user_id: number; // Aseguramos que el user_id siempre esté presente
     user?: { name: string };
 };
 
@@ -27,7 +28,8 @@ export default function ProductoMascotaCard({ item, onDelete, onEdit, onAction }
     // Obtenemos el usuario autenticado para determinar el rol
     const { auth } = usePage<SharedData>().props;
     const user = auth.user;
-    const esPropietario = user.role === 'admin' || user.role === 'aliado';
+    // Condición para determinar si el usuario es propietario del item
+    const esPropietario = user.role === 'admin' || (user.role === 'aliado' && user.id === item.user_id);
 
     return (
         <div className="group relative flex transform flex-col overflow-hidden rounded-xl bg-white text-gray-800 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl dark:bg-gray-800 dark:text-gray-200">
@@ -63,22 +65,17 @@ export default function ProductoMascotaCard({ item, onDelete, onEdit, onAction }
                 {/* Botones de Acción Condicionales */}
                 <div className="mt-auto">
                     {esPropietario ? (
-                        // --- Vista para Admin y Aliado ---
+                        // --- Vista para Admin y Aliado (si es propietario) ---
                         <div className="flex items-center justify-between">
                             <span className="text-xs text-gray-500">Tus acciones:</span>
                             <div className="flex gap-2">
-                                {/* ✅ MODIFICACIÓN: Mostrar Editar solo para 'aliado' */}
-                                {user.role === 'aliado' && (
-                                    <button
-                                        onClick={() => onEdit(item)}
-                                        className="rounded-full p-2 text-blue-500 transition hover:bg-blue-100 dark:hover:bg-blue-900/50"
-                                        aria-label="Editar"
-                                    >
-                                        <Pencil className="h-5 w-5" />
-                                    </button>
-                                )}
-
-                                {/* El botón de eliminar se muestra para 'admin' y 'aliado' (condición esPropietario) */}
+                                <button
+                                    onClick={() => onEdit(item)}
+                                    className="rounded-full p-2 text-blue-500 transition hover:bg-blue-100 dark:hover:bg-blue-900/50"
+                                    aria-label="Editar"
+                                >
+                                    <Pencil className="h-5 w-5" />
+                                </button>
                                 <button
                                     onClick={() => onDelete(item)}
                                     className="rounded-full p-2 text-red-500 transition hover:bg-red-100 dark:hover:bg-red-900/50"
@@ -89,7 +86,7 @@ export default function ProductoMascotaCard({ item, onDelete, onEdit, onAction }
                             </div>
                         </div>
                     ) : (
-                        // --- Vista para Cliente ---
+                        // --- Vista para Cliente o Aliado (si NO es propietario) ---
                         <button
                             onClick={() => onAction(item)}
                             className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 font-semibold text-white transition hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
