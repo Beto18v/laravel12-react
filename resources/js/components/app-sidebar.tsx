@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
-import { BadgeDollarSign, BellRing, BookHeart, ChartSpline, LayoutGrid, MapPinned, PackagePlus, PawPrint } from 'lucide-react';
+import { BadgeDollarSign, BellRing, BookHeart, ChartSpline, LayoutGrid, MapPinned } from 'lucide-react';
 import AppLogo from './app-logo';
 
 export function AppSidebar() {
@@ -48,16 +48,6 @@ export function AppSidebar() {
             href: route('productos.mascotas'),
             icon: LayoutGrid,
         },
-        {
-            title: 'Registrar Productos',
-            href: route('productos.registrar'),
-            icon: PackagePlus,
-        },
-        {
-            title: 'Registrar Mascotas',
-            href: route('mascotas.registrar'),
-            icon: PawPrint,
-        },
     ];
 
     // Lógica de filtrado centralizada
@@ -69,13 +59,11 @@ export function AppSidebar() {
         finalNavItems = baseNavItems.filter((item) => allowedHrefs.includes(item.href as string));
     } else if (user.role === 'aliado') {
         // Rutas que NO debe ver el aliado
-        const disallowedHrefs = ['/favoritos', '/mapa', route('productos.mascotas'), '/productos'];
+        const disallowedHrefs = ['/favoritos', '/mapa', '/productos'];
         finalNavItems = baseNavItems.filter((item) => !disallowedHrefs.includes(item.href as string));
     } else {
-        // Lógica para otros roles (ej. admin)
-        // El admin no ve las vistas específicas del aliado
-        const disallowedHrefs = [route('productos.registrar'), route('mascotas.registrar')];
-        finalNavItems = baseNavItems.filter((item) => !disallowedHrefs.includes(item.href as string));
+        // Lógica para otros roles (El admin ve todo)
+        finalNavItems = baseNavItems;
     }
 
     return (

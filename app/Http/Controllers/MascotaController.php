@@ -6,7 +6,9 @@ use App\Models\Mascota;
 use App\Http\Requests\StoreMascotaRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Gate;
 
 class MascotaController extends Controller
 {
@@ -28,6 +30,16 @@ class MascotaController extends Controller
             $data['imagen'] = $request->file('imagen')->store('mascotas', 'public');
         }
         Mascota::create($data);
-        return redirect()->back()->with('success', 'Mascota registrada correctamente');
+        return Redirect::route('productos.mascotas')->with('success', 'Mascota registrada correctamente');
+    }
+
+    public function destroy(Mascota $mascota)
+    {
+        // Esto verifica si el usuario actual tiene permiso para eliminar
+        // según las reglas que definiremos en MascotaPolicy.
+        Gate::authorize('delete', $mascota);
+
+        $mascota->delete();
+        return redirect()->route('productos.mascotas')->with('success', 'Mascota eliminada correctamente.');
     }
 }

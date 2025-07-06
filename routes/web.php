@@ -42,12 +42,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('estadisticas', [App\Http\Controllers\EstadisticasController::class, 'index'])->name('estadisticas.index');
 
     Route::get('/productos-mascotas', [\App\Http\Controllers\ProductosMascotasController::class, 'index'])->name('productos.mascotas');
+    Route::post('/productos/store', [\App\Http\Controllers\ProductosMascotasController::class, 'store'])->name('productos.store');
+    Route::post('/mascotas/store', [MascotaController::class, 'store'])->name('mascotas.store');
+    Route::delete('/mascotas/{mascota}', [App\Http\Controllers\MascotaController::class, 'destroy'])->name('mascotas.destroy');
+    Route::delete('/productos/{product}', [App\Http\Controllers\ProductosMascotasController::class, 'destroy'])->name('productos.destroy');
 
-    Route::get('/registrar-productos', fn() => Inertia::render('Dashboard/RegistrarMascotasProductos/registrar-producto'))->name('productos.registrar');
-    Route::post('/productos/store', [\App\Http\Controllers\ProductosMascotasController::class, 'store']);
-
-    Route::get('/registrar-mascotas', fn() => Inertia::render('Dashboard/RegistrarMascotasProductos/registrar-mascota'))->name('mascotas.registrar');
-    Route::post('/mascotas/store', [MascotaController::class, 'store']);
     // Route::get('/mascotas', [MascotaController::class, 'index'])->name('mascotas.index');
     Route::post('/acciones-solicitud/store', [\App\Http\Controllers\AccionSolicitudController::class, 'store'])->name('acciones-solicitud.store');
     Route::post('/pagos/iniciar', [PagoController::class, 'iniciarPago']);

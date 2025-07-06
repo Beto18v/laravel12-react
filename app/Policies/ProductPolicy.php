@@ -45,7 +45,8 @@ class ProductPolicy
      */
     public function delete(User $user, Product $product): bool
     {
-        return false;
+        // Permite eliminar si el usuario es 'admin' O si es el 'aliado' que creó el producto.
+        return $user->role === 'admin' || $user->id === $product->user_id;
     }
 
     /**
