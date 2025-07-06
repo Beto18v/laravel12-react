@@ -67,13 +67,18 @@ export default function ProductoMascotaCard({ item, onDelete, onEdit, onAction }
                         <div className="flex items-center justify-between">
                             <span className="text-xs text-gray-500">Tus acciones:</span>
                             <div className="flex gap-2">
-                                <button
-                                    onClick={() => onEdit(item)}
-                                    className="rounded-full p-2 text-blue-500 transition hover:bg-blue-100 dark:hover:bg-blue-900/50"
-                                    aria-label="Editar"
-                                >
-                                    <Pencil className="h-5 w-5" />
-                                </button>
+                                {/* ✅ MODIFICACIÓN: Mostrar Editar solo para 'aliado' */}
+                                {user.role === 'aliado' && (
+                                    <button
+                                        onClick={() => onEdit(item)}
+                                        className="rounded-full p-2 text-blue-500 transition hover:bg-blue-100 dark:hover:bg-blue-900/50"
+                                        aria-label="Editar"
+                                    >
+                                        <Pencil className="h-5 w-5" />
+                                    </button>
+                                )}
+
+                                {/* El botón de eliminar se muestra para 'admin' y 'aliado' (condición esPropietario) */}
                                 <button
                                     onClick={() => onDelete(item)}
                                     className="rounded-full p-2 text-red-500 transition hover:bg-red-100 dark:hover:bg-red-900/50"
