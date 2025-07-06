@@ -1,6 +1,6 @@
 import { Input } from '@/components/ui/input'; // Usaremos el Input que ya tienes
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface ProductFiltersProps {
     filters: {
@@ -23,17 +23,10 @@ export default function ProductFilters({ filters, onFilterChange, currentPriceLi
                 <div className="grid gap-2">
                     <Label htmlFor="category">Categoría</Label>
                     <Select onValueChange={(value) => onFilterChange('selectedCategory', value)}>
-                        <SelectTrigger>
+                        <SelectTrigger id="category">
                             <SelectValue placeholder="Todas" />
                         </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Todas</SelectItem>
-                            {filters.categories.map((category) => (
-                                <SelectItem key={category} value={category}>
-                                    {category}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
+                        <SelectContent>{/* ... */}</SelectContent>
                     </Select>
                 </div>
                 <div className="grid gap-4">

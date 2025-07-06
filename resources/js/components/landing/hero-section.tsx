@@ -8,11 +8,13 @@ export default function HeroSection() {
                 <form className="mx-auto flex max-w-2xl flex-col space-y-2 rounded-xl bg-white p-2 shadow-xl sm:flex-row sm:space-y-0 dark:bg-gray-800">
                     <input
                         type="text"
+                        name="busqueda_mascota" //
                         placeholder="Buscar por raza (Ej: Perro, Gato)"
                         className="w-full rounded-lg px-4 py-3 text-gray-700 focus:outline-none sm:flex-1 sm:rounded-l-lg sm:rounded-r-none dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-400"
                     />
                     <input
                         type="text"
+                        name="ciudad"
                         placeholder="Ciudad"
                         className="w-full rounded-lg border-t border-gray-200 px-4 py-3 text-gray-700 focus:outline-none sm:flex-1 sm:rounded-none sm:border-t-0 sm:border-l dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-400"
                     />
