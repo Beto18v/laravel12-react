@@ -19,9 +19,9 @@ class Product extends Model
         'nombre',
         'descripcion',
         'precio',
-        'cantidad',
-        'imagen',
+        'stock',
         'user_id',
+        'imagen',
     ];
 
     /**
