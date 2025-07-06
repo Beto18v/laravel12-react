@@ -13,7 +13,7 @@ export type CardItem = {
     precio: number | null;
     imagen?: string;
     user_id: number; // Aseguramos que el user_id siempre esté presente
-    user?: { name: string };
+    user?: { name: string }; // El objeto user con el nombre es opcional
 };
 
 // Definimos las props que el componente recibirá
@@ -28,8 +28,14 @@ export default function ProductoMascotaCard({ item, onDelete, onEdit, onAction }
     // Obtenemos el usuario autenticado para determinar el rol
     const { auth } = usePage<SharedData>().props;
     const user = auth.user;
-    // Condición para determinar si el usuario es propietario del item
-    const esPropietario = user.role === 'admin' || (user.role === 'aliado' && user.id === item.user_id);
+
+    // Verificamos si el usuario es el propietario del item
+    const esPropietario = user.role === 'aliado' && user.id === item.user_id;
+    // Verificamos si el usuario es admin
+    const esAdmin = user.role === 'admin';
+
+    // El cliente ve los botones de acción principales
+    const esCliente = !esPropietario && !esAdmin;
 
     return (
         <div className="group relative flex transform flex-col overflow-hidden rounded-xl bg-white text-gray-800 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl dark:bg-gray-800 dark:text-gray-200">
@@ -40,7 +46,6 @@ export default function ProductoMascotaCard({ item, onDelete, onEdit, onAction }
                     alt={item.nombre}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
-                {/* Etiqueta de tipo (Producto/Mascota) */}
                 <span
                     className={`absolute top-2 right-2 inline-block rounded-full px-3 py-1 text-xs font-bold ${
                         item.tipo === 'producto'
@@ -57,36 +62,29 @@ export default function ProductoMascotaCard({ item, onDelete, onEdit, onAction }
                 <h3 className="mb-1 text-lg font-bold text-gray-900 dark:text-white">{item.nombre}</h3>
                 <p className="mb-4 line-clamp-2 flex-grow text-sm text-gray-600 dark:text-gray-400">{item.descripcion}</p>
 
-                {/* Precio o Estado de Adopción */}
                 <div className="mb-4 text-xl font-semibold text-green-600 dark:text-green-400">
                     {item.tipo === 'producto' ? `$${item.precio?.toLocaleString() ?? 'N/A'}` : 'En Adopción'}
                 </div>
 
+                {/* Información del publicador */}
+                <div className="mb-3 border-t border-gray-200 pt-3 text-right text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                    {esPropietario ? (
+                        <span>
+                            Publicado por <span className="font-semibold">ti</span>
+                        </span>
+                    ) : (
+                        item.user?.name && (
+                            <span>
+                                Publicado por: <span className="font-semibold">{item.user.name}</span>
+                            </span>
+                        )
+                    )}
+                </div>
+
                 {/* Botones de Acción Condicionales */}
                 <div className="mt-auto">
-                    {esPropietario ? (
-                        // --- Vista para Admin y Aliado (si es propietario) ---
-                        <div className="flex items-center justify-between">
-                            <span className="text-xs text-gray-500">Tus acciones:</span>
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={() => onEdit(item)}
-                                    className="rounded-full p-2 text-blue-500 transition hover:bg-blue-100 dark:hover:bg-blue-900/50"
-                                    aria-label="Editar"
-                                >
-                                    <Pencil className="h-5 w-5" />
-                                </button>
-                                <button
-                                    onClick={() => onDelete(item)}
-                                    className="rounded-full p-2 text-red-500 transition hover:bg-red-100 dark:hover:bg-red-900/50"
-                                    aria-label="Eliminar"
-                                >
-                                    <Trash2 className="h-5 w-5" />
-                                </button>
-                            </div>
-                        </div>
-                    ) : (
-                        // --- Vista para Cliente o Aliado (si NO es propietario) ---
+                    {esCliente ? (
+                        // --- Vista para Cliente ---
                         <button
                             onClick={() => onAction(item)}
                             className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 font-semibold text-white transition hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
@@ -101,6 +99,33 @@ export default function ProductoMascotaCard({ item, onDelete, onEdit, onAction }
                                 </>
                             )}
                         </button>
+                    ) : (
+                        // --- Vista para Admin y Aliado ---
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs text-gray-500">{esPropietario ? 'Tus acciones:' : 'Tus acciones:'}</span>
+                            <div className="flex gap-2">
+                                {/* Botón de Editar (solo para el aliado propietario) */}
+                                {esPropietario && (
+                                    <button
+                                        onClick={() => onEdit(item)}
+                                        className="rounded-full p-2 text-blue-500 transition hover:bg-blue-100 dark:hover:bg-blue-900/50"
+                                        aria-label="Editar"
+                                    >
+                                        <Pencil className="h-5 w-5" />
+                                    </button>
+                                )}
+                                {/* Botón de Eliminar (para admin o aliado propietario) */}
+                                {(esAdmin || esPropietario) && (
+                                    <button
+                                        onClick={() => onDelete(item)}
+                                        className="rounded-full p-2 text-red-500 transition hover:bg-red-100 dark:hover:bg-red-900/50"
+                                        aria-label="Eliminar"
+                                    >
+                                        <Trash2 className="h-5 w-5" />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
                     )}
                 </div>
             </div>
