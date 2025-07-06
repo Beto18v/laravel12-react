@@ -1,3 +1,4 @@
+import { ThemeSwitcher } from '@/components/theme-switcher';
 import AppLayout from '@/layouts/app-layout';
 import { generateDonationsReport } from '@/lib/report-generator';
 import { type BreadcrumbItem } from '@/types';
@@ -162,6 +163,7 @@ export default function DonationsSummary() {
                     )}
                 </div>
             </main>
+            <ThemeSwitcher />
         </AppLayout>
     );
 }

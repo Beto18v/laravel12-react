@@ -1,3 +1,4 @@
+import { ThemeSwitcher } from '@/components/theme-switcher';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
@@ -33,7 +34,7 @@ export default function PendingRequests() {
             <main className="flex-1 overflow-y-auto bg-gradient-to-r from-green-400 to-blue-500 p-6 dark:from-green-600 dark:to-blue-700">
                 <div className="container mx-auto">
                     {flash?.success && (
-                        <div className="mb-6 animate-fade-in rounded-lg border-l-4 border-green-500 bg-green-100 p-4 text-center text-green-800 shadow-lg dark:border-green-600 dark:bg-gray-800 dark:text-green-300">
+                        <div className="animate-fade-in mb-6 rounded-lg border-l-4 border-green-500 bg-green-100 p-4 text-center text-green-800 shadow-lg dark:border-green-600 dark:bg-gray-800 dark:text-green-300">
                             {flash.success}
                         </div>
                     )}
@@ -78,15 +79,15 @@ export default function PendingRequests() {
                                                     {solicitud.tipo === 'compra' && solicitud.producto ? solicitud.producto.nombre : ''}
                                                     {solicitud.tipo === 'adopcion' && solicitud.mascota ? solicitud.mascota.nombre : ''}
                                                 </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">{solicitud.user?.name || 'N/A'}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    {solicitud.user?.name || 'N/A'}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <span className={`inline-flex rounded-full px-2 text-xs leading-5 font-semibold ${getStatusBadge(solicitud.estado)}`}>
+                                                    <span
+                                                        className={`inline-flex rounded-full px-2 text-xs leading-5 font-semibold ${getStatusBadge(solicitud.estado)}`}
+                                                    >
                                                         {solicitud.estado}
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
                                                     {new Date(solicitud.created_at).toLocaleString()}
                                                 </td>
                                             </tr>
@@ -102,6 +103,7 @@ export default function PendingRequests() {
                     )}
                 </div>
             </main>
+            <ThemeSwitcher />
         </AppLayout>
     );
 }

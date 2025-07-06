@@ -6,6 +6,7 @@ import { FormEventHandler } from 'react';
 import DeleteUser from '@/components/delete-user';
 import HeadingSmall from '@/components/heading-small';
 import InputError from '@/components/input-error';
+import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -122,6 +123,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
 
                 <DeleteUser />
             </SettingsLayout>
+            <ThemeSwitcher />
         </AppLayout>
     );
 }

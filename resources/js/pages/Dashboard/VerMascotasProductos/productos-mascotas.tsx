@@ -1,3 +1,4 @@
+import { ThemeSwitcher } from '@/components/theme-switcher';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Inertia } from '@inertiajs/inertia';
@@ -233,6 +234,7 @@ export default function ProductosMascotas() {
                     )}
                 </div>
             </main>
+            <ThemeSwitcher />
         </AppLayout>
     );
 }

@@ -1,3 +1,4 @@
+import { ThemeSwitcher } from '@/components/theme-switcher';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
@@ -87,6 +88,7 @@ export default function AdoptionMap() {
                     </div>
                 </div>
             </main>
+            <ThemeSwitcher />
         </AppLayout>
     );
 }

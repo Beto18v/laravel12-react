@@ -7,6 +7,7 @@ import { Head, useForm } from '@inertiajs/react';
 import { FormEventHandler, useRef } from 'react';
 
 import HeadingSmall from '@/components/heading-small';
+import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -127,6 +128,7 @@ export default function Password() {
                     </form>
                 </div>
             </SettingsLayout>
+            <ThemeSwitcher />
         </AppLayout>
     );
 }
