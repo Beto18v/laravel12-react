@@ -12,6 +12,7 @@ export default function InputError({ message, className = '', ...props }: HTMLAt
         'The email has already been taken.': 'Correo electrónico ya en uso.',
         'The name has already been taken.': 'El nombre ya está en uso.',
         'The account number has already been taken.': 'El número de cuenta ya está en uso.',
+        'The email field must be lowercase.': 'El campo de correo electrónico debe estar en minúsculas.',
     };
 
     // Buscamos si el mensaje en inglés tiene una traducción; si no, usamos el mensaje original.
