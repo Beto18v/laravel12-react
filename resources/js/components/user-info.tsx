@@ -2,7 +2,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useInitials } from '@/hooks/use-initials';
 import { type User } from '@/types';
 
-export function UserInfo({ user, showEmail = false }: { user: User; showEmail?: boolean }) {
+// Mapeo de roles a los nombres deseados
+const roleDisplayNames = {
+    cliente: 'Amigo',
+    aliado: 'Aliado',
+    admin: 'Admin',
+};
+
+export function UserInfo({ user, showEmail = false, showRole = false }: { user: User; showEmail?: boolean; showRole?: boolean }) {
     const getInitials = useInitials();
 
     return (
@@ -15,7 +22,16 @@ export function UserInfo({ user, showEmail = false }: { user: User; showEmail?: 
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
-                {showEmail && <span className="truncate text-xs text-muted-foreground">{user.email}</span>}
+                {showEmail && (
+                    <div className="flex items-center justify-between">
+                        <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+                        {showRole && user.role && (
+                            <span className="truncate text-xs font-bold text-gray-500 dark:text-gray-600">
+                                {roleDisplayNames[user.role] || user.role}
+                            </span>
+                        )}
+                    </div>
+                )}
             </div>
         </>
     );

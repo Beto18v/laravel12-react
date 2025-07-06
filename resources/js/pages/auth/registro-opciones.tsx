@@ -21,7 +21,7 @@ export default function RegistroOpciones() {
         },
         {
             id: 2,
-            titulo: 'Aliado',
+            titulo: 'Aliado AdoptaFácil',
             descripcion: 'Regístrate como refugio, veterinaria o tienda. Conecta tu servicio con quienes más lo necesitan.',
             icono: '🏢',
             color: 'from-green-500 to-green-700',

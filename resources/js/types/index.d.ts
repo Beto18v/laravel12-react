@@ -39,6 +39,7 @@ export interface User {
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;
+    role: 'cliente' | 'aliado' | 'admin'; // Define roles
     [key: string]: unknown; // This allows for additional properties...
 }
 
