@@ -11,11 +11,9 @@ Route::get('/', function () {
     return Inertia::render('index');
 })->name('index');
 
-Route::get('/mascotas', function () {
-    return Inertia::render('mascotas');
-})->name('mascotas');
+Route::get('/mascotas', [MascotaController::class, 'indexPublic'])->name('mascotas');
 
-Route::get('/productos', fn() => Inertia::render('productos'))->name('productos');
+Route::get('/productos', [ProductController::class, 'indexPublic'])->name('productos');
 
 Route::get('/refugios', [ShelterController::class, 'index'])->name('refugios');
 Route::post('/shelters', [ShelterController::class, 'store'])->middleware(['auth', 'verified'])->name('shelter.store');

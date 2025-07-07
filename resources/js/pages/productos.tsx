@@ -2,63 +2,53 @@ import Footer from '@/components/landing/footer';
 import Header from '@/components/landing/header';
 import ProductCard from '@/components/productos/product-card';
 import ProductFilters from '@/components/productos/product-filters';
-import ProductHero from '@/components/productos/product-hero'; // 1. Importa el nuevo componente
+import ProductHero from '@/components/productos/product-hero';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Head } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 
-// --- Datos de ejemplo ---
-const allProducts = [
-    {
-        id: 1,
-        name: 'Collar de Cuero',
-        category: 'Accesorios',
-        price: 25000,
-        imageUrl: 'https://images.unsplash.com/photo-1591946614725-3b9b0d5b248b?q=80&w=400',
-    },
-    {
-        id: 2,
-        name: 'Juguete para Gato',
-        category: 'Juguetes',
-        price: 15000,
-        imageUrl: 'https://images.unsplash.com/photo-1592769606236-4445855016a9?q=80&w=400',
-    },
-    {
-        id: 3,
-        name: 'Comida para Perro 10kg',
-        category: 'Alimentos',
-        price: 80000,
-        imageUrl: 'https://images.unsplash.com/photo-1585856346416-28a1b9204273?q=80&w=400',
-    },
-    {
-        id: 4,
-        name: 'Cama Suave Mediana',
-        category: 'Camas',
-        price: 120000,
-        imageUrl: 'https://images.unsplash.com/photo-1580477880199-6769f52c1538?q=80&w=400',
-    },
-    {
-        id: 5,
-        name: 'Arena para Gato',
-        category: 'Higiene',
-        price: 45000,
-        imageUrl: 'https://images.unsplash.com/photo-1620143165323-e19c96841b5a?q=80&w=400',
-    },
-    {
-        id: 6,
-        name: 'Correa Retráctil',
-        category: 'Accesorios',
-        price: 55000,
-        imageUrl: 'https://images.unsplash.com/photo-1605347257448-382994a53944?q=80&w=400',
-    },
-];
+interface Product {
+    id: number;
+    nombre: string;
+    descripcion: string;
+    precio: number;
+    imagen?: string;
+    user: {
+        id: number;
+        name: string;
+    };
+}
 
-const availableFilters = {
-    categories: ['Accesorios', 'Juguetes', 'Alimentos', 'Camas', 'Higiene'],
-    priceRange: [0, 150000] as [number, number],
-};
+interface ProductosProps {
+    productos: Product[];
+}
 
-export default function Productos() {
+export default function Productos({ productos = [] }: ProductosProps) {
+    // Transformar los productos de la base de datos al formato esperado por los componentes existentes
+    const allProducts = useMemo(() => {
+        return productos.map(producto => ({
+            id: producto.id,
+            name: producto.nombre,
+            category: 'Productos', // Categoría genérica, se puede expandir más adelante
+            price: producto.precio,
+            imageUrl: producto.imagen ? `/storage/${producto.imagen}` : 'https://images.unsplash.com/photo-1591946614725-3b9b0d5b248b?q=80&w=400',
+            description: producto.descripcion,
+            seller: producto.user.name
+        }));
+    }, [productos]);
+
+    // Generar filtros dinámicamente basados en los productos reales
+    const availableFilters = useMemo(() => {
+        const categories = ['Productos']; // Se puede expandir cuando agregues categorías al modelo
+        const prices = allProducts.map(p => p.price);
+        const maxPrice = prices.length > 0 ? Math.max(...prices) : 150000;
+        
+        return {
+            categories,
+            priceRange: [0, maxPrice] as [number, number],
+        };
+    }, [allProducts]);
+
     const [filters, setFilters] = useState({
         searchTerm: '',
         selectedCategory: 'all',
@@ -76,7 +66,7 @@ export default function Productos() {
             const priceMatch = product.price <= filters.priceLimit;
             return searchTermMatch && categoryMatch && priceMatch;
         });
-    }, [filters]);
+    }, [filters, allProducts]);
 
     return (
         <div className="flex min-h-screen flex-col bg-white dark:bg-gray-800">
@@ -98,7 +88,12 @@ export default function Productos() {
                                 {filteredProducts.length > 0 ? (
                                     filteredProducts.map((product) => <ProductCard key={product.id} {...product} />)
                                 ) : (
-                                    <p className="col-span-full py-16 text-center text-gray-500">No se encontraron productos con estos filtros.</p>
+                                    <p className="col-span-full py-16 text-center text-gray-500">
+                                        {allProducts.length === 0 
+                                            ? 'No hay productos disponibles aún.' 
+                                            : 'No se encontraron productos con estos filtros.'
+                                        }
+                                    </p>
                                 )}
                             </div>
                         </section>

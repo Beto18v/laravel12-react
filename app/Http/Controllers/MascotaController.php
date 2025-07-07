@@ -21,6 +21,15 @@ class MascotaController extends Controller
         ]);
     }
 
+    // Mostrar mascotas en la vista pública del nav
+    public function indexPublic()
+    {
+        $mascotas = Mascota::with('user')->get();
+        return Inertia::render('mascotas', [
+            'mascotas' => $mascotas
+        ]);
+    }
+
     // Registrar mascota (solo aliado)
     public function store(StoreMascotaRequest $request)
     {

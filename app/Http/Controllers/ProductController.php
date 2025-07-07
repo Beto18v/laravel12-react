@@ -10,11 +10,23 @@ use Illuminate\Support\Facades\Auth;
 
 // Import para la autorización
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Inertia\Inertia;
 
 class ProductController extends Controller
 {
     // Usa el trait para que el método $this->authorize() funcione
     use AuthorizesRequests;
+
+    /**
+     * Muestra todos los productos en la vista pública del nav.
+     */
+    public function indexPublic()
+    {
+        $productos = Product::with('user')->get();
+        return Inertia::render('productos', [
+            'productos' => $productos
+        ]);
+    }
 
     /**
      * Almacena un nuevo producto en la base de datos.
