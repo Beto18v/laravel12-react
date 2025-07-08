@@ -8,7 +8,14 @@ use App\Http\Controllers\PagoController;
 use App\Http\Controllers\ShelterController;
 
 Route::get('/', function () {
-    return Inertia::render('index');
+    // Obtener los últimos 3 productos y 3 mascotas para mostrar en el landing
+    $productos = \App\Models\Product::with('user')->latest()->take(3)->get();
+    $mascotas = \App\Models\Mascota::with('user')->latest()->take(3)->get();
+    
+    return Inertia::render('index', [
+        'productos' => $productos,
+        'mascotas' => $mascotas
+    ]);
 })->name('index');
 
 Route::get('/mascotas', [MascotaController::class, 'indexPublic'])->name('mascotas');
