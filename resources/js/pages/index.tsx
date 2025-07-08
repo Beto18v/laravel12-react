@@ -66,13 +66,26 @@ export default function Welcome({ productos = [], mascotas = [] }: IndexProps) {
         }));
     }, [mascotas]);
 
-    // Datos de categorías (estos pueden seguir siendo estáticos o también hacerse dinámicos)
-    const categories = [
-        { emoji: '🐶', title: 'Perros', count: '1,200', link: '/mascotas' },
-        { emoji: '🐱', title: 'Gatos', count: '800', link: '/mascotas' },
-        { emoji: '🐰', title: 'Conejos', count: '150', link: '/mascotas' },
-        { emoji: '🐦', title: 'Aves', count: '90', link: '/mascotas' },
-    ];
+    // Calcular conteos dinámicos de perros y gatos y crear enlaces con filtros
+    const categories = useMemo(() => {
+        const perrosCount = mascotas.filter(m => m.especie.toLowerCase() === 'perro').length;
+        const gatosCount = mascotas.filter(m => m.especie.toLowerCase() === 'gato').length;
+        
+        return [
+            { 
+                emoji: '🐶', 
+                title: 'Perros', 
+                count: perrosCount.toString(), 
+                link: '/mascotas?especie=perro' 
+            },
+            { 
+                emoji: '🐱', 
+                title: 'Gatos', 
+                count: gatosCount.toString(), 
+                link: '/mascotas?especie=gato' 
+            },
+        ];
+    }, [mascotas]);
 
     // Datos de respaldo si no hay productos/mascotas en la BD
     const fallbackProducts = [
@@ -90,7 +103,7 @@ export default function Welcome({ productos = [], mascotas = [] }: IndexProps) {
         },
         {
             name: 'Servicio de peluquería canina',
-            description: 'Baño, corte de pelo y uñas para tu mascota.',
+            description: 'Baño, corte de pelo y u��as para tu mascota.',
             price: 'Desde $50.000',
             imageUrl: 'https://images.unsplash.com/photo-1575846171058-081d10e4cf21?auto=format&fit=crop&w=800&q=60',
         },
@@ -126,9 +139,16 @@ export default function Welcome({ productos = [], mascotas = [] }: IndexProps) {
             <Header />
 
             <main className="relative z-10 w-full bg-white dark:bg-gray-800">
+                {/* 1. Hero Section - Punto de entrada */}
                 <HeroSection />
-                <PetsSection pets={pets.length > 0 ? pets : fallbackPets} />
+                
+                {/* 2. Categorías - Navegación rápida y llamativa */}
                 <CategoriesSection categories={categories} />
+                
+                {/* 3. Mascotas - Prioridad máxima, contenido principal */}
+                <PetsSection pets={pets.length > 0 ? pets : fallbackPets} />
+                
+                {/* 4. Productos - Complemento importante */}
                 <ProductsSection products={products.length > 0 ? products : fallbackProducts} />
             </main>
 

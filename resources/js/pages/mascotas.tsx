@@ -1,11 +1,10 @@
 import Footer from '@/components/landing/footer';
 import Header from '@/components/landing/header';
-
 import PetCard from '@/components/mascotas/pet-card';
 import PetHero from '@/components/mascotas/pet-hero';
 import { ThemeSwitcher } from '@/components/theme-switcher';
-import { Head } from '@inertiajs/react';
-import { useMemo, useState } from 'react';
+import { Head, usePage } from '@inertiajs/react';
+import { useMemo, useState, useEffect } from 'react';
 
 interface Mascota {
     id: number;
@@ -26,6 +25,14 @@ interface MascotasProps {
 }
 
 export default function Mascotas({ mascotas = [] }: MascotasProps) {
+    const { url } = usePage();
+    
+    // Extraer parámetro de especie de la URL
+    const getEspecieFromUrl = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('especie') || 'all';
+    };
+
     // Transformar las mascotas de la base de datos al formato esperado por los componentes
     const allPets = useMemo(() => {
         return mascotas.map(mascota => ({
@@ -46,6 +53,14 @@ export default function Mascotas({ mascotas = [] }: MascotasProps) {
         selectedEdad: 'all',
     });
 
+    // Aplicar filtro de especie desde URL al cargar la página
+    useEffect(() => {
+        const especieFromUrl = getEspecieFromUrl();
+        if (especieFromUrl !== 'all') {
+            setFilters(prev => ({ ...prev, selectedEspecie: especieFromUrl }));
+        }
+    }, []);
+
     const handleFilterChange = (key: string, value: any) => {
         setFilters((prev) => ({ ...prev, [key]: value }));
     };
@@ -54,7 +69,7 @@ export default function Mascotas({ mascotas = [] }: MascotasProps) {
         return allPets.filter((pet) => {
             const searchTermMatch = pet.name.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
                                   pet.descripcion.toLowerCase().includes(filters.searchTerm.toLowerCase());
-            const especieMatch = filters.selectedEspecie === 'all' || pet.especie === filters.selectedEspecie;
+            const especieMatch = filters.selectedEspecie === 'all' || pet.especie.toLowerCase() === filters.selectedEspecie.toLowerCase();
             const edadMatch = filters.selectedEdad === 'all' || 
                             (filters.selectedEdad === 'joven' && pet.edad <= 2) ||
                             (filters.selectedEdad === 'adulto' && pet.edad > 2 && pet.edad <= 7) ||
@@ -108,6 +123,22 @@ export default function Mascotas({ mascotas = [] }: MascotasProps) {
                             <option value="senior">Senior (8+ años)</option>
                         </select>
                     </div>
+
+                    {/* Mostrar filtro activo si viene de categorías */}
+                    {filters.selectedEspecie !== 'all' && (
+                        <div className="mb-4 flex items-center gap-2">
+                            <span className="text-sm text-gray-600 dark:text-gray-300">Filtrando por:</span>
+                            <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm dark:bg-blue-900 dark:text-blue-200">
+                                {filters.selectedEspecie}
+                            </span>
+                            <button
+                                onClick={() => handleFilterChange('selectedEspecie', 'all')}
+                                className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                            >
+                                ✕ Limpiar filtro
+                            </button>
+                        </div>
+                    )}
 
                     {/* Grid de mascotas */}
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
