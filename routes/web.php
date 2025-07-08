@@ -6,12 +6,14 @@ use App\Http\Controllers\MascotaController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\ShelterController;
+use App\Http\Controllers\SolicitudesController;
+
 
 Route::get('/', function () {
     // Obtener los últimos 3 productos y 3 mascotas para mostrar en el landing
     $productos = \App\Models\Product::with('user')->latest()->take(3)->get();
     $mascotas = \App\Models\Mascota::with('user')->latest()->take(3)->get();
-    
+
     return Inertia::render('index', [
         'productos' => $productos,
         'mascotas' => $mascotas
@@ -40,17 +42,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::get('favoritos', [App\Http\Controllers\FavoritosController::class, 'index'])->name('favoritos.index');
-    Route::get('solicitudes', [App\Http\Controllers\SolicitudesController::class, 'index'])->name('solicitudes.index');
     Route::get('donaciones', [App\Http\Controllers\DonacionesController::class, 'index'])->name('donaciones.index');
     Route::post('donaciones', [App\Http\Controllers\DonacionesController::class, 'store'])->name('donaciones.store');
     Route::get('mapa', [App\Http\Controllers\MapaController::class, 'index'])->name('mapa.index');
     Route::get('estadisticas', [App\Http\Controllers\EstadisticasController::class, 'index'])->name('estadisticas.index');
+
+
+    Route::get('solicitudes', [App\Http\Controllers\SolicitudesController::class, 'index'])->name('solicitudes.index');
+    Route::post('solicitudes', [App\Http\Controllers\SolicitudesController::class, 'store'])->name('solicitudes.adopcion.store');
+    Route::delete('solicitudes/{solicitud}', [App\Http\Controllers\SolicitudesController::class, 'destroy'])->name('solicitudes.destroy');
 
     Route::get('/productos-mascotas', [\App\Http\Controllers\ProductosMascotasController::class, 'index'])->name('productos.mascotas');
     Route::post('/productos/store', [\App\Http\Controllers\ProductosMascotasController::class, 'store'])->name('productos.store');
     Route::post('/mascotas/store', [MascotaController::class, 'store'])->name('mascotas.store');
     Route::delete('/mascotas/{mascota}', [App\Http\Controllers\MascotaController::class, 'destroy'])->name('mascotas.destroy');
     Route::delete('/productos/{product}', [App\Http\Controllers\ProductosMascotasController::class, 'destroy'])->name('productos.destroy');
+
 
     // Route::get('/mascotas', [MascotaController::class, 'index'])->name('mascotas.index');
     Route::post('/acciones-solicitud/store', [\App\Http\Controllers\AccionSolicitudController::class, 'store'])->name('acciones-solicitud.store');

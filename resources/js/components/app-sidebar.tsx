@@ -42,7 +42,6 @@ export function AppSidebar() {
             href: '/donaciones',
             icon: BadgeDollarSign,
         },
-        // --- Items que antes eran específicos de un rol ---
         {
             title: 'Productos y Mascotas',
             href: route('productos.mascotas'),
@@ -55,7 +54,7 @@ export function AppSidebar() {
 
     if (user.role === 'cliente') {
         // Rutas que SÍ debe ver el cliente
-        const allowedHrefs = ['/dashboard', '/favoritos', '/estadisticas', '/mapa', '/donaciones', route('productos.mascotas')];
+        const allowedHrefs = ['/dashboard', '/favoritos', '/estadisticas', '/mapa', '/donaciones', '/solicitudes', route('productos.mascotas')];
         finalNavItems = baseNavItems.filter((item) => allowedHrefs.includes(item.href as string));
     } else if (user.role === 'aliado') {
         // Rutas que NO debe ver el aliado

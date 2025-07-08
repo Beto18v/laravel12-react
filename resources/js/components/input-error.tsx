@@ -13,6 +13,9 @@ export default function InputError({ message, className = '', ...props }: HTMLAt
         'The name has already been taken.': 'El nombre ya está en uso.',
         'The account number has already been taken.': 'El número de cuenta ya está en uso.',
         'The email field must be lowercase.': 'El campo de correo electrónico debe estar en minúsculas.',
+        'The acepta contrato adopcion field must be accepted.': 'Debe aceptar el contrato de adopción.',
+        'The acepta cuidado responsable field must be accepted.': 'Debe aceptar el cuidado responsable.',
+        'The acepta proceso evaluacion field must be accepted.': 'Debe aceptar el proceso de evaluación.',
     };
 
     // Buscamos si el mensaje en inglés tiene una traducción; si no, usamos el mensaje original.
