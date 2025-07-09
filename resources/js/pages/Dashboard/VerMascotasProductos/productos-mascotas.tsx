@@ -38,7 +38,6 @@ export default function ProductosMascotas() {
     };
 
     // --- MANEJADORES DE ACCIONES ---
-
     // Acción para Cliente (Comprar/Adoptar)
     const handleAction = (item: CardItem) => {
         const actionType = item.tipo === 'producto' ? 'compra' : 'adopcion';
@@ -62,7 +61,7 @@ export default function ProductosMascotas() {
         console.log('Editar item:', item);
     };
 
-    // Acción para Admin/Aliado (Eliminar) - CORREGIDA
+    // Acción para Admin/Aliado (Eliminar)
     const handleDelete = (item: CardItem) => {
         if (confirm(`¿Estás seguro de que quieres eliminar "${item.nombre}"? Esta acción no se puede deshacer.`)) {
             const deleteUrl = item.tipo === 'producto' ? `/productos/${item.id}` : `/mascotas/${item.id}`;
@@ -140,7 +139,6 @@ export default function ProductosMascotas() {
                             <option value="mascota">Solo mascotas</option>
                         </select>
                     </div>
-
                     {/* --- INICIO DE LA CUADRÍCULA DE TARJETAS --- */}
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         {productosFiltrados.map((item) => (
@@ -154,7 +152,6 @@ export default function ProductosMascotas() {
                         ))}
                     </div>
                     {/* --- FIN DE LA CUADRÍCULA DE TARJETAS --- */}
-
                     {productosFiltrados.length === 0 && (
                         <div className="animate-fade-in mt-10 rounded-lg bg-white p-16 text-center text-lg text-gray-600 shadow-sm dark:bg-gray-800 dark:text-gray-400">
                             No se encontraron resultados que coincidan con tu búsqueda.
