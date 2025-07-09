@@ -73,6 +73,8 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
                     {/* Campo Nombre */}
                     <div>
                         <input
+                            id="nombre"
+                            name="nombre"
                             type="text"
                             value={data.nombre}
                             onChange={(e) => setData('nombre', e.target.value)}
@@ -83,9 +85,11 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
                     </div>
 
                     <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                        {/* Campo Especie (Ahora es un Select) */}
+                        {/* Campo Especie */}
                         <div>
                             <select
+                                id="especie"
+                                name="especie"
                                 value={data.especie}
                                 onChange={(e) => setData('especie', e.target.value)}
                                 className="w-full rounded-md border-gray-300 p-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
@@ -103,6 +107,8 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
                         {/* Campo Raza */}
                         <div>
                             <input
+                                id="raza"
+                                name="raza"
                                 type="text"
                                 value={data.raza}
                                 onChange={(e) => setData('raza', e.target.value)}
@@ -117,6 +123,8 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
                         {/* Campo Edad */}
                         <div>
                             <input
+                                id="edad"
+                                name="edad"
                                 type="number"
                                 value={data.edad}
                                 onChange={(e) => setData('edad', e.target.value)}
@@ -128,6 +136,8 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
                         {/* Campo Sexo */}
                         <div>
                             <select
+                                id="sexo"
+                                name="sexo"
                                 value={data.sexo}
                                 onChange={(e) => setData('sexo', e.target.value)}
                                 className="w-full rounded-md border-gray-300 p-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
@@ -141,6 +151,8 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
                         {/* Campo Ciudad */}
                         <div>
                             <input
+                                id="ciudad"
+                                name="ciudad"
                                 type="text"
                                 value={data.ciudad}
                                 onChange={(e) => setData('ciudad', e.target.value)}
@@ -154,6 +166,8 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
                     {/* Campo Descripción */}
                     <div>
                         <textarea
+                            id="descripcion"
+                            name="descripcion"
                             value={data.descripcion}
                             onChange={(e) => setData('descripcion', e.target.value)}
                             placeholder="Descripción y personalidad"

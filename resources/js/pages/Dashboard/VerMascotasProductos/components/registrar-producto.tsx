@@ -1,4 +1,3 @@
-import { Inertia } from '@inertiajs/inertia';
 import { useForm } from '@inertiajs/react';
 import { UploadCloud } from 'lucide-react'; // Importar el icono
 import React, { useEffect, useRef, useState } from 'react';
@@ -44,8 +43,6 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
                 setFileName('');
                 onClose();
                 setMensaje('¡Producto registrado exitosamente!');
-                // Recarga solo los datos de 'items'.
-                Inertia.reload({ only: ['items'], preserveScroll: true });
             },
             // Se resetea el formulario en caso de error para no dejar datos inválidos
             onError: () => {
@@ -72,6 +69,8 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
                     {/* Campo Nombre */}
                     <div>
                         <input
+                            id="nombre"
+                            name="nombre"
                             type="text"
                             value={data.nombre}
                             onChange={(e) => setData('nombre', e.target.value)}
@@ -84,6 +83,8 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
                     {/* Campo Descripción */}
                     <div>
                         <textarea
+                            id="descripcion"
+                            name="descripcion"
                             value={data.descripcion}
                             onChange={(e) => setData('descripcion', e.target.value)}
                             placeholder="Descripción del producto"
@@ -97,6 +98,8 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
                         {/* Campo Precio */}
                         <div>
                             <input
+                                id="precio"
+                                name="precio"
                                 type="number"
                                 value={data.precio}
                                 onChange={(e) => setData('precio', e.target.value)}
@@ -108,6 +111,8 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
                         {/* Campo Cantidad */}
                         <div>
                             <input
+                                id="cantidad"
+                                name="cantidad"
                                 type="number"
                                 value={data.cantidad}
                                 onChange={(e) => setData('cantidad', e.target.value)}
@@ -130,6 +135,7 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
                         </label>
                         <input
                             id="imagen-producto"
+                            name="imagen-producto"
                             ref={fileInputRef}
                             type="file"
                             onChange={(e) => {

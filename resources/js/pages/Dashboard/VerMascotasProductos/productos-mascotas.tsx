@@ -120,6 +120,8 @@ export default function ProductosMascotas() {
                     {/* Filtros y búsqueda */}
                     <div className="mx-auto flex max-w-2xl flex-col items-center justify-center gap-4 rounded-lg bg-white p-4 shadow-sm md:flex-row dark:bg-gray-800">
                         <input
+                            id="text"
+                            name="text"
                             type="text"
                             value={busqueda}
                             onChange={(e) => setBusqueda(e.target.value)}
@@ -127,9 +129,11 @@ export default function ProductosMascotas() {
                             className="w-full rounded-md border-gray-300 bg-white p-2 text-gray-900 transition focus:ring-2 focus:ring-blue-500 focus:outline-none md:w-1/2 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
                         />
                         <select
+                            id="filtro"
+                            name="filtro"
                             value={filtro}
                             onChange={(e) => setFiltro(e.target.value as 'todo' | 'producto' | 'mascota')}
-                            className="w-full rounded-md border-gray-300 bg-white p-2 text-gray-900 transition focus:ring-2 focus:ring-blue-500 focus:outline-none md:w-auto dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+                            className="filtro-gray-900 w-full rounded-md border-gray-300 bg-white p-2 transition focus:ring-2 focus:ring-blue-500 focus:outline-none md:w-auto dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
                         >
                             <option value="todo">Todos</option>
                             <option value="producto">Solo productos</option>
