@@ -15,11 +15,12 @@ class StoreMascotaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nombre' => 'required|string|max:255',
+            'nombre' => 'required|string',
             'especie' => 'required|string',
             'raza' => 'required|string',
             'edad' => 'required|integer',
             'sexo' => 'required|string',
+            'ciudad'      => 'required|string',
             'descripcion' => 'required|string',
             'imagen' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];

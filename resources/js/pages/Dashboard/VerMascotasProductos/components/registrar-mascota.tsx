@@ -16,6 +16,8 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
         especie: '',
         raza: '',
         edad: '',
+        sexo: '',
+        ciudad: '',
         descripcion: '',
         imagen: null as File | null,
     });
@@ -81,15 +83,21 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
                     </div>
 
                     <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                        {/* Campo Especie */}
+                        {/* Campo Especie (Ahora es un Select) */}
                         <div>
-                            <input
-                                type="text"
+                            <select
                                 value={data.especie}
                                 onChange={(e) => setData('especie', e.target.value)}
-                                placeholder="Especie (ej. Perro)"
                                 className="w-full rounded-md border-gray-300 p-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                            />
+                            >
+                                <option value="">Selecciona una especie</option>
+                                <option value="Perro">Perro</option>
+                                <option value="Gato">Gato</option>
+                                <option value="Conejo">Conejo</option>
+                                <option value="Hámster">Hámster</option>
+                                <option value="Ave">Ave</option>
+                                <option value="Otro">Otro</option>
+                            </select>
                             {errors.especie && <p className="mt-1 text-sm text-red-600">{errors.especie}</p>}
                         </div>
                         {/* Campo Raza */}
@@ -105,16 +113,42 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
                         </div>
                     </div>
 
-                    {/* Campo Edad */}
-                    <div>
-                        <input
-                            type="number"
-                            value={data.edad}
-                            onChange={(e) => setData('edad', e.target.value)}
-                            placeholder="Edad (años)"
-                            className="w-full rounded-md border-gray-300 p-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                        />
-                        {errors.edad && <p className="mt-1 text-sm text-red-600">{errors.edad}</p>}
+                    <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+                        {/* Campo Edad */}
+                        <div>
+                            <input
+                                type="number"
+                                value={data.edad}
+                                onChange={(e) => setData('edad', e.target.value)}
+                                placeholder="Edad (meses)"
+                                className="w-full rounded-md border-gray-300 p-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                            />
+                            {errors.edad && <p className="mt-1 text-sm text-red-600">{errors.edad}</p>}
+                        </div>
+                        {/* Campo Sexo */}
+                        <div>
+                            <select
+                                value={data.sexo}
+                                onChange={(e) => setData('sexo', e.target.value)}
+                                className="w-full rounded-md border-gray-300 p-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                            >
+                                <option value="">Selecciona el sexo</option>
+                                <option value="Macho">Macho</option>
+                                <option value="Hembra">Hembra</option>
+                            </select>
+                            {errors.sexo && <p className="mt-1 text-sm text-red-600">{errors.sexo}</p>}
+                        </div>
+                        {/* Campo Ciudad */}
+                        <div>
+                            <input
+                                type="text"
+                                value={data.ciudad}
+                                onChange={(e) => setData('ciudad', e.target.value)}
+                                placeholder="Ciudad"
+                                className="w-full rounded-md border-gray-300 p-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                            />
+                            {errors.ciudad && <p className="mt-1 text-sm text-red-600">{errors.ciudad}</p>}
+                        </div>
                     </div>
 
                     {/* Campo Descripción */}

@@ -1,5 +1,3 @@
-// resources/js/pages/Dashboard/VerMascotasProductos/components/registrar-producto.tsx
-
 import { Inertia } from '@inertiajs/inertia';
 import { useForm } from '@inertiajs/react';
 import { UploadCloud } from 'lucide-react'; // Importar el icono

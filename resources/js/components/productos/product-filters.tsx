@@ -1,6 +1,5 @@
 import { Input } from '@/components/ui/input'; // Usaremos el Input que ya tienes
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface ProductFiltersProps {
     filters: {
@@ -13,21 +12,12 @@ interface ProductFiltersProps {
 
 export default function ProductFilters({ filters, onFilterChange, currentPriceLimit }: ProductFiltersProps) {
     return (
-        <div className="rounded-lg border bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950">
+        <div className="rounded-lg border bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <h3 className="mb-4 text-lg font-semibold">Filtros</h3>
             <div className="grid gap-6">
                 <div className="grid gap-2">
                     <Label htmlFor="search">Buscar</Label>
                     <Input id="search" placeholder="Buscar productos..." onChange={(e) => onFilterChange('searchTerm', e.target.value)} />
-                </div>
-                <div className="grid gap-2">
-                    <Label htmlFor="category">Categoría</Label>
-                    <Select onValueChange={(value) => onFilterChange('selectedCategory', value)}>
-                        <SelectTrigger id="category">
-                            <SelectValue placeholder="Todas" />
-                        </SelectTrigger>
-                        <SelectContent>{/* ... */}</SelectContent>
-                    </Select>
                 </div>
                 <div className="grid gap-4">
                     {' '}

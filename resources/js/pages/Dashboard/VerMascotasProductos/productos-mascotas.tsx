@@ -3,13 +3,11 @@
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Inertia } from '@inertiajs/inertia';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react'; // <-- Cambio: importamos 'router'
 import { useEffect, useState } from 'react';
+import ProductoMascotaCard, { type CardItem } from './components/producto-mascota-card';
 import RegistrarMascota from './components/registrar-mascota';
 import RegistrarProducto from './components/registrar-producto';
-// Importa el nuevo componente de tarjeta
-import ProductoMascotaCard, { type CardItem } from './components/producto-mascota-card';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Productos y Mascotas', href: route('productos.mascotas') }];
 
@@ -26,7 +24,7 @@ export default function ProductosMascotas() {
 
     useEffect(() => {
         if (success) {
-            mostrarMensaje(success);
+            mostrarMensaje(success as string);
         }
     }, [success]);
 
@@ -44,7 +42,8 @@ export default function ProductosMascotas() {
     // Acción para Cliente (Comprar/Adoptar)
     const handleAction = (item: CardItem) => {
         const actionType = item.tipo === 'producto' ? 'compra' : 'adopcion';
-        Inertia.post(
+        // Usamos el 'router' importado
+        router.post(
             route('acciones-solicitud.store'),
             {
                 tipo: actionType,
@@ -59,22 +58,22 @@ export default function ProductosMascotas() {
 
     // Acción para Admin/Aliado (Editar)
     const handleEdit = (item: CardItem) => {
-        // Lógica futura: Abrir un modal de edición
         alert(`Funcionalidad de editar para "${item.nombre}" aún no implementada.`);
         console.log('Editar item:', item);
     };
 
-    // Acción para Admin/Aliado (Eliminar)
+    // Acción para Admin/Aliado (Eliminar) - CORREGIDA
     const handleDelete = (item: CardItem) => {
         if (confirm(`¿Estás seguro de que quieres eliminar "${item.nombre}"? Esta acción no se puede deshacer.`)) {
             const deleteUrl = item.tipo === 'producto' ? `/productos/${item.id}` : `/mascotas/${item.id}`;
 
-            Inertia.delete(deleteUrl, {
+            // Usamos el 'router' importado
+            router.delete(deleteUrl, {
                 preserveScroll: true,
+                // onSuccess se encarga de la recarga de datos automáticamente.
+                // No es necesario llamar a router.reload() aquí.
                 onSuccess: () => {
                     mostrarMensaje(`"${item.nombre}" ha sido eliminado.`);
-                    // Recarga automaticamente solo los datos de 'items'.
-                    Inertia.reload({ only: ['items'], preserveScroll: true });
                 },
                 onError: (errors) => {
                     console.error('Error al eliminar:', errors);

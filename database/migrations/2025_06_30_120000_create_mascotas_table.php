@@ -14,6 +14,8 @@ return new class extends Migration
             $table->string('especie');
             $table->string('raza')->nullable();
             $table->integer('edad')->nullable();
+            $table->string('sexo');
+            $table->string('ciudad');
             $table->text('descripcion')->nullable();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();

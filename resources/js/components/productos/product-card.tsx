@@ -17,7 +17,7 @@ export default function ProductCard({ name, category, price, imageUrl }: Product
                 <span className="sr-only">Ver producto</span>
             </Link>
             <img src={imageUrl} alt={name} width={400} height={300} className="h-60 w-full object-cover transition-all group-hover:scale-105" />
-            <div className="bg-white p-4 dark:bg-gray-950">
+            <div className="p-4 dark:bg-gray-900 dark:text-gray-200">
                 <div className="flex items-start justify-between">
                     <div>
                         <p className="text-sm text-gray-500 dark:text-gray-400">{category}</p>

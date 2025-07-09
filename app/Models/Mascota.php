@@ -20,6 +20,8 @@ class Mascota extends Model
         'especie',
         'raza',
         'edad',
+        'sexo',
+        'ciudad',
         'descripcion',
         'imagen',
         'user_id',
