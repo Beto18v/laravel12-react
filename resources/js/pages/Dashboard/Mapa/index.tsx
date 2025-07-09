@@ -1,23 +1,35 @@
 import { ThemeSwitcher } from '@/components/theme-switcher';
+import { InteractiveMap } from '@/components/ui/interactive-map';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
+import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Adopciones',
-        href: '/adopciones',
+        title: 'Mapa',
+        href: '/mapa',
     },
 ];
 
+interface Location {
+    id: string;
+    city: string;
+    count: number;
+    shelters: number;
+    lat: number;
+    lng: number;
+}
+
+interface MapPageProps {
+    locations: Location[];
+    totalMascotas: number;
+    totalCiudades: number;
+}
+
 export default function AdoptionMap() {
-    const locations = [
-        { id: 1, city: 'Bogotá', count: 45, lat: 4.6097, lng: -74.0817 },
-        { id: 2, city: 'Medellín', count: 32, lat: 6.2476, lng: -75.5658 },
-        { id: 3, city: 'Cali', count: 28, lat: 3.4516, lng: -76.532 },
-        { id: 4, city: 'Barranquilla', count: 19, lat: 10.9685, lng: -74.7813 },
-        { id: 5, city: 'Cartagena', count: 15, lat: 10.3932, lng: -75.4832 },
-    ];
+    const { locations, totalMascotas, totalCiudades } = usePage<MapPageProps>().props;
+    const [selectedFilter, setSelectedFilter] = useState('all');
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -25,65 +37,109 @@ export default function AdoptionMap() {
             <main className="flex-1 overflow-y-auto bg-gradient-to-r from-green-400 to-blue-500 p-6 dark:from-green-600 dark:to-blue-700">
                 <div className="container mx-auto">
                     <div className="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
+                        {/* Header con estadísticas */}
                         <div className="mb-6 flex items-center justify-between">
-                            <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Mapa de Adopciones</h1>
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Mapa de Adopciones</h1>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    {totalMascotas} mascotas en {totalCiudades} ciudades
+                                </p>
+                            </div>
                             <div className="flex space-x-2">
-                                <select className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                                    <option>Todas las mascotas</option>
-                                    <option>Perros</option>
-                                    <option>Gatos</option>
-                                    <option>Otros</option>
+                                <select 
+                                    value={selectedFilter}
+                                    onChange={(e) => setSelectedFilter(e.target.value)}
+                                    className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                >
+                                    <option value="all">Todas las mascotas</option>
+                                    <option value="perros">Perros</option>
+                                    <option value="gatos">Gatos</option>
+                                    <option value="otros">Otros</option>
                                 </select>
-                                <button className="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                                <button 
+                                    onClick={() => window.location.reload()}
+                                    className="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+                                >
                                     Actualizar
                                 </button>
                             </div>
                         </div>
 
-                        {/* Representación visual del mapa */}
-                        <div className="relative mb-6 h-96 overflow-hidden rounded-lg bg-blue-50 dark:bg-gray-700">
-                            {/* Aquí iría el componente de mapa real */}
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <p className="text-center text-gray-500 dark:text-gray-400">
-                                    Mapa interactivo de Colombia
-                                    <br />
-                                    <span className="text-sm">(En un entorno real, aquí se mostraría un mapa interactivo)</span>
-                                </p>
+                        {/* Mapa interactivo */}
+                        <div className="mb-6">
+                            {locations && locations.length > 0 ? (
+                                <InteractiveMap locations={locations} />
+                            ) : (
+                                <div className="flex h-96 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700">
+                                    <div className="text-center">
+                                        <p className="text-gray-500 dark:text-gray-400">
+                                            No hay datos de ubicación disponibles
+                                        </p>
+                                        <p className="text-sm text-gray-400 dark:text-gray-500">
+                                            Agrega refugios con ciudades para ver el mapa
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Estadísticas por ciudad */}
+                        {locations && locations.length > 0 && (
+                            <div className="mb-6">
+                                <h2 className="mb-4 text-lg font-semibold text-gray-800 dark:text-white">
+                                    Distribución por Ciudad
+                                </h2>
+                                <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+                                    {locations.map((location) => (
+                                        <div key={location.id} className="rounded-lg bg-gray-50 p-4 text-center shadow-sm dark:bg-gray-700">
+                                            <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                {location.city}
+                                            </h3>
+                                            <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+                                                {location.count}
+                                            </p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                mascotas
+                                            </p>
+                                            {location.shelters > 0 && (
+                                                <p className="text-xs text-gray-400 dark:text-gray-500">
+                                                    {location.shelters} refugio{location.shelters > 1 ? 's' : ''}
+                                                </p>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
+                        )}
 
-                            {/* Marcadores simulados */}
-                            {locations.map((location) => (
-                                <div
-                                    key={location.id}
-                                    className="absolute flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 transform cursor-pointer items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white transition-all hover:h-7 hover:w-7"
-                                    style={{
-                                        // Posiciones simuladas para representación visual
-                                        top: `${30 + location.lat * 5}%`,
-                                        left: `${30 + location.lng * -0.3}%`,
-                                        zIndex: location.count,
-                                    }}
-                                    title={`${location.city}: ${location.count} mascotas disponibles`}
-                                >
-                                    {location.count}
+                        {/* Resumen general */}
+                        <div className="rounded-lg bg-gradient-to-r from-blue-50 to-green-50 p-4 dark:from-blue-900/20 dark:to-green-900/20">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                <div className="text-center">
+                                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                                        {totalMascotas}
+                                    </p>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                                        Total de mascotas
+                                    </p>
                                 </div>
-                            ))}
-                        </div>
-
-                        {/* Leyenda de ciudades */}
-                        <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-5">
-                            {locations.map((location) => (
-                                <div key={location.id} className="rounded-lg bg-gray-50 p-3 text-center shadow-sm dark:bg-gray-700">
-                                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">{location.city}</h3>
-                                    <p className="text-lg font-bold text-red-600 dark:text-red-400">{location.count}</p>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">mascotas</p>
+                                <div className="text-center">
+                                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                                        {totalCiudades}
+                                    </p>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                                        Ciudades con refugios
+                                    </p>
                                 </div>
-                            ))}
-                        </div>
-
-                        <div className="text-right">
-                            <button className="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
-                                Ver distribución completa
-                            </button>
+                                <div className="text-center">
+                                    <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                                        {locations ? locations.reduce((acc, loc) => acc + loc.shelters, 0) : 0}
+                                    </p>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                                        Refugios activos
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

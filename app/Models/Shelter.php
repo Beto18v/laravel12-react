@@ -17,6 +17,8 @@ class Shelter extends Model
         'description',
         'address',
         'city',
+        'latitude',
+        'longitude',
         'phone',
         'bank_name',
         'account_type',

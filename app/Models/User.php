@@ -52,4 +52,10 @@ class User extends Authenticatable
     {
         return $this->hasOne(Shelter::class);
     }
+
+    // Relacion entre User y Mascotas
+    public function mascotas()
+    {
+        return $this->hasMany(Mascota::class);
+    }
 }
