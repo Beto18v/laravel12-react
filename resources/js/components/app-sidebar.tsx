@@ -54,11 +54,11 @@ export function AppSidebar() {
 
     if (user.role === 'cliente') {
         // Rutas que SÍ debe ver el cliente
-        const allowedHrefs = ['/dashboard', '/favoritos', '/estadisticas', '/mapa', '/donaciones', '/solicitudes', route('productos.mascotas')];
+        const allowedHrefs = ['/dashboard', '/favoritos', '/mapa', '/donaciones', '/solicitudes', route('productos.mascotas')];
         finalNavItems = baseNavItems.filter((item) => allowedHrefs.includes(item.href as string));
     } else if (user.role === 'aliado') {
         // Rutas que NO debe ver el aliado
-        const disallowedHrefs = ['/favoritos', '/mapa', '/productos'];
+        const disallowedHrefs = ['/favoritos', '/estadisticas', '/productos'];
         finalNavItems = baseNavItems.filter((item) => !disallowedHrefs.includes(item.href as string));
     } else {
         // Lógica para otros roles (El admin ve todo)
