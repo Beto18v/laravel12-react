@@ -1,10 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useAppearance } from '@/hooks/use-appearance';
-import { Leaf, Monitor, Moon, Paintbrush, Palette, Sun } from 'lucide-react';
+import { Monitor, Moon, Paintbrush, Sun } from 'lucide-react';
 
 export function ThemeSwitcher() {
-    // Corregido: Se desestructura updateAppearance en lugar de setTheme
+    // Se desestructura updateAppearance en lugar de setTheme
     const { updateAppearance } = useAppearance();
 
     return (
@@ -26,14 +26,14 @@ export function ThemeSwitcher() {
                         <Moon className="mr-2 h-4 w-4" />
                         <span>Oscuro</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => updateAppearance('blue')}>
+                    {/* <DropdownMenuItem onClick={() => updateAppearance('blue')}>
                         <Palette className="mr-2 h-4 w-4 text-blue-500" />
                         <span>Azul</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => updateAppearance('green')}>
-                        <Leaf className="mr-2 h-4 w-4 text-green-500" /> {/* Ícono ajustado */}
+                        <Leaf className="bg- mr-2 h-4 w-4 text-green-500" />
                         <span>Verde</span>
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                     <DropdownMenuItem onClick={() => updateAppearance('system')}>
                         <Monitor className="mr-2 h-4 w-4" />
                         <span>Sistema</span>
