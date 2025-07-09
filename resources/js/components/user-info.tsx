@@ -22,14 +22,9 @@ export function UserInfo({ user, showEmail = false, showRole = false }: { user: 
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
-                {showEmail && (
+                {showRole && user.role && (
                     <div className="flex items-center justify-between">
-                        <span className="truncate text-xs text-muted-foreground">{user.email}</span>
-                        {showRole && user.role && (
-                            <span className="truncate text-xs font-bold text-gray-500 dark:text-gray-600">
-                                {roleDisplayNames[user.role] || user.role}
-                            </span>
-                        )}
+                        <span className="truncate text-xs text-muted-foreground">{roleDisplayNames[user.role] || user.role}</span>
                     </div>
                 )}
             </div>

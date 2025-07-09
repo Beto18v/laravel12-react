@@ -16,6 +16,7 @@ export default function InputError({ message, className = '', ...props }: HTMLAt
         'The acepta contrato adopcion field must be accepted.': 'Debe aceptar el contrato de adopción.',
         'The acepta cuidado responsable field must be accepted.': 'Debe aceptar el cuidado responsable.',
         'The acepta proceso evaluacion field must be accepted.': 'Debe aceptar el proceso de evaluación.',
+        'The imagen field is required.': 'El campo imagen es requerido',
     };
 
     // Buscamos si el mensaje en inglés tiene una traducción; si no, usamos el mensaje original.

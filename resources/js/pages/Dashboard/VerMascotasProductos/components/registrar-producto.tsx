@@ -1,5 +1,6 @@
 // resources/js/pages/Dashboard/VerMascotasProductos/components/registrar-producto.tsx
 
+import { Inertia } from '@inertiajs/inertia';
 import { useForm } from '@inertiajs/react';
 import { UploadCloud } from 'lucide-react'; // Importar el icono
 import React, { useEffect, useRef, useState } from 'react';
@@ -45,6 +46,8 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
                 setFileName('');
                 onClose();
                 setMensaje('¡Producto registrado exitosamente!');
+                // Recarga solo los datos de 'items'.
+                Inertia.reload({ only: ['items'], preserveScroll: true });
             },
             // Se resetea el formulario en caso de error para no dejar datos inválidos
             onError: () => {

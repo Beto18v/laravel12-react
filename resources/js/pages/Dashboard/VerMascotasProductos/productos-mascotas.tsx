@@ -71,7 +71,11 @@ export default function ProductosMascotas() {
 
             Inertia.delete(deleteUrl, {
                 preserveScroll: true,
-                onSuccess: () => mostrarMensaje(`"${item.nombre}" ha sido eliminado.`),
+                onSuccess: () => {
+                    mostrarMensaje(`"${item.nombre}" ha sido eliminado.`);
+                    // Recarga automaticamente solo los datos de 'items'.
+                    Inertia.reload({ only: ['items'], preserveScroll: true });
+                },
                 onError: (errors) => {
                     console.error('Error al eliminar:', errors);
                     mostrarMensaje('No se pudo eliminar el ítem.');

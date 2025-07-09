@@ -47,91 +47,49 @@ export default function Welcome({ productos = [], mascotas = [] }: IndexProps) {
 
     // Transformar productos de BD al formato esperado por ProductsSection
     const products = useMemo(() => {
-        return productos.map(producto => ({
+        return productos.map((producto) => ({
             name: producto.nombre,
             description: producto.descripcion,
             price: `$${producto.precio.toLocaleString('es-CO')}`,
-            imageUrl: producto.imagen ? `/storage/${producto.imagen}` : 'https://images.unsplash.com/photo-1598133894005-6d5c4b6f634d?auto=format&fit=crop&w=800&q=60',
+            imageUrl: producto.imagen
+                ? `/storage/${producto.imagen}`
+                : 'https://images.unsplash.com/photo-1598133894005-6d5c4b6f634d?auto=format&fit=crop&w=800&q=60',
         }));
     }, [productos]);
 
     // Transformar mascotas de BD al formato esperado por PetsSection
     const pets = useMemo(() => {
-        return mascotas.map(mascota => ({
+        return mascotas.map((mascota) => ({
             name: mascota.nombre,
             breed: mascota.raza || mascota.especie,
             age: `${mascota.edad} ${mascota.edad === 1 ? 'año' : 'años'}`,
             description: mascota.descripcion,
-            imageUrl: mascota.imagen ? `/storage/${mascota.imagen}` : 'https://images.unsplash.com/photo-1534361960057-19889db9621e?fm=jpg&q=60&w=3000',
+            imageUrl: mascota.imagen
+                ? `/storage/${mascota.imagen}`
+                : 'https://images.unsplash.com/photo-1534361960057-19889db9621e?fm=jpg&q=60&w=3000',
         }));
     }, [mascotas]);
 
     // Calcular conteos dinámicos de perros y gatos y crear enlaces con filtros
     const categories = useMemo(() => {
-        const perrosCount = mascotas.filter(m => m.especie.toLowerCase() === 'perro').length;
-        const gatosCount = mascotas.filter(m => m.especie.toLowerCase() === 'gato').length;
-        
+        const perrosCount = mascotas.filter((m) => m.especie.toLowerCase() === 'perro').length;
+        const gatosCount = mascotas.filter((m) => m.especie.toLowerCase() === 'gato').length;
+
         return [
-            { 
-                emoji: '🐶', 
-                title: 'Perros', 
-                count: perrosCount.toString(), 
-                link: '/mascotas?especie=perro' 
+            {
+                emoji: '🐶',
+                title: 'Perros',
+                count: perrosCount.toString(),
+                link: '/mascotas?especie=perro',
             },
-            { 
-                emoji: '🐱', 
-                title: 'Gatos', 
-                count: gatosCount.toString(), 
-                link: '/mascotas?especie=gato' 
+            {
+                emoji: '🐱',
+                title: 'Gatos',
+                count: gatosCount.toString(),
+                link: '/mascotas?especie=gato',
             },
         ];
     }, [mascotas]);
-
-    // Datos de respaldo si no hay productos/mascotas en la BD
-    const fallbackProducts = [
-        {
-            name: 'Juguete mordedor para perro',
-            description: 'Resistente y seguro, ideal para razas grandes.',
-            price: '$25.000',
-            imageUrl: 'https://images.unsplash.com/photo-1598133894005-6d5c4b6f634d?auto=format&fit=crop&w=800&q=60',
-        },
-        {
-            name: 'Comida premium para gatos',
-            description: 'Alimento balanceado con vitaminas.',
-            price: '$32.500',
-            imageUrl: 'https://images.unsplash.com/photo-1612929632592-00f1bcdbe3c5?auto=format&fit=crop&w=800&q=60',
-        },
-        {
-            name: 'Servicio de peluquería canina',
-            description: 'Baño, corte de pelo y u��as para tu mascota.',
-            price: 'Desde $50.000',
-            imageUrl: 'https://images.unsplash.com/photo-1575846171058-081d10e4cf21?auto=format&fit=crop&w=800&q=60',
-        },
-    ];
-
-    const fallbackPets = [
-        {
-            name: 'Max',
-            breed: 'Labrador Mix',
-            age: '2 años',
-            description: 'Juguetón y cariñoso, ideal para familias con niños.',
-            imageUrl: 'https://images.unsplash.com/photo-1534361960057-19889db9621e?fm=jpg&q=60&w=3000',
-        },
-        {
-            name: 'Luna',
-            breed: 'Siamés',
-            age: '1 año',
-            description: 'Tranquila y curiososa, perfecta para apartamentos.',
-            imageUrl: 'https://www.shutterstock.com/shutterstock/videos/3611270199/thumb/12.jpg?ip=x480',
-        },
-        {
-            name: 'Bugs',
-            breed: 'Conejo Enano',
-            age: '6 meses',
-            description: 'Tranquilo y amigable, necesita espacio para saltar.',
-            imageUrl: 'https://www.conejos.wiki/Imagenes/foto-de-conejo-hd.jpg',
-        },
-    ];
 
     return (
         <>
@@ -141,15 +99,15 @@ export default function Welcome({ productos = [], mascotas = [] }: IndexProps) {
             <main className="relative z-10 w-full bg-white dark:bg-gray-800">
                 {/* 1. Hero Section - Punto de entrada */}
                 <HeroSection />
-                
+
                 {/* 2. Categorías - Navegación rápida y llamativa */}
                 <CategoriesSection categories={categories} />
-                
+
                 {/* 3. Mascotas - Prioridad máxima, contenido principal */}
-                <PetsSection pets={pets.length > 0 ? pets : fallbackPets} />
-                
+                <PetsSection pets={[]} />
+
                 {/* 4. Productos - Complemento importante */}
-                <ProductsSection products={products.length > 0 ? products : fallbackProducts} />
+                <ProductsSection products={[]} />
             </main>
 
             <Footer />
