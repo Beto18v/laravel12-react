@@ -1,5 +1,6 @@
+// Componente modal para registro de productos con sistema de múltiples imágenes
 import { useForm } from '@inertiajs/react';
-import { Plus, X } from 'lucide-react'; // Importar los iconos
+import { Plus, X } from 'lucide-react'; // Iconos para UI de imágenes
 import React, { useEffect, useRef, useState } from 'react';
 
 interface RegistrarProductoProps {
@@ -9,16 +10,18 @@ interface RegistrarProductoProps {
 }
 
 export default function RegistrarProducto({ isOpen, onClose, setMensaje }: RegistrarProductoProps) {
+    // Form handler para productos con array de imágenes
     const { data, setData, post, processing, errors, reset } = useForm({
         nombre: '',
         descripcion: '',
         precio: '',
         cantidad: '',
-        imagenes: [] as File[],
+        imagenes: [] as File[], // Array para hasta 3 imágenes
     });
 
     const modalRef = useRef<HTMLDivElement>(null);
     const multipleFileInputRef = useRef<HTMLInputElement>(null);
+    // Estados para gestión de archivos y previews
     const [additionalFiles, setAdditionalFiles] = useState<File[]>([]);
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
@@ -37,6 +40,7 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        // Envío con forceFormData para archivos
         post('/productos/store', {
             forceFormData: true,
             onSuccess: () => {
@@ -46,11 +50,11 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
                 onClose();
                 setMensaje('¡Producto registrado exitosamente!');
             },
-            // Se resetea el formulario en caso de error para no dejar datos inválidos
             onError: () => {
+                // Limpia imágenes tras error después de 3 segundos
                 setTimeout(() => {
                     setData('imagenes', []);
-                }, 3000); // Limpia los campos de imagen si falla
+                }, 3000);
             },
         });
     };
@@ -64,12 +68,12 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
         }
     }, [isOpen]);
 
-    // Función para agregar imágenes adicionales
+    // Maneja la selección de múltiples imágenes (máximo 3)
     const handleAddImages = (files: FileList | null) => {
         if (!files) return;
 
         const newFiles = Array.from(files);
-        const availableSlots = 3 - additionalFiles.length;
+        const availableSlots = 3 - additionalFiles.length; // Espacios disponibles
         const filesToAdd = newFiles.slice(0, availableSlots);
 
         if (filesToAdd.length > 0) {
@@ -77,7 +81,7 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
             setAdditionalFiles(updatedFiles);
             setData('imagenes', updatedFiles);
 
-            // Crear previews para las nuevas imágenes
+            // Genera previews para mostrar al usuario
             filesToAdd.forEach((file) => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
@@ -88,7 +92,7 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
         }
     };
 
-    // Función para eliminar una imagen específica
+    // Elimina imagen individual del array
     const removeImage = (indexToRemove: number) => {
         const updatedFiles = additionalFiles.filter((_, index) => index !== indexToRemove);
         const updatedPreviews = imagePreviews.filter((_, index) => index !== indexToRemove);
@@ -97,7 +101,7 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
         setImagePreviews(updatedPreviews);
         setData('imagenes', updatedFiles);
 
-        // Resetear el input file para permitir seleccionar las mismas imágenes otra vez
+        // Reset input para permitir reselección
         if (multipleFileInputRef.current) {
             multipleFileInputRef.current.value = '';
         }

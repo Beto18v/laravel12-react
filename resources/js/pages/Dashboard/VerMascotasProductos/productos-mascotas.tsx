@@ -1,9 +1,8 @@
-// resources/js/pages/Dashboard/VerMascotasProductos/productos-mascotas.tsx
-
+// Dashboard unificado: productos y mascotas para gestión de aliados
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router, usePage } from '@inertiajs/react'; // <-- Cambio: importamos 'router'
+import { Head, router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import ProductoMascotaCard, { type CardItem } from './components/producto-mascota-card';
 import RegistrarMascota from './components/registrar-mascota';
@@ -16,18 +15,21 @@ export default function ProductosMascotas() {
     const itemsTyped = items as CardItem[];
     const esAliado = auth.user?.role === 'aliado';
 
+    // Estados del componente
     const [isMascotaModalOpen, setMascotaModalOpen] = useState(false);
     const [isProductoModalOpen, setProductoModalOpen] = useState(false);
     const [busqueda, setBusqueda] = useState('');
     const [filtro, setFiltro] = useState<'todo' | 'producto' | 'mascota'>('todo');
     const [mensaje, setMensaje] = useState<string | null>(null);
 
+    // Mostrar mensaje de éxito del backend
     useEffect(() => {
         if (success) {
             mostrarMensaje(success as string);
         }
     }, [success]);
 
+    // Filtrado de items por búsqueda y tipo
     const productosFiltrados = itemsTyped.filter(
         (item) => item.nombre.toLowerCase().includes(busqueda.toLowerCase()) && (filtro === 'todo' || item.tipo === filtro),
     );
@@ -37,17 +39,12 @@ export default function ProductosMascotas() {
         setTimeout(() => setMensaje(null), 4000);
     };
 
-    // --- MANEJADORES DE ACCIONES ---
-    // Acción para Cliente (Comprar/Adoptar)
+    // Acción cliente: comprar/adoptar
     const handleAction = (item: CardItem) => {
         const actionType = item.tipo === 'producto' ? 'compra' : 'adopcion';
-        // Usamos el 'router' importado
         router.post(
             route('acciones-solicitud.store'),
-            {
-                tipo: actionType,
-                item_id: item.id,
-            },
+            { tipo: actionType, item_id: item.id },
             {
                 onSuccess: () => mostrarMensaje(`¡Solicitud de ${actionType} enviada para "${item.nombre}"!`),
                 onError: () => mostrarMensaje('Ocurrió un error al registrar la solicitud.'),
@@ -55,25 +52,19 @@ export default function ProductosMascotas() {
         );
     };
 
-    // Acción para Admin/Aliado (Editar)
+    // Acción aliado: editar (placeholder)
     const handleEdit = (item: CardItem) => {
         alert(`Funcionalidad de editar para "${item.nombre}" aún no implementada.`);
         console.log('Editar item:', item);
     };
 
-    // Acción para Admin/Aliado (Eliminar)
+    // Acción aliado: eliminar
     const handleDelete = (item: CardItem) => {
         if (confirm(`¿Estás seguro de que quieres eliminar "${item.nombre}"? Esta acción no se puede deshacer.`)) {
             const deleteUrl = item.tipo === 'producto' ? `/productos/${item.id}` : `/mascotas/${item.id}`;
-
-            // Usamos el 'router' importado
             router.delete(deleteUrl, {
                 preserveScroll: true,
-                // onSuccess se encarga de la recarga de datos automáticamente.
-                // No es necesario llamar a router.reload() aquí.
-                onSuccess: () => {
-                    mostrarMensaje(`"${item.nombre}" ha sido eliminado.`);
-                },
+                onSuccess: () => mostrarMensaje(`"${item.nombre}" ha sido eliminado.`),
                 onError: (errors) => {
                     console.error('Error al eliminar:', errors);
                     mostrarMensaje('No se pudo eliminar el ítem.');

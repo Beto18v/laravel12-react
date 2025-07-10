@@ -1,7 +1,8 @@
 // resources/js/pages/Dashboard/VerMascotasProductos/components/registrar-mascota.tsx
+// Componente modal para registrar nuevas mascotas con sistema de múltiples imágenes (hasta 3)
 
 import { useForm } from '@inertiajs/react';
-import { Plus, X } from 'lucide-react'; // Importar los iconos
+import { Plus, X } from 'lucide-react'; // Iconos para agregar y eliminar imágenes
 import React, { useEffect, useRef, useState } from 'react';
 
 interface RegistrarMascotaProps {
@@ -11,21 +12,64 @@ interface RegistrarMascotaProps {
 }
 
 export default function RegistrarMascota({ isOpen, onClose, setMensaje }: RegistrarMascotaProps) {
+    // Form handler con todos los campos de mascota, incluyendo array de imágenes
     const { data, setData, post, processing, errors, reset } = useForm({
         nombre: '',
         especie: '',
         raza: '',
-        edad: '',
+        fecha_nacimiento: '',
         sexo: '',
         ciudad: '',
         descripcion: '',
-        imagenes: [] as File[],
+        imagenes: [] as File[], // Array para múltiples imágenes
     });
 
     const modalRef = useRef<HTMLDivElement>(null);
     const multipleFileInputRef = useRef<HTMLInputElement>(null);
+    // Estados para manejar las imágenes y sus previews
     const [additionalFiles, setAdditionalFiles] = useState<File[]>([]);
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+    // Estado para mostrar edad calculada
+    const [edadCalculada, setEdadCalculada] = useState<string>('');
+
+    // Función para calcular edad basada en fecha de nacimiento
+    const calcularEdad = (fechaNacimiento: string) => {
+        if (!fechaNacimiento) {
+            setEdadCalculada('');
+            return;
+        }
+
+        const hoy = new Date();
+        const nacimiento = new Date(fechaNacimiento);
+
+        if (nacimiento > hoy) {
+            setEdadCalculada('Fecha inválida');
+            return;
+        }
+
+        let años = hoy.getFullYear() - nacimiento.getFullYear();
+        const meses = hoy.getMonth() - nacimiento.getMonth();
+
+        if (meses < 0 || (meses === 0 && hoy.getDate() < nacimiento.getDate())) {
+            años--;
+        }
+
+        // Calcular meses exactos
+        const fechaTemporal = new Date(nacimiento);
+        fechaTemporal.setFullYear(nacimiento.getFullYear() + años);
+        const mesesRestantes = Math.floor((hoy.getTime() - fechaTemporal.getTime()) / (1000 * 60 * 60 * 24 * 30.44));
+
+        if (años > 0) {
+            setEdadCalculada(
+                años === 1
+                    ? `1 año${mesesRestantes > 0 ? ` y ${mesesRestantes} ${mesesRestantes === 1 ? 'mes' : 'meses'}` : ''}`
+                    : `${años} años${mesesRestantes > 0 ? ` y ${mesesRestantes} ${mesesRestantes === 1 ? 'mes' : 'meses'}` : ''}`,
+            );
+        } else {
+            const mesesTotales = Math.floor((hoy.getTime() - nacimiento.getTime()) / (1000 * 60 * 60 * 24 * 30.44));
+            setEdadCalculada(mesesTotales === 1 ? '1 mes' : `${mesesTotales} meses`);
+        }
+    };
 
     // Cierra el modal al hacer clic fuera
     useEffect(() => {
@@ -42,16 +86,19 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        // Envía datos con forceFormData para manejar archivos correctamente
         post('/mascotas/store', {
             forceFormData: true,
             onSuccess: () => {
                 reset();
                 setAdditionalFiles([]);
                 setImagePreviews([]);
+                setEdadCalculada('');
                 onClose();
                 setMensaje('¡Mascota registrada exitosamente!');
             },
             onError: () => {
+                // Limpia imágenes después de 3 segundos si hay error
                 setTimeout(() => {
                     setData('imagenes', []);
                 }, 3000);
@@ -59,21 +106,22 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
         });
     };
 
-    // Resetea las imágenes al cerrar el modal
+    // Resetea las imágenes y edad calculada al cerrar el modal
     useEffect(() => {
         if (!isOpen) {
             setAdditionalFiles([]);
             setImagePreviews([]);
+            setEdadCalculada('');
             reset();
         }
     }, [isOpen]);
 
-    // Función para agregar imágenes adicionales
+    // Función para manejar múltiples imágenes (máximo 3)
     const handleAddImages = (files: FileList | null) => {
         if (!files) return;
 
         const newFiles = Array.from(files);
-        const availableSlots = 3 - additionalFiles.length;
+        const availableSlots = 3 - additionalFiles.length; // Calcula espacios disponibles
         const filesToAdd = newFiles.slice(0, availableSlots);
 
         if (filesToAdd.length > 0) {
@@ -81,7 +129,7 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
             setAdditionalFiles(updatedFiles);
             setData('imagenes', updatedFiles);
 
-            // Crear previews para las nuevas imágenes
+            // Genera previews para las nuevas imágenes
             filesToAdd.forEach((file) => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
@@ -92,7 +140,7 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
         }
     };
 
-    // Función para eliminar una imagen específica
+    // Elimina una imagen específica del array
     const removeImage = (indexToRemove: number) => {
         const updatedFiles = additionalFiles.filter((_, index) => index !== indexToRemove);
         const updatedPreviews = imagePreviews.filter((_, index) => index !== indexToRemove);
@@ -101,7 +149,7 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
         setImagePreviews(updatedPreviews);
         setData('imagenes', updatedFiles);
 
-        // Resetear el input file para permitir seleccionar las mismas imágenes otra vez
+        // Reset del input para permitir reseleccionar archivos
         if (multipleFileInputRef.current) {
             multipleFileInputRef.current.value = '';
         }
@@ -163,20 +211,45 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-                        {/* Campo Edad */}
+                    <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        {/* Campo Fecha de Nacimiento */}
                         <div>
+                            <label htmlFor="fecha_nacimiento" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Fecha de Nacimiento
+                            </label>
                             <input
-                                id="edad"
-                                name="edad"
-                                type="number"
-                                value={data.edad}
-                                onChange={(e) => setData('edad', e.target.value)}
-                                placeholder="Edad (meses)"
+                                id="fecha_nacimiento"
+                                name="fecha_nacimiento"
+                                type="date"
+                                value={data.fecha_nacimiento}
+                                onChange={(e) => {
+                                    setData('fecha_nacimiento', e.target.value);
+                                    calcularEdad(e.target.value);
+                                }}
+                                max={new Date().toISOString().split('T')[0]} // No permitir fechas futuras
                                 className="w-full rounded-md border-gray-300 p-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                             />
-                            {errors.edad && <p className="mt-1 text-sm text-red-600">{errors.edad}</p>}
+                            {errors.fecha_nacimiento && <p className="mt-1 text-sm text-red-600">{errors.fecha_nacimiento}</p>}
                         </div>
+
+                        {/* Campo Edad Calculada (solo lectura) */}
+                        <div>
+                            <label htmlFor="edad_calculada" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Edad Actual
+                            </label>
+                            <input
+                                id="edad_calculada"
+                                name="edad_calculada"
+                                type="text"
+                                value={edadCalculada}
+                                readOnly
+                                placeholder="Se calculará automáticamente"
+                                className="w-full cursor-not-allowed rounded-md border-gray-300 bg-gray-50 p-3 text-gray-600 shadow-sm dark:border-gray-600 dark:bg-gray-600 dark:text-gray-300"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                         {/* Campo Sexo */}
                         <div>
                             <select

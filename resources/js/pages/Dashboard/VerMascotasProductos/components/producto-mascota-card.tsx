@@ -1,10 +1,11 @@
+// Tarjeta unificada para mostrar productos y mascotas con acciones específicas por rol
 import { type SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { Heart, Pencil, ShoppingCart, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import FormularioAdopcion from './formulario-adopcion';
 
-// Definimos el tipo para cada item que la tarjeta puede recibir
+// Tipo para items de producto/mascota
 export type CardItem = {
     id: number;
     nombre: string;
@@ -12,11 +13,11 @@ export type CardItem = {
     descripcion: string;
     precio: number | null;
     imagen?: string;
-    user_id: number; // Aseguramos que el user_id siempre esté presente
-    user?: { name: string }; // El objeto user con el nombre es opcional
+    user_id: number;
+    user?: { name: string };
 };
 
-// Definimos las props que el componente recibirá
+// Props del componente tarjeta
 interface ProductoMascotaCardProps {
     item: CardItem;
     onDelete: (item: CardItem) => void;
@@ -25,27 +26,23 @@ interface ProductoMascotaCardProps {
 }
 
 export default function ProductoMascotaCard({ item, onDelete, onEdit, onAction }: ProductoMascotaCardProps) {
-    // Obtenemos el usuario autenticado para determinar el rol
     const { auth } = usePage<SharedData>().props;
     const user = auth.user;
 
-    // Estado para controlar la visibilidad del modal de adopción
+    // Control del modal de adopción
     const [showAdoptionModal, setShowAdoptionModal] = useState(false);
 
-    // Verificamos si el usuario es el propietario del item
+    // Determinación de roles y permisos
     const esPropietario = user.role === 'aliado' && user.id === item.user_id;
-    // Verificamos si el usuario es admin
     const esAdmin = user.role === 'admin';
-
-    // El cliente ve los botones de acción principales
     const esCliente = !esPropietario && !esAdmin;
 
-    // El manejador de la acción ahora es condicional
+    // Manejador de acción diferenciado por tipo
     const handleActionClick = () => {
         if (item.tipo === 'mascota') {
-            setShowAdoptionModal(true); // Abre el modal de adopción para mascotas
+            setShowAdoptionModal(true); // Modal para adopción
         } else {
-            onAction(item); // Ejecuta la acción original para productos (comprar)
+            onAction(item); // Compra directa para productos
         }
     };
 

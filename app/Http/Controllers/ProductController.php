@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-// Imports de los Modelos y Requests necesarios
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\Mascota;
@@ -12,46 +11,57 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Gate;
-
-// Import para la autorización
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Log;
 
+/**
+ * ProductController - Controlador unificado para productos y vista dashboard
+ * Maneja: Vista pública, dashboard unificado, CRUD de productos con múltiples imágenes
+ */
 class ProductController extends Controller
 {
-    // Usa el trait para que el método $this->authorize() funcione
     use AuthorizesRequests;
 
     /**
-     * Muestra todos los productos en la vista pública del nav.
+     * Vista pública de productos para navegación general
      */
     public function indexPublic()
     {
         $productos = Product::with('user')->get();
-        return Inertia::render('productos', [
-            'productos' => $productos
-        ]);
+        return Inertia::render('productos', ['productos' => $productos]);
     }
 
     /**
-     * Muestra la vista unificada de productos y mascotas para el aliado.
+     * Dashboard unificado: productos y mascotas mezclados para aliados
      */
     public function index()
     {
-        // Obtener productos y añadirles el tipo 'producto'
+        // Debug: verificar qué datos se están obteniendo
+        Log::info('Cargando dashboard - obteniendo productos y mascotas');
+
+        // Productos con tipo identificador
         $productos = Product::with('user')->get()->map(function ($producto) {
             $producto->tipo = 'producto';
             return $producto;
         });
 
-        // Obtener mascotas y añadirles el tipo 'mascota'
+        // Mascotas con tipo identificador (sin precio)
         $mascotas = Mascota::with('user')->get()->map(function ($mascota) {
             $mascota->tipo = 'mascota';
-            $mascota->precio = null; // Aseguramos que las mascotas no tengan precio
+            $mascota->precio = null;
             return $mascota;
         });
 
-        // Combinar y ordenar aleatoriamente los items
+        // Debug: contar items obtenidos
+        Log::info('Items obtenidos:', [
+            'productos_count' => $productos->count(),
+            'mascotas_count' => $mascotas->count(),
+            'productos' => $productos->pluck('name'),
+            'mascotas' => $mascotas->pluck('nombre')
+        ]);
+
+        // Combinar y mezclar items para vista dinámica
         $items = $productos->concat($mascotas)->shuffle();
 
         return Inertia::render('Dashboard/VerMascotasProductos/productos-mascotas', [
@@ -60,52 +70,36 @@ class ProductController extends Controller
     }
 
     /**
-     * Almacena un nuevo producto usando StoreProductRequest.
-     */
-    public function storeWithValidation(StoreProductRequest $request)
-    {
-        $validatedData = $request->validated();
-
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('productos', 'public');
-        }
-
-        Product::create([
-            'nombre' => $validatedData['name'],
-            'descripcion' => $validatedData['description'],
-            'precio' => $validatedData['price'],
-            'stock' => $validatedData['stock'],
-            'user_id' => Auth::id(),
-            'imagen' => $imagePath,
-        ]);
-
-        return redirect()->route('productos.mascotas')->with('success', 'Producto creado exitosamente.');
-    }
-
-    /**
-     * Almacena un nuevo producto en la base de datos (para el dashboard unificado).
+     * Almacena producto con múltiples imágenes (1-3) para dashboard unificado
+     * Crea registros en product_images y mantiene imagen principal para compatibilidad
      */
     public function store(Request $request)
     {
-        // Validación manual para el caso del dashboard unificado
+        // Debug: verificar qué datos están llegando
+        Log::info('Datos recibidos para registro de producto:', $request->all());
+
+        // Validación para múltiples imágenes
         $request->validate([
             'nombre' => 'required|string|max:255',
             'descripcion' => 'required|string',
             'precio' => 'required|numeric|min:0',
             'cantidad' => 'required|integer|min:0',
-            'imagenes' => 'required|array|min:1|max:3',
+            'imagenes' => 'required|array|min:1|max:3', // Array de 1-3 imágenes
             'imagenes.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
+        // Debug: datos después de validación
+        Log::info('Datos validados para producto');
+
+        // Crear producto principal
         $producto = new Product();
         $producto->nombre = $request->nombre;
         $producto->descripcion = $request->descripcion;
         $producto->precio = $request->precio;
-        $producto->stock = $request->cantidad; // Mapear cantidad a stock
+        $producto->stock = $request->cantidad;
         $producto->user_id = Auth::id();
 
-        // Usar la primera imagen como imagen principal para compatibilidad
+        // Usar primera imagen como imagen principal (compatibilidad con sistema anterior)
         if ($request->hasFile('imagenes') && count($request->file('imagenes')) > 0) {
             $firstImage = $request->file('imagenes')[0];
             $path = $firstImage->store('productos', 'public');
@@ -114,14 +108,14 @@ class ProductController extends Controller
 
         $producto->save();
 
-        // Guardar todas las imágenes en la tabla product_images
+        // Guardar todas las imágenes en tabla de relación product_images
         if ($request->hasFile('imagenes')) {
             foreach ($request->file('imagenes') as $index => $imagen) {
                 $path = $imagen->store('productos', 'public');
                 ProductImage::create([
                     'product_id' => $producto->id,
                     'image_path' => $path,
-                    'order' => $index + 1,
+                    'order' => $index + 1, // Orden de las imágenes
                 ]);
             }
         }
@@ -130,18 +124,14 @@ class ProductController extends Controller
     }
 
     /**
-     * Actualiza un producto existente en la base de datos.
+     * Actualiza producto existente con validación de autorización
      */
     public function update(UpdateProductRequest $request, Product $product)
     {
-        // 1. Autoriza la acción: verifica si el usuario actual puede actualizar este producto.
-        // Esto usará la lógica que tengas en tu ProductPolicy.
         $this->authorize('update', $product);
-
-        // 2. Valida los datos del formulario usando UpdateProductRequest.
         $validatedData = $request->validated();
 
-        // 3. Actualiza el producto con los datos validados.
+        // Actualizar datos del producto
         $product->update([
             'nombre' => $validatedData['name'],
             'descripcion' => $validatedData['description'],
@@ -149,33 +139,28 @@ class ProductController extends Controller
             'stock' => $validatedData['stock'],
         ]);
 
-        // Si se sube una nueva imagen, actualízala también.
+        // Actualizar imagen si se proporciona nueva
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('productos', 'public');
             $product->update(['imagen' => $imagePath]);
         }
 
-        // 4. Redirige con un mensaje de éxito.
         return redirect()->route('productos.mascotas')->with('success', 'Producto actualizado exitosamente.');
     }
 
     /**
-     * Elimina un producto de la base de datos.
+     * Elimina producto con autorización
      */
     public function destroy(Product $product)
     {
-        // Autoriza la acción de eliminar usando Gate o Policy
+        // Verificar autorización para eliminar
         try {
             $this->authorize('delete', $product);
         } catch (\Exception $e) {
-            // Si no funciona con authorize, usar Gate
             Gate::authorize('delete', $product);
         }
 
-        // Elimina el producto
         $product->delete();
-
-        // Redirige con un mensaje de éxito
         return redirect()->route('productos.mascotas')->with('success', 'Producto eliminado exitosamente.');
     }
 }

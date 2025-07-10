@@ -7,13 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Modelo Product - Representa productos para venta en la plataforma
+ * Relaciones: Pertenece a User, tiene múltiples ProductImage
+ */
 class Product extends Model
 {
     use HasFactory;
 
     /**
-     * The attributes that are mass assignable.
-     *
+     * Campos asignables en masa
      * @var array<int, string>
      */
     protected $fillable = [
@@ -22,11 +25,11 @@ class Product extends Model
         'precio',
         'stock',
         'user_id',
-        'imagen',
+        'imagen', // Imagen principal (compatibilidad)
     ];
 
     /**
-     * Get the user that owns the product.
+     * Relación: Producto pertenece a un usuario (aliado)
      */
     public function user(): BelongsTo
     {
@@ -34,7 +37,7 @@ class Product extends Model
     }
 
     /**
-     * Get the images for the product.
+     * Relación: Producto tiene múltiples imágenes ordenadas
      */
     public function images(): HasMany
     {
