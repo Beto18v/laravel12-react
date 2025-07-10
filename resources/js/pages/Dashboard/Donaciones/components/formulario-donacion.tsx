@@ -17,6 +17,8 @@ interface FormularioDonacionProps {
     shelters: Shelter[];
 }
 
+type PaymentMethod = 'nequi' | 'daviplata';
+
 export default function FormularioDonacion({ showModal, onClose, shelters }: FormularioDonacionProps) {
     const { auth } = usePage().props as any;
 
@@ -24,10 +26,10 @@ export default function FormularioDonacion({ showModal, onClose, shelters }: For
         donor_name: auth.user.name || '',
         donor_email: auth.user.email || '',
         amount: '',
-        shelter_id: shelters.length === 1 ? shelters[0].id.toString() : '', // Pre-selecciona si solo hay un refugio
+        shelter_id: shelters.length === 1 ? shelters[0].id.toString() : '',
+        payment_method: null as PaymentMethod | null, // Se añade el método de pago al formulario
     });
 
-    const [montoSeleccionado, setMontoSeleccionado] = useState('');
     const [montoPersonalizado, setMontoPersonalizado] = useState('');
     const [mostrarAgradecimiento, setMostrarAgradecimiento] = useState(false);
 
@@ -43,41 +45,47 @@ export default function FormularioDonacion({ showModal, onClose, shelters }: For
     };
 
     const handleMontoClick = (monto: string) => {
-        setMontoSeleccionado(monto);
-        setMontoPersonalizado('');
         setData('amount', monto);
+        setMontoPersonalizado('');
     };
 
     const handleMontoPersonalizadoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setMontoPersonalizado(e.target.value);
-        setMontoSeleccionado('');
         setData('amount', e.target.value);
+    };
+
+    const handlePaymentMethodSelect = (method: PaymentMethod) => {
+        setData('payment_method', method);
     };
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
+        // Ahora, al enviar el formulario, el backend recibirá el 'payment_method' seleccionado
+        // y podrá iniciar el proceso con la pasarela de pago correspondiente.
+        console.log('Enviando donación con los siguientes datos:', data);
         post(route('donaciones.store'), {
             preserveScroll: true,
-            onSuccess: () => {},
+            onSuccess: () => {
+                // La lógica de redirección a la pasarela de pago
+                // debería ser manejada por la respuesta del backend.
+            },
         });
     };
 
+    const resetFormState = () => {
+        reset();
+        setMontoPersonalizado('');
+        setMostrarAgradecimiento(false);
+    };
+
     const handleClose = () => {
-        if (mostrarAgradecimiento) {
-            reset();
-            setMontoSeleccionado('');
-            setMontoPersonalizado('');
-            setMostrarAgradecimiento(false);
-        }
+        resetFormState();
         clearErrors();
         onClose();
     };
 
     const handleOtraDonacion = () => {
-        reset('amount', 'shelter_id');
-        setMontoSeleccionado('');
-        setMontoPersonalizado('');
-        setMostrarAgradecimiento(false);
+        resetFormState();
     };
 
     if (!showModal) return null;
@@ -168,7 +176,7 @@ export default function FormularioDonacion({ showModal, onClose, shelters }: For
                                     onChange={(e) => setData('shelter_id', e.target.value)}
                                     className="w-full rounded-lg border-gray-300 p-3 disabled:cursor-not-allowed disabled:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:disabled:bg-gray-600"
                                     required
-                                    disabled={shelters.length === 1} // Deshabilita si solo hay un refugio
+                                    disabled={shelters.length === 1}
                                 >
                                     {shelters.length > 1 && <option value="">-- Elige una fundación --</option>}
                                     {shelters.map((shelter) => (
@@ -206,16 +214,42 @@ export default function FormularioDonacion({ showModal, onClose, shelters }: For
                                     type="number"
                                     value={montoPersonalizado}
                                     onChange={handleMontoPersonalizadoChange}
-                                    placeholder="Ej: 30000"
+                                    placeholder="Ej: 10000(min)"
                                     className="w-full"
                                 />
+                            </div>
+
+                            <div>
+                                <Label className="mb-2 block text-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Selecciona tu método de pago
+                                </Label>
+                                <div className="mt-2 flex justify-center gap-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => handlePaymentMethodSelect('nequi')}
+                                        className={`flex h-12 w-32 items-center justify-center gap-2 rounded-lg border-2 p-2 transition-all ${data.payment_method === 'nequi' ? 'border-purple-700 bg-purple-300 ring-2 ring-purple-700' : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700'}`}
+                                    >
+                                        <img src="https://cdn.worldvectorlogo.com/logos/nequi-2.svg" alt="Nequi" className="h-6 w-auto" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => handlePaymentMethodSelect('daviplata')}
+                                        className={`flex h-12 w-32 items-center justify-center gap-2 rounded-lg border-2 p-2 transition-all ${data.payment_method === 'daviplata' ? 'border-red-700 bg-red-300 ring-2 ring-red-700' : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700'}`}
+                                    >
+                                        <img
+                                            src="https://res.cloudinary.com/komerciaacademico/image/upload/c_scale,w_500,q_auto:best,f_auto/v1606333767/Templates%20Modos%20de%20pago/5c89c897e1917d9209a762af_davi_qn90y9.png"
+                                            alt="Daviplata"
+                                            className="h-6 w-auto"
+                                        />
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="mt-8 text-right">
                                 <Button
                                     type="submit"
-                                    disabled={processing || !data.amount || !data.shelter_id}
-                                    className="rounded-lg bg-purple-600 px-6 py-3 text-white transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                    disabled={processing || !data.amount || !data.shelter_id || !data.payment_method}
+                                    className="w-full rounded-lg bg-purple-600 px-6 py-3 text-white transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:opacity-50"
                                 >
                                     {processing ? 'Procesando...' : `Donar ${data.amount ? formatCurrency(data.amount) : ''}`}
                                 </Button>
