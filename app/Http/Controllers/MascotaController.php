@@ -35,10 +35,27 @@ class MascotaController extends Controller
     {
         $data = $request->validated();
         $data['user_id'] = Auth::id();
-        if ($request->hasFile('imagen')) {
-            $data['imagen'] = $request->file('imagen')->store('mascotas', 'public');
+
+        // Usar la primera imagen como imagen principal para compatibilidad
+        if ($request->hasFile('imagenes') && count($request->file('imagenes')) > 0) {
+            $firstImage = $request->file('imagenes')[0];
+            $data['imagen'] = $firstImage->store('mascotas', 'public');
         }
-        Mascota::create($data);
+
+        $mascota = Mascota::create($data);
+
+        // Guardar todas las imágenes en la tabla mascota_images
+        if ($request->hasFile('imagenes')) {
+            foreach ($request->file('imagenes') as $index => $imagen) {
+                $path = $imagen->store('mascotas', 'public');
+                \App\Models\MascotaImage::create([
+                    'mascota_id' => $mascota->id,
+                    'imagen_path' => $path,
+                    'orden' => $index + 1,
+                ]);
+            }
+        }
+
         return Redirect::route('productos.mascotas')->with('success', 'Mascota registrada correctamente');
     }
 

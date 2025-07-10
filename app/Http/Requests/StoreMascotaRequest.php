@@ -22,7 +22,8 @@ class StoreMascotaRequest extends FormRequest
             'sexo' => 'required|string',
             'ciudad'      => 'required|string',
             'descripcion' => 'required|string',
-            'imagen' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'imagenes' => 'required|array|min:1|max:3',
+            'imagenes.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
     }
 }

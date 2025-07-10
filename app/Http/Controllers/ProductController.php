@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 // Imports de los Modelos y Requests necesarios
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\Mascota;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
@@ -93,7 +94,8 @@ class ProductController extends Controller
             'descripcion' => 'required|string',
             'precio' => 'required|numeric|min:0',
             'cantidad' => 'required|integer|min:0',
-            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'imagenes' => 'required|array|min:1|max:3',
+            'imagenes.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $producto = new Product();
@@ -103,12 +105,26 @@ class ProductController extends Controller
         $producto->stock = $request->cantidad; // Mapear cantidad a stock
         $producto->user_id = Auth::id();
 
-        if ($request->hasFile('imagen')) {
-            $path = $request->file('imagen')->store('productos', 'public');
+        // Usar la primera imagen como imagen principal para compatibilidad
+        if ($request->hasFile('imagenes') && count($request->file('imagenes')) > 0) {
+            $firstImage = $request->file('imagenes')[0];
+            $path = $firstImage->store('productos', 'public');
             $producto->imagen = $path;
         }
 
         $producto->save();
+
+        // Guardar todas las imágenes en la tabla product_images
+        if ($request->hasFile('imagenes')) {
+            foreach ($request->file('imagenes') as $index => $imagen) {
+                $path = $imagen->store('productos', 'public');
+                ProductImage::create([
+                    'product_id' => $producto->id,
+                    'image_path' => $path,
+                    'order' => $index + 1,
+                ]);
+            }
+        }
 
         return Redirect::route('productos.mascotas')->with('success', 'Producto registrado exitosamente.');
     }

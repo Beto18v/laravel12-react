@@ -1,7 +1,7 @@
 // resources/js/pages/Dashboard/VerMascotasProductos/components/registrar-mascota.tsx
 
 import { useForm } from '@inertiajs/react';
-import { UploadCloud } from 'lucide-react'; // Importar el icono
+import { Plus, X } from 'lucide-react'; // Importar los iconos
 import React, { useEffect, useRef, useState } from 'react';
 
 interface RegistrarMascotaProps {
@@ -19,12 +19,13 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
         sexo: '',
         ciudad: '',
         descripcion: '',
-        imagen: null as File | null,
+        imagenes: [] as File[],
     });
 
     const modalRef = useRef<HTMLDivElement>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const [fileName, setFileName] = useState('');
+    const multipleFileInputRef = useRef<HTMLInputElement>(null);
+    const [additionalFiles, setAdditionalFiles] = useState<File[]>([]);
+    const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
     // Cierra el modal al hacer clic fuera
     useEffect(() => {
@@ -45,23 +46,66 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
             forceFormData: true,
             onSuccess: () => {
                 reset();
-                setFileName('');
+                setAdditionalFiles([]);
+                setImagePreviews([]);
                 onClose();
                 setMensaje('¡Mascota registrada exitosamente!');
             },
             onError: () => {
-                setTimeout(() => reset('imagen'), 3000);
+                setTimeout(() => {
+                    setData('imagenes', []);
+                }, 3000);
             },
         });
     };
 
-    // Resetea el nombre del archivo al cerrar el modal
+    // Resetea las imágenes al cerrar el modal
     useEffect(() => {
         if (!isOpen) {
-            setFileName('');
+            setAdditionalFiles([]);
+            setImagePreviews([]);
             reset();
         }
     }, [isOpen]);
+
+    // Función para agregar imágenes adicionales
+    const handleAddImages = (files: FileList | null) => {
+        if (!files) return;
+
+        const newFiles = Array.from(files);
+        const availableSlots = 3 - additionalFiles.length;
+        const filesToAdd = newFiles.slice(0, availableSlots);
+
+        if (filesToAdd.length > 0) {
+            const updatedFiles = [...additionalFiles, ...filesToAdd];
+            setAdditionalFiles(updatedFiles);
+            setData('imagenes', updatedFiles);
+
+            // Crear previews para las nuevas imágenes
+            filesToAdd.forEach((file) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    setImagePreviews((prev) => [...prev, e.target?.result as string]);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    };
+
+    // Función para eliminar una imagen específica
+    const removeImage = (indexToRemove: number) => {
+        const updatedFiles = additionalFiles.filter((_, index) => index !== indexToRemove);
+        const updatedPreviews = imagePreviews.filter((_, index) => index !== indexToRemove);
+
+        setAdditionalFiles(updatedFiles);
+        setImagePreviews(updatedPreviews);
+        setData('imagenes', updatedFiles);
+
+        // Resetear el input file para permitir seleccionar las mismas imágenes otra vez
+        if (multipleFileInputRef.current) {
+            multipleFileInputRef.current.value = '';
+        }
+    };
 
     if (!isOpen) return null;
 
@@ -177,28 +221,64 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
                         {errors.descripcion && <p className="mt-1 text-sm text-red-600">{errors.descripcion}</p>}
                     </div>
 
-                    {/* Campo Imagen Personalizado */}
+                    {/* Campo Imágenes (hasta 3) */}
                     <div>
-                        <label
-                            htmlFor="imagen-mascota"
-                            className="flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed border-gray-300 bg-gray-50 p-6 text-center transition hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
-                        >
-                            <UploadCloud className="h-10 w-10 text-gray-400" />
-                            <span className="mt-2 text-sm text-gray-600 dark:text-gray-300">{fileName || 'Haz clic para subir una foto'}</span>
-                            <span className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF hasta 2MB</span>
-                        </label>
+                        <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Imágenes de la mascota (hasta 3)</label>
+
+                        {/* Vista previa de imágenes seleccionadas */}
+                        {imagePreviews.length > 0 && (
+                            <div className="mb-4 grid grid-cols-3 gap-3">
+                                {imagePreviews.map((preview, index) => (
+                                    <div key={index} className="group relative">
+                                        <img
+                                            src={preview}
+                                            alt={`Preview ${index + 1}`}
+                                            className="h-20 w-full rounded-md border border-gray-300 object-cover dark:border-gray-600"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => removeImage(index)}
+                                            className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 hover:bg-red-600"
+                                        >
+                                            <X className="h-3 w-3" />
+                                        </button>
+                                        <div className="bg-opacity-50 absolute right-0 bottom-0 left-0 truncate rounded-b-md bg-black p-1 text-xs text-white">
+                                            {additionalFiles[index]?.name}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Botón para agregar imágenes (solo si no se ha llegado al límite) */}
+                        {additionalFiles.length < 3 && (
+                            <label
+                                htmlFor="imagenes-mascota"
+                                className="flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed border-gray-300 bg-gray-50 p-6 text-center transition hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
+                            >
+                                <Plus className="h-10 w-10 text-gray-400" />
+                                <span className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                                    {additionalFiles.length === 0
+                                        ? 'Seleccionar imágenes de la mascota'
+                                        : `Agregar más imágenes (${3 - additionalFiles.length} disponibles)`}
+                                </span>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF hasta 2MB cada una</span>
+                            </label>
+                        )}
+
                         <input
-                            id="imagen-mascota"
-                            ref={fileInputRef}
+                            id="imagenes-mascota"
+                            name="imagenes-mascota"
+                            ref={multipleFileInputRef}
                             type="file"
-                            onChange={(e) => {
-                                const file = e.target.files ? e.target.files[0] : null;
-                                setData('imagen', file);
-                                setFileName(file ? file.name : '');
-                            }}
+                            accept="image/*"
+                            multiple
+                            autoComplete="off"
+                            onChange={(e) => handleAddImages(e.target.files)}
                             className="hidden"
                         />
-                        {errors.imagen && <p className="mt-1 text-sm text-red-600">{errors.imagen}</p>}
+
+                        {errors.imagenes && <p className="mt-1 text-sm text-red-600">{errors.imagenes}</p>}
                     </div>
 
                     {/* Botones de Acción */}
