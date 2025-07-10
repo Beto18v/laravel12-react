@@ -2,36 +2,23 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
-// Importa los modelos y sus policies
-use App\Models\Mascota;
-use App\Policies\MascotaPolicy;
-use App\Models\Product;
-use App\Policies\ProductPolicy;
+use Illuminate\Support\ServiceProvider;
 
-class AuthServiceProvider extends ServiceProvider
+class AppServiceProvider extends ServiceProvider
 {
     /**
-     * The model to policy mappings for the application.
-     *
-     * @var array<class-string, class-string>
+     * Register any application services.
      */
-    protected $policies = [
-        // 'App\Models\Model' => 'App\Policies\ModelPolicy',
-
-        // AÑADIMOS ESTAS LÍNEAS PARA REGISTRAR LOS POLICIES
-        Mascota::class => MascotaPolicy::class,
-        Product::class => ProductPolicy::class,
-    ];
+    public function register(): void
+    {
+        //
+    }
 
     /**
-     * Register any authentication / authorization services.
+     * Bootstrap any application services.
      */
     public function boot(): void
     {
-        $this->registerPolicies();
-
         //
     }
 }

@@ -52,11 +52,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('solicitudes', [App\Http\Controllers\SolicitudesController::class, 'store'])->name('solicitudes.adopcion.store');
     Route::delete('solicitudes/{solicitud}', [App\Http\Controllers\SolicitudesController::class, 'destroy'])->name('solicitudes.destroy');
 
-    Route::get('/productos-mascotas', [\App\Http\Controllers\ProductosMascotasController::class, 'index'])->name('productos.mascotas');
-    Route::post('/productos/store', [\App\Http\Controllers\ProductosMascotasController::class, 'store'])->name('productos.store');
+    Route::get('/productos-mascotas', [ProductController::class, 'index'])->name('productos.mascotas');
+    Route::post('/productos/store', [ProductController::class, 'store'])->name('productos.store');
+    Route::put('/productos/{product}', [ProductController::class, 'update'])->name('productos.update');
     Route::post('/mascotas/store', [MascotaController::class, 'store'])->name('mascotas.store');
     Route::delete('/mascotas/{mascota}', [App\Http\Controllers\MascotaController::class, 'destroy'])->name('mascotas.destroy');
-    Route::delete('/productos/{product}', [App\Http\Controllers\ProductosMascotasController::class, 'destroy'])->name('productos.destroy');
+    Route::delete('/productos/{product}', [ProductController::class, 'destroy'])->name('productos.destroy');
 
 
     // Route::get('/mascotas', [MascotaController::class, 'index'])->name('mascotas.index');

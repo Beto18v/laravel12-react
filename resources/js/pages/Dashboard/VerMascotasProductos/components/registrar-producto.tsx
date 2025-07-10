@@ -68,6 +68,9 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
                 <form onSubmit={handleSubmit} className="space-y-5">
                     {/* Campo Nombre */}
                     <div>
+                        <label htmlFor="nombre" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Nombre del producto
+                        </label>
                         <input
                             id="nombre"
                             name="nombre"
@@ -75,6 +78,7 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
                             value={data.nombre}
                             onChange={(e) => setData('nombre', e.target.value)}
                             placeholder="Nombre del producto"
+                            autoComplete="off"
                             className="w-full rounded-md border-gray-300 p-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                         />
                         {errors.nombre && <p className="mt-1 text-sm text-red-600">{errors.nombre}</p>}
@@ -82,6 +86,9 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
 
                     {/* Campo Descripción */}
                     <div>
+                        <label htmlFor="descripcion" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Descripción del producto
+                        </label>
                         <textarea
                             id="descripcion"
                             name="descripcion"
@@ -89,6 +96,7 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
                             onChange={(e) => setData('descripcion', e.target.value)}
                             placeholder="Descripción del producto"
                             rows={3}
+                            autoComplete="off"
                             className="w-full rounded-md border-gray-300 p-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                         />
                         {errors.descripcion && <p className="mt-1 text-sm text-red-600">{errors.descripcion}</p>}
@@ -97,6 +105,9 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
                     <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                         {/* Campo Precio */}
                         <div>
+                            <label htmlFor="precio" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Precio
+                            </label>
                             <input
                                 id="precio"
                                 name="precio"
@@ -104,12 +115,16 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
                                 value={data.precio}
                                 onChange={(e) => setData('precio', e.target.value)}
                                 placeholder="Precio (ej: 25000)"
+                                autoComplete="off"
                                 className="w-full rounded-md border-gray-300 p-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                             />
                             {errors.precio && <p className="mt-1 text-sm text-red-600">{errors.precio}</p>}
                         </div>
                         {/* Campo Cantidad */}
                         <div>
+                            <label htmlFor="cantidad" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Cantidad disponible
+                            </label>
                             <input
                                 id="cantidad"
                                 name="cantidad"
@@ -117,6 +132,7 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
                                 value={data.cantidad}
                                 onChange={(e) => setData('cantidad', e.target.value)}
                                 placeholder="Cantidad disponible"
+                                autoComplete="off"
                                 className="w-full rounded-md border-gray-300 p-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                             />
                             {errors.cantidad && <p className="mt-1 text-sm text-red-600">{errors.cantidad}</p>}
@@ -125,6 +141,7 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
 
                     {/* Campo Imagen Personalizado */}
                     <div>
+                        <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Imagen del producto</label>
                         <label
                             htmlFor="imagen-producto"
                             className="flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed border-gray-300 bg-gray-50 p-6 text-center transition hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
@@ -138,6 +155,8 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
                             name="imagen-producto"
                             ref={fileInputRef}
                             type="file"
+                            accept="image/*"
+                            autoComplete="off"
                             onChange={(e) => {
                                 const file = e.target.files ? e.target.files[0] : null;
                                 setData('imagen', file);

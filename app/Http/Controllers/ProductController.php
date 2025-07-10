@@ -4,9 +4,13 @@ namespace App\Http\Controllers;
 
 // Imports de los Modelos y Requests necesarios
 use App\Models\Product;
+use App\Models\Mascota;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Gate;
 
 // Import para la autorización
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -29,32 +33,84 @@ class ProductController extends Controller
     }
 
     /**
-     * Almacena un nuevo producto en la base de datos.
+     * Muestra la vista unificada de productos y mascotas para el aliado.
      */
-    public function store(StoreProductRequest $request)
+    public function index()
     {
-        // La validación se ejecuta automáticamente gracias a StoreProductRequest.
-        // Si la validación falla, Laravel redirige al usuario con los errores.
+        // Obtener productos y añadirles el tipo 'producto'
+        $productos = Product::with('user')->get()->map(function ($producto) {
+            $producto->tipo = 'producto';
+            return $producto;
+        });
+
+        // Obtener mascotas y añadirles el tipo 'mascota'
+        $mascotas = Mascota::with('user')->get()->map(function ($mascota) {
+            $mascota->tipo = 'mascota';
+            $mascota->precio = null; // Aseguramos que las mascotas no tengan precio
+            return $mascota;
+        });
+
+        // Combinar y ordenar aleatoriamente los items
+        $items = $productos->concat($mascotas)->shuffle();
+
+        return Inertia::render('Dashboard/VerMascotasProductos/productos-mascotas', [
+            'items' => $items
+        ]);
+    }
+
+    /**
+     * Almacena un nuevo producto usando StoreProductRequest.
+     */
+    public function storeWithValidation(StoreProductRequest $request)
+    {
         $validatedData = $request->validated();
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            // Guarda la imagen en storage/app/public/productos
             $imagePath = $request->file('image')->store('productos', 'public');
         }
 
-        // Crea el producto con los datos ya validados
         Product::create([
             'nombre' => $validatedData['name'],
             'descripcion' => $validatedData['description'],
             'precio' => $validatedData['price'],
             'stock' => $validatedData['stock'],
-            'user_id' => Auth::id(), // Asigna el ID del usuario autenticado
+            'user_id' => Auth::id(),
             'imagen' => $imagePath,
         ]);
 
-        // Redirige al dashboard con un mensaje de éxito
-        return redirect()->route('dashboard.ver-mascotas-productos')->with('success', 'Producto creado exitosamente.');
+        return redirect()->route('productos.mascotas')->with('success', 'Producto creado exitosamente.');
+    }
+
+    /**
+     * Almacena un nuevo producto en la base de datos (para el dashboard unificado).
+     */
+    public function store(Request $request)
+    {
+        // Validación manual para el caso del dashboard unificado
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'required|string',
+            'precio' => 'required|numeric|min:0',
+            'cantidad' => 'required|integer|min:0',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $producto = new Product();
+        $producto->nombre = $request->nombre;
+        $producto->descripcion = $request->descripcion;
+        $producto->precio = $request->precio;
+        $producto->stock = $request->cantidad; // Mapear cantidad a stock
+        $producto->user_id = Auth::id();
+
+        if ($request->hasFile('imagen')) {
+            $path = $request->file('imagen')->store('productos', 'public');
+            $producto->imagen = $path;
+        }
+
+        $producto->save();
+
+        return Redirect::route('productos.mascotas')->with('success', 'Producto registrado exitosamente.');
     }
 
     /**
@@ -84,7 +140,7 @@ class ProductController extends Controller
         }
 
         // 4. Redirige con un mensaje de éxito.
-        return redirect()->route('dashboard.ver-mascotas-productos')->with('success', 'Producto actualizado exitosamente.');
+        return redirect()->route('productos.mascotas')->with('success', 'Producto actualizado exitosamente.');
     }
 
     /**
@@ -92,13 +148,18 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        // Autoriza la acción de eliminar
-        $this->authorize('delete', $product);
+        // Autoriza la acción de eliminar usando Gate o Policy
+        try {
+            $this->authorize('delete', $product);
+        } catch (\Exception $e) {
+            // Si no funciona con authorize, usar Gate
+            Gate::authorize('delete', $product);
+        }
 
         // Elimina el producto
         $product->delete();
 
         // Redirige con un mensaje de éxito
-        return redirect()->route('dashboard.ver-mascotas-productos')->with('success', 'Producto eliminado exitosamente.');
+        return redirect()->route('productos.mascotas')->with('success', 'Producto eliminado exitosamente.');
     }
 }
