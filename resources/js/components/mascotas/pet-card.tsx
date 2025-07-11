@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
-import { Link } from '@inertiajs/react';
+import FormularioAdopcionModal from '@/components/ui/formulario-adopcion-modal';
 import { Heart, ShieldCheck } from 'lucide-react';
+import { useState } from 'react';
 
 interface PetCardProps {
     id: number;
@@ -17,53 +18,74 @@ interface PetCardProps {
     onViewDetails?: () => void;
 }
 
-export default function PetCard({ name, especie, raza, edad, descripcion, imageUrl, shelter }: PetCardProps) {
-    return (
-        <div className="group relative overflow-hidden rounded-lg shadow-lg transition-all hover:shadow-xl">
-            <Link href="#" className="absolute inset-0 z-10">
-                <span className="sr-only">Ver mascota</span>
-            </Link>
-            <img src={imageUrl} alt={name} width={400} height={300} className="h-60 w-full object-cover transition-all group-hover:scale-105" />
-            <div className="bg-white p-4 dark:bg-gray-900">
-                <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {props.especie} {props.raza && `• ${props.raza}`}
-                        </p>
-                        <h3 className="text-lg font-semibold">{props.name}</h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">
-                            {props.edad} {props.edad === 1 ? 'año' : 'años'}
-                        </p>
-                        <p className="mt-1 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">{props.descripcion}</p>
+export default function PetCard({
+    id,
+    name,
+    especie,
+    raza,
+    edad,
+    descripcion,
+    imageUrl,
+    shelter,
+    sexo,
+    ciudad,
+    onImageClick,
+    onViewDetails,
+}: PetCardProps) {
+    const [showAdoptionForm, setShowAdoptionForm] = useState(false);
 
-                        <div className="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
-                            <ShieldCheck className="mr-1.5 h-4 w-4 text-green-500" />
-                            <span className="text-blue-600 dark:text-blue-400">Publicado por: {props.shelter}</span>
-                        </div>
-                    </div>
-                    <Button variant="ghost" size="icon" className="absolute top-2 right-2 z-20">
-                        <Heart className="h-5 w-5 text-gray-500 hover:fill-red-500 hover:text-red-500" />
-                    </Button>
+    return (
+        <>
+            <div className="group relative overflow-hidden rounded-lg shadow-lg transition-all hover:shadow-xl">
+                <div className="cursor-pointer" onClick={onImageClick}>
+                    <img
+                        src={imageUrl}
+                        alt={name}
+                        width={400}
+                        height={300}
+                        className="h-60 w-full object-cover transition-all group-hover:scale-105"
+                    />
                 </div>
-                <div className="mt-4 flex items-center justify-between">
-                    <p className="text-sm font-medium text-green-600 dark:text-green-400">Disponible para adopción</p>
-                    <Button size="sm" className="z-20 bg-green-600 hover:bg-green-700">
-                        Adoptar
-                    </Button>
+                <div className="bg-white p-4 dark:bg-gray-900">
+                    <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                {especie} {raza && `• ${raza}`}
+                            </p>
+                            <h3 className="text-lg font-semibold">{name}</h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
+                                {edad} {edad === 1 ? 'año' : 'años'}
+                            </p>
+                            <p className="mt-1 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">{descripcion}</p>
+
+                            <div className="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
+                                <ShieldCheck className="mr-1.5 h-4 w-4 text-green-500" />
+                                <span className="text-blue-600 dark:text-blue-400">Publicado por: {shelter}</span>
+                            </div>
+                        </div>
+                        <Button variant="ghost" size="icon" className="absolute top-2 right-2 z-20">
+                            <Heart className="h-5 w-5 text-gray-500 hover:fill-red-500 hover:text-red-500" />
+                        </Button>
+                    </div>
+                    <div className="mt-4 flex items-center justify-between">
+                        <p className="text-sm font-medium text-green-600 dark:text-green-400">Disponible para adopción</p>
+                        <Button size="sm" className="z-20 bg-green-600 hover:bg-green-700" onClick={onViewDetails}>
+                            Ver detalle
+                        </Button>
+                    </div>
                 </div>
             </div>
-            {/* Modal de adopción */}
-            {showAdoptionModal && (
-                <FormularioAdopcion
-                    mascota={{
-                        id: props.id,
-                        nombre: props.name,
-                        tipo: 'mascota',
-                    }}
-                    show={showAdoptionModal}
-                    onClose={() => setShowAdoptionModal(false)}
-                />
-            )}
-        </div>
+
+            {/* Formulario de Adopción */}
+            <FormularioAdopcionModal
+                show={showAdoptionForm}
+                onClose={() => setShowAdoptionForm(false)}
+                mascota={{
+                    id,
+                    nombre: name,
+                    type: 'pet',
+                }}
+            />
+        </>
     );
 }
