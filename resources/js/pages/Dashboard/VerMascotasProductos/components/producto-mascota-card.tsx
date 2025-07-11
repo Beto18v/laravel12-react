@@ -1,7 +1,7 @@
 import { type SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { Heart, Pencil, ShoppingCart, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import FormularioAdopcion from './formulario-adopcion';
 
 // Definimos el tipo para cada item que la tarjeta puede recibir
@@ -22,9 +22,11 @@ interface ProductoMascotaCardProps {
     onDelete: (item: CardItem) => void;
     onEdit: (item: CardItem) => void;
     onAction: (item: CardItem) => void;
+    autoOpenAdopcion?: boolean;
+    onAutoOpenHandled?: () => void;
 }
 
-export default function ProductoMascotaCard({ item, onDelete, onEdit, onAction }: ProductoMascotaCardProps) {
+export default function ProductoMascotaCard({ item, onDelete, onEdit, onAction, autoOpenAdopcion, onAutoOpenHandled }: ProductoMascotaCardProps) {
     // Obtenemos el usuario autenticado para determinar el rol
     const { auth } = usePage<SharedData>().props;
     const user = auth.user;
@@ -32,17 +34,33 @@ export default function ProductoMascotaCard({ item, onDelete, onEdit, onAction }
     // Estado para controlar la visibilidad del modal de adopción
     const [showAdoptionModal, setShowAdoptionModal] = useState(false);
 
+    // Abrir automáticamente el modal si autoOpenAdopcion es true
+    useEffect(() => {
+        if (autoOpenAdopcion) {
+            setShowAdoptionModal(true);
+            if (onAutoOpenHandled) onAutoOpenHandled();
+        }
+    }, [autoOpenAdopcion]);
+
     // Verificamos si el usuario es el propietario del item
     const esPropietario = user.role === 'aliado' && user.id === item.user_id;
     // Verificamos si el usuario es admin
     const esAdmin = user.role === 'admin';
 
     // El cliente ve los botones de acción principales
-    const esCliente = !esPropietario && !esAdmin;
+    const esCliente = user && user.role === 'cliente' && !esPropietario && !esAdmin;
 
     // El manejador de la acción ahora es condicional
     const handleActionClick = () => {
         if (item.tipo === 'mascota') {
+            if (!user) {
+                window.location.href = route('login');
+                return;
+            }
+            if (user.role !== 'cliente') {
+                window.location.href = route('register.options');
+                return;
+            }
             setShowAdoptionModal(true); // Abre el modal de adopción para mascotas
         } else {
             onAction(item); // Ejecuta la acción original para productos (comprar)

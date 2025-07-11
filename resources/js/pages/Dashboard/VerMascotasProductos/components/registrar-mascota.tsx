@@ -139,12 +139,8 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
                                 className="w-full rounded-md border-gray-300 p-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                             >
                                 <option value="">Selecciona una especie</option>
-                                <option value="Perro">Perro</option>
-                                <option value="Gato">Gato</option>
-                                <option value="Conejo">Conejo</option>
-                                <option value="Hámster">Hámster</option>
-                                <option value="Ave">Ave</option>
-                                <option value="Otro">Otro</option>
+                                <option value="perro">Perro</option>
+                                <option value="gato">Gato</option>
                             </select>
                             {errors.especie && <p className="mt-1 text-sm text-red-600">{errors.especie}</p>}
                         </div>

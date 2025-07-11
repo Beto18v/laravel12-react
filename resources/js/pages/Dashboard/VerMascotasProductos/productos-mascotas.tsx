@@ -28,6 +28,16 @@ export default function ProductosMascotas() {
         }
     }, [success]);
 
+    const [adoptarMascotaId, setAdoptarMascotaId] = useState<number | null>(null);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const adoptarMascota = params.get('adoptar_mascota');
+        if (adoptarMascota) {
+            setAdoptarMascotaId(Number(adoptarMascota));
+        }
+    }, []);
+
     const productosFiltrados = itemsTyped.filter(
         (item) => item.nombre.toLowerCase().includes(busqueda.toLowerCase()) && (filtro === 'todo' || item.tipo === filtro),
     );
@@ -148,6 +158,8 @@ export default function ProductosMascotas() {
                                 onAction={handleAction}
                                 onDelete={handleDelete}
                                 onEdit={handleEdit}
+                                autoOpenAdopcion={adoptarMascotaId === item.id}
+                                onAutoOpenHandled={() => setAdoptarMascotaId(null)}
                             />
                         ))}
                     </div>

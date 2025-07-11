@@ -24,14 +24,18 @@ class SolicitudesController extends Controller
         // El código que ya tenías para mostrar las solicitudes según el rol del usuario
         if ($user->role === 'aliado') {
             $mascotaIds = Mascota::where('user_id', $user->id)->pluck('id');
-            // Nota: El modelo Solicitud no tiene 'producto', ajustamos la consulta.
-            $solicitudes = Solicitud::with(['user', 'mascota'])
+            // Incluimos user_id explícitamente en la relación mascota
+            $solicitudes = Solicitud::with(['user', 'mascota' => function($q) {
+                $q->select('id', 'nombre', 'imagen', 'user_id', 'especie', 'raza');
+            }])
                 ->whereIn('mascota_id', $mascotaIds)
                 ->orderByDesc('id')
                 ->get();
         } else {
             // Para clientes, muestra solo sus solicitudes
-            $solicitudes = Solicitud::with(['user', 'mascota'])
+            $solicitudes = Solicitud::with(['user', 'mascota' => function($q) {
+                $q->select('id', 'nombre', 'imagen', 'user_id', 'especie', 'raza');
+            }])
                 ->where('user_id', $user->id)
                 ->orderByDesc('id')
                 ->get();
@@ -39,6 +43,17 @@ class SolicitudesController extends Controller
 
         return Inertia::render('Dashboard/Solicitudes/index', [
             'solicitudes' => $solicitudes,
+        ]);
+    }
+
+    /**
+     * Muestra el detalle de una solicitud de adopción.
+     */
+    public function show($id)
+    {
+        $solicitud = Solicitud::with(['user', 'mascota'])->findOrFail($id);
+        return Inertia::render('Dashboard/Solicitudes/Show', [
+            'solicitud' => $solicitud,
         ]);
     }
 
@@ -79,5 +94,24 @@ class SolicitudesController extends Controller
         $solicitud->delete();
 
         return back()->with('success', 'Solicitud cancelada correctamente.');
+    }
+
+    /**
+     * Cambia el estado de la solicitud (aprobar/rechazar).
+     */
+    public function updateEstado(Request $request, $id)
+    {
+        $request->validate([
+            'estado' => 'required|in:Aprobada,Rechazada'
+        ]);
+        $solicitud = Solicitud::findOrFail($id);
+        // Solo el aliado dueño de la mascota puede cambiar el estado
+        $user = Auth::user();
+        if ($user->role !== 'aliado' || $solicitud->mascota->user_id !== $user->id) {
+            abort(403, 'No autorizado.');
+        }
+        $solicitud->estado = $request->estado;
+        $solicitud->save();
+        return response()->json(['success' => true, 'estado' => $solicitud->estado]);
     }
 }

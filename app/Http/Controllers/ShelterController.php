@@ -42,6 +42,7 @@ class ShelterController extends Controller
     public function store(Request $request)
     {
         // 1. Valida que todos los campos del formulario sean correctos
+        // 1. Valida que todos los campos del formulario sean correctos, incluyendo lat/lng
         $validatedData = $request->validate([
             'name' => 'required|string|max:255|unique:shelters,name',
             'description' => 'required|string|max:1000',
@@ -51,6 +52,8 @@ class ShelterController extends Controller
             'bank_name' => 'required|string|max:100',
             'account_type' => 'required|string|max:50',
             'account_number' => 'required|string|max:50|unique:shelters,account_number',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
         ]);
 
         // 2. Añade el ID del usuario actual (el aliado) a los datos validados

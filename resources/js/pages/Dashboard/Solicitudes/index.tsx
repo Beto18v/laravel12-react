@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -16,6 +17,7 @@ interface Mascota {
     id: number;
     nombre: string;
     imagen?: string;
+    user_id: number;
 }
 interface Solicitud {
     id: number;
@@ -29,6 +31,8 @@ interface SolicitudesPageProps {
 }
 
 export default function SolicitudesIndex({ auth, solicitudes }: SolicitudesPageProps) {
+    const [selectedSolicitud, setSelectedSolicitud] = useState<Solicitud | null>(null);
+
     const handleCancel = (solicitudId: number) => {
         if (confirm('¿Estás seguro de que quieres cancelar esta solicitud?')) {
             router.delete(route('solicitudes.destroy', solicitudId), { preserveScroll: true });
@@ -92,7 +96,14 @@ export default function SolicitudesIndex({ auth, solicitudes }: SolicitudesPageP
                                                         </Badge>
                                                     </TableCell>
                                                     <TableCell>{new Date(solicitud.created_at).toLocaleDateString()}</TableCell>
-                                                    <TableCell className="text-right">
+                                                    <TableCell className="text-right flex gap-2 justify-end">
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            onClick={() => setSelectedSolicitud(solicitud)}
+                                                        >
+                                                            Ver Detalle
+                                                        </Button>
                                                         {solicitud.estado === 'Enviada' && (
                                                             <Button variant="destructive" size="icon" onClick={() => handleCancel(solicitud.id)}>
                                                                 <Trash2 className="h-4 w-4" />
@@ -111,6 +122,128 @@ export default function SolicitudesIndex({ auth, solicitudes }: SolicitudesPageP
                         </div>
                     </div>
                 </div>
+                {/* Modal/Card para mostrar el detalle de la solicitud */}
+                {selectedSolicitud && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-2">
+                        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-lg md:max-w-2xl max-h-[90vh] overflow-y-auto relative border border-gray-200 dark:border-gray-700 animate-fade-in">
+                            <button
+                                className="absolute top-3 right-3 text-2xl text-gray-400 hover:text-red-500 transition-colors bg-white dark:bg-gray-900 rounded-full shadow p-1 z-10"
+                                onClick={() => setSelectedSolicitud(null)}
+                                aria-label="Cerrar"
+                            >
+                                ×
+                            </button>
+                            <div className="p-6 md:p-8">
+                                <h2 className="text-2xl font-bold mb-6 text-center text-blue-700 dark:text-blue-300">Detalle de Solicitud de Adopción</h2>
+                                <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <h3 className="font-semibold text-lg mb-2 text-green-700 dark:text-green-300">Datos del Solicitante</h3>
+                                        <div className="mb-1"><strong>Nombre completo:</strong> {selectedSolicitud.nombre_completo}</div>
+                                        <div className="mb-1"><strong>Cédula:</strong> {selectedSolicitud.cedula}</div>
+                                        <div className="mb-1"><strong>Email:</strong> {selectedSolicitud.email}</div>
+                                        <div className="mb-1"><strong>Teléfono:</strong> {selectedSolicitud.telefono}</div>
+                                        <div className="mb-1"><strong>Ciudad:</strong> {selectedSolicitud.direccion_ciudad}</div>
+                                        <div className="mb-1"><strong>Barrio:</strong> {selectedSolicitud.direccion_barrio}</div>
+                                        <div className="mb-1"><strong>Código Postal:</strong> {selectedSolicitud.direccion_postal}</div>
+                                    </div>
+                                    <div>
+                                        <h3 className="font-semibold text-lg mb-2 text-green-700 dark:text-green-300">Vivienda</h3>
+                                        <div className="mb-1"><strong>Tipo de vivienda:</strong> {selectedSolicitud.tipo_vivienda}</div>
+                                        <div className="mb-1"><strong>Propiedad de la vivienda:</strong> {selectedSolicitud.propiedad_vivienda}</div>
+                                        <div className="mb-1"><strong>Tiene patio:</strong> {selectedSolicitud.tiene_patio}</div>
+                                        <div className="mb-1"><strong>¿Permiten mascotas en alquiler?:</strong> {selectedSolicitud.permiten_mascotas_alquiler}</div>
+                                    </div>
+                                </div>
+                                <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <h3 className="font-semibold text-lg mb-2 text-green-700 dark:text-green-300">Convivientes</h3>
+                                        <div className="mb-1"><strong>Cantidad de convivientes:</strong> {selectedSolicitud.cantidad_convivientes}</div>
+                                        <div className="mb-1"><strong>¿Hay niños?:</strong> {selectedSolicitud.hay_ninos}</div>
+                                        <div className="mb-1"><strong>Edades de los niños:</strong> {selectedSolicitud.edades_ninos}</div>
+                                        <div className="mb-1"><strong>¿Todos están de acuerdo con la adopción?:</strong> {selectedSolicitud.todos_acuerdo_adopcion}</div>
+                                    </div>
+                                    <div>
+                                        <h3 className="font-semibold text-lg mb-2 text-green-700 dark:text-green-300">Otras Mascotas</h3>
+                                        <div className="mb-1"><strong>¿Tiene otras mascotas?:</strong> {selectedSolicitud.tiene_otras_mascotas}</div>
+                                        <div className="mb-1"><strong>¿Tuvo mascotas antes?:</strong> {selectedSolicitud.tuvo_mascotas_antes}</div>
+                                    </div>
+                                </div>
+                                <div className="mb-6">
+                                    <h3 className="font-semibold text-lg mb-2 text-green-700 dark:text-green-300">Detalles de Adopción</h3>
+                                    <div className="mb-1"><strong>¿Por qué desea adoptar?:</strong> {selectedSolicitud.porque_adopta}</div>
+                                    <div className="mb-1"><strong>¿Qué espera de la convivencia?:</strong> {selectedSolicitud.que_espera_convivencia}</div>
+                                    <div className="mb-1"><strong>¿Qué haría ante problemas de comportamiento?:</strong> {selectedSolicitud.que_haria_problemas_comportamiento}</div>
+                                    <div className="mb-1"><strong>¿Acepta visitas de seguimiento?:</strong> {selectedSolicitud.acepta_visitas_seguimiento}</div>
+                                </div>
+                                <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <h3 className="font-semibold text-lg mb-2 text-green-700 dark:text-green-300">Compromisos y Condiciones</h3>
+                                        <div className="mb-1"><strong>¿Acepta proceso de evaluación?:</strong> {selectedSolicitud.acepta_proceso_evaluacion ? 'Sí' : 'No'}</div>
+                                        <div className="mb-1"><strong>¿Acepta cuidado responsable?:</strong> {selectedSolicitud.acepta_cuidado_responsable ? 'Sí' : 'No'}</div>
+                                        <div className="mb-1"><strong>¿Acepta contrato de adopción?:</strong> {selectedSolicitud.acepta_contrato_adopcion ? 'Sí' : 'No'}</div>
+                                    </div>
+                                    <div>
+                                        <h3 className="font-semibold text-lg mb-2 text-green-700 dark:text-green-300">Mascota Solicitada</h3>
+                                        <div className="mb-1"><strong>Nombre:</strong> {selectedSolicitud.mascota?.nombre}</div>
+                                        <div className="mb-1"><strong>Especie:</strong> {selectedSolicitud.mascota?.especie}</div>
+                                        <div className="mb-1"><strong>Raza:</strong> {selectedSolicitud.mascota?.raza}</div>
+                                    </div>
+                                </div>
+                                <div className="mb-6">
+                                    <div className="mb-1"><strong>Estado de la solicitud:</strong> {selectedSolicitud.estado}</div>
+                                    <div className="mb-1"><strong>Fecha de solicitud:</strong> {new Date(selectedSolicitud.created_at).toLocaleDateString()}</div>
+                                </div>
+                                <div className="flex flex-wrap gap-4 justify-center mt-4">
+                                    {auth.user.role === 'aliado' && selectedSolicitud.mascota?.user_id === auth.user.id && (
+                                        <>
+                                            <Button
+                                                variant="success"
+                                                onClick={async () => {
+                                                    if (!selectedSolicitud) return;
+                                                    await fetch(route('solicitudes.updateEstado', selectedSolicitud.id), {
+                                                        method: 'POST',
+                                                        headers: {
+                                                            'Content-Type': 'application/json',
+                                                            'X-Requested-With': 'XMLHttpRequest',
+                                                            'X-CSRF-TOKEN': (document.querySelector('meta[name=csrf-token]') as HTMLMetaElement)?.content || ''
+                                                        },
+                                                        body: JSON.stringify({ estado: 'Aprobada' })
+                                                    });
+                                                    setSelectedSolicitud({ ...selectedSolicitud, estado: 'Aprobada' });
+                                                    window.location.reload();
+                                                }}
+                                                disabled={selectedSolicitud.estado === 'Aprobada'}
+                                            >
+                                                Aprobar
+                                            </Button>
+                                            <Button
+                                                variant="destructive"
+                                                onClick={async () => {
+                                                    if (!selectedSolicitud) return;
+                                                    await fetch(route('solicitudes.updateEstado', selectedSolicitud.id), {
+                                                        method: 'POST',
+                                                        headers: {
+                                                            'Content-Type': 'application/json',
+                                                            'X-Requested-With': 'XMLHttpRequest',
+                                                            'X-CSRF-TOKEN': (document.querySelector('meta[name=csrf-token]') as HTMLMetaElement)?.content || ''
+                                                        },
+                                                        body: JSON.stringify({ estado: 'Rechazada' })
+                                                    });
+                                                    setSelectedSolicitud({ ...selectedSolicitud, estado: 'Rechazada' });
+                                                    window.location.reload();
+                                                }}
+                                                disabled={selectedSolicitud.estado === 'Rechazada'}
+                                            >
+                                                Rechazar
+                                            </Button>
+                                        </>
+                                    )}
+                                    <Button variant="outline" onClick={() => setSelectedSolicitud(null)}>Cerrar</Button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </main>
         </AppLayout>
     );
