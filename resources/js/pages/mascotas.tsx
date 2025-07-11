@@ -3,10 +3,17 @@ import Header from '@/components/landing/header';
 import PetCard from '@/components/mascotas/pet-card';
 import PetHero from '@/components/mascotas/pet-hero';
 import { ThemeSwitcher } from '@/components/theme-switcher';
+import CarouselModal from '@/components/ui/carousel-modal';
 import { Head, usePage } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
 
 // ACTUALIZADO: Asegúrate de que tu prop 'mascotas' incluya ciudad y sexo.
+interface MascotaImage {
+    id: number;
+    imagen_path: string;
+    orden: number;
+}
+
 interface Mascota {
     id: number;
     nombre: string;
@@ -17,6 +24,7 @@ interface Mascota {
     ciudad: string; // <-- AÑADIDO
     descripcion: string;
     imagen?: string;
+    images?: MascotaImage[]; // <-- AÑADIDO: imágenes múltiples
     user: {
         id: number;
         name: string;
@@ -29,26 +37,56 @@ interface MascotasProps {
 
 export default function Mascotas({ mascotas = [] }: MascotasProps) {
     const { url } = usePage();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedIndex, setSelectedIndex] = useState(0);
 
     const getEspecieFromUrl = () => {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get('especie') || 'all';
     };
 
-    // ACTUALIZADO: Mapeamos también 'sexo' y 'ciudad'.
+    // ACTUALIZADO: Mapeamos también 'sexo' y 'ciudad' e imágenes múltiples.
     const allPets = useMemo(() => {
-        return mascotas.map((mascota) => ({
-            id: mascota.id,
-            name: mascota.nombre,
-            especie: mascota.especie,
-            raza: mascota.raza,
-            edad: mascota.edad,
-            sexo: mascota.sexo, // <-- AÑADIDO
-            ciudad: mascota.ciudad, // <-- AÑADIDO
-            descripcion: mascota.descripcion,
-            imageUrl: mascota.imagen ? `/storage/${mascota.imagen}` : 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?q=80&w=400',
-            shelter: mascota.user.name,
-        }));
+        return mascotas.map((mascota) => {
+            // Construir array de imágenes
+            const images: string[] = [];
+
+            // Agregar imagen principal si existe
+            if (mascota.imagen) {
+                images.push(`/storage/${mascota.imagen}`);
+            }
+
+            // Agregar imágenes adicionales de la relación 'images'
+            if (mascota.images && mascota.images.length > 0) {
+                mascota.images.forEach((img) => {
+                    const imagePath = `/storage/${img.imagen_path}`;
+                    if (!images.includes(imagePath)) {
+                        // Evitar duplicados
+                        images.push(imagePath);
+                    }
+                });
+            }
+
+            // Imagen por defecto si no hay ninguna
+            if (images.length === 0) {
+                images.push('https://images.unsplash.com/photo-1601758228041-f3b2795255f1?q=80&w=400');
+            }
+
+            return {
+                id: mascota.id,
+                type: 'pet' as const,
+                name: mascota.nombre,
+                especie: mascota.especie,
+                raza: mascota.raza,
+                edad: mascota.edad,
+                sexo: mascota.sexo, // <-- AÑADIDO
+                ciudad: mascota.ciudad, // <-- AÑADIDO
+                descripcion: mascota.descripcion,
+                imageUrl: images[0], // Primera imagen como principal
+                images: images, // <-- AÑADIDO: todas las imágenes
+                shelter: mascota.user.name,
+            };
+        });
     }, [mascotas]);
 
     // ACTUALIZADO: Se añaden los nuevos filtros al estado inicial.
@@ -69,6 +107,11 @@ export default function Mascotas({ mascotas = [] }: MascotasProps) {
 
     const handleFilterChange = (key: string, value: any) => {
         setFilters((prev) => ({ ...prev, [key]: value }));
+    };
+
+    const handlePetClick = (index: number) => {
+        setSelectedIndex(index);
+        setIsModalOpen(true);
     };
 
     // Función para limpiar todos los filtros.
@@ -235,7 +278,14 @@ export default function Mascotas({ mascotas = [] }: MascotasProps) {
                     {/* Grid de mascotas */}
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         {filteredPets.length > 0 ? (
-                            filteredPets.map((pet) => <PetCard key={pet.id} {...pet} />)
+                            filteredPets.map((pet, index) => (
+                                <PetCard
+                                    key={pet.id}
+                                    {...pet}
+                                    onImageClick={() => handlePetClick(index)}
+                                    onViewDetails={() => handlePetClick(index)}
+                                />
+                            ))
                         ) : (
                             <p className="col-span-full py-16 text-center text-gray-500">
                                 {allPets.length === 0
@@ -249,6 +299,8 @@ export default function Mascotas({ mascotas = [] }: MascotasProps) {
 
             <Footer />
             <ThemeSwitcher />
+
+            <CarouselModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} items={filteredPets} initialIndex={selectedIndex} />
         </div>
     );
 }

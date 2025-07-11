@@ -22,7 +22,7 @@ class MascotaController extends Controller
      */
     public function index()
     {
-        $mascotas = Mascota::with('user')->get();
+        $mascotas = Mascota::with(['user', 'images'])->get();
         return Inertia::render('Cliente/Mascotas', ['mascotas' => $mascotas]);
     }
 
@@ -31,7 +31,7 @@ class MascotaController extends Controller
      */
     public function indexPublic()
     {
-        $mascotas = Mascota::with('user')->get();
+        $mascotas = Mascota::with(['user', 'images'])->get();
         return Inertia::render('mascotas', ['mascotas' => $mascotas]);
     }
 

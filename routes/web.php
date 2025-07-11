@@ -21,7 +21,7 @@ Route::get('/', function () {
             'user' => $producto->user,
         ];
     });
-    $mascotas = \App\Models\Mascota::with('user')->latest()->take(3)->get();
+    $mascotas = \App\Models\Mascota::with(['user', 'images'])->latest()->take(3)->get();
 
     return Inertia::render('index', [
         'productos' => $productos,

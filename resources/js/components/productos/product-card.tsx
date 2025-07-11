@@ -1,5 +1,4 @@
 import { Button } from '@/components/ui/button';
-import { Link } from '@inertiajs/react';
 import { Heart, ShieldCheck } from 'lucide-react';
 
 interface ProductCardProps {
@@ -9,15 +8,16 @@ interface ProductCardProps {
     shelter: string;
     precio: number;
     imageUrl: string;
+    onImageClick?: () => void;
+    onViewDetails?: () => void;
 }
 
-export default function ProductCard({ nombre, shelter, descripcion, precio, imageUrl }: ProductCardProps) {
+export default function ProductCard({ id, nombre, shelter, descripcion, precio, imageUrl, onImageClick, onViewDetails }: ProductCardProps) {
     return (
         <div className="group relative overflow-hidden rounded-lg shadow-lg transition-all hover:shadow-xl">
-            <Link href="#" className="absolute inset-0 z-10">
-                <span className="sr-only">Ver producto</span>
-            </Link>
-            <img src={imageUrl} alt={nombre} width={400} height={300} className="h-60 w-full object-cover transition-all group-hover:scale-105" />
+            <div className="cursor-pointer" onClick={onImageClick}>
+                <img src={imageUrl} alt={nombre} width={400} height={300} className="h-60 w-full object-cover transition-all group-hover:scale-105" />
+            </div>
             <div className="p-4 dark:bg-gray-900 dark:text-gray-200">
                 <div className="flex items-start justify-between">
                     <div>
@@ -34,8 +34,8 @@ export default function ProductCard({ nombre, shelter, descripcion, precio, imag
                 </div>
                 <div className="mt-4 flex items-center justify-between">
                     <p className="text-lg font-bold text-blue-600 dark:text-blue-500">${precio ? precio.toLocaleString('es-CO') : '0'}</p>
-                    <Button size="sm" className="z-20 bg-blue-600 dark:bg-blue-400">
-                        Agregar al carrito
+                    <Button size="sm" className="z-20 bg-blue-600 hover:bg-blue-700 dark:bg-blue-400" onClick={onViewDetails}>
+                        Ver detalle
                     </Button>
                 </div>
             </div>

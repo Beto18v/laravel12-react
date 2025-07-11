@@ -4,6 +4,7 @@ import ProductCard from '@/components/productos/product-card';
 import ProductFilters from '@/components/productos/product-filters';
 import ProductHero from '@/components/productos/product-hero';
 import { ThemeSwitcher } from '@/components/theme-switcher';
+import CarouselModal from '@/components/ui/carousel-modal';
 import { Head } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 
@@ -26,9 +27,13 @@ interface ProductosProps {
 }
 
 export default function Productos({ productos = [] }: ProductosProps) {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedIndex, setSelectedIndex] = useState(0);
+
     const allProducts = useMemo(() => {
         return productos.map((producto) => ({
             id: producto.id,
+            type: 'product' as const,
             nombre: producto.nombre || '',
             category: 'Productos',
             precio: producto.precio || 0,
@@ -61,6 +66,11 @@ export default function Productos({ productos = [] }: ProductosProps) {
         setFilters((prev) => ({ ...prev, [key]: value }));
     };
 
+    const handleProductClick = (index: number) => {
+        setSelectedIndex(index);
+        setIsModalOpen(true);
+    };
+
     const filteredProducts = useMemo(() => {
         return allProducts.filter((product) => {
             const searchTermMatch = (product.nombre || '').toLowerCase().includes((filters.searchTerm || '').toLowerCase());
@@ -86,7 +96,14 @@ export default function Productos({ productos = [] }: ProductosProps) {
                         <section className="lg:col-span-3">
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
                                 {filteredProducts.length > 0 ? (
-                                    filteredProducts.map((product) => <ProductCard key={product.id} {...product} />)
+                                    filteredProducts.map((product, index) => (
+                                        <ProductCard
+                                            key={product.id}
+                                            {...product}
+                                            onImageClick={() => handleProductClick(index)}
+                                            onViewDetails={() => handleProductClick(index)}
+                                        />
+                                    ))
                                 ) : (
                                     <p className="col-span-full py-16 text-center text-gray-500">
                                         {allProducts.length === 0
@@ -102,6 +119,8 @@ export default function Productos({ productos = [] }: ProductosProps) {
 
             <Footer />
             <ThemeSwitcher />
+
+            <CarouselModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} items={filteredProducts} initialIndex={selectedIndex} />
         </div>
     );
 }

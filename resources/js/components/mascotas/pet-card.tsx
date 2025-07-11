@@ -1,6 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Link } from '@inertiajs/react';
-import { Heart, ShieldCheck } from 'lucide-react';
+import { Eye, Heart, ShieldCheck } from 'lucide-react';
 
 interface PetCardProps {
     id: number;
@@ -11,15 +10,31 @@ interface PetCardProps {
     descripcion: string;
     imageUrl: string;
     shelter: string;
+    sexo?: string;
+    ciudad?: string;
+    onImageClick?: () => void;
+    onViewDetails?: () => void;
 }
 
-export default function PetCard({ name, especie, raza, edad, descripcion, imageUrl, shelter }: PetCardProps) {
+export default function PetCard({
+    id,
+    name,
+    especie,
+    raza,
+    edad,
+    descripcion,
+    imageUrl,
+    shelter,
+    sexo,
+    ciudad,
+    onImageClick,
+    onViewDetails,
+}: PetCardProps) {
     return (
         <div className="group relative overflow-hidden rounded-lg shadow-lg transition-all hover:shadow-xl">
-            <Link href="#" className="absolute inset-0 z-10">
-                <span className="sr-only">Ver mascota</span>
-            </Link>
-            <img src={imageUrl} alt={name} width={400} height={300} className="h-60 w-full object-cover transition-all group-hover:scale-105" />
+            <div className="cursor-pointer" onClick={onImageClick}>
+                <img src={imageUrl} alt={name} width={400} height={300} className="h-60 w-full object-cover transition-all group-hover:scale-105" />
+            </div>
             <div className="bg-white p-4 dark:bg-gray-900">
                 <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -43,8 +58,9 @@ export default function PetCard({ name, especie, raza, edad, descripcion, imageU
                 </div>
                 <div className="mt-4 flex items-center justify-between">
                     <p className="text-sm font-medium text-green-600 dark:text-green-400">Disponible para adopción</p>
-                    <Button size="sm" className="z-20 bg-green-600 hover:bg-green-700">
-                        Adoptar
+                    <Button size="sm" className="z-20 bg-blue-600 hover:bg-blue-700" onClick={onViewDetails}>
+                        <Eye className="mr-1 h-4 w-4" />
+                        Ver detalle
                     </Button>
                 </div>
             </div>
