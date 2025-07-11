@@ -290,37 +290,35 @@ export default function CarouselModal({ isOpen, onClose, items, initialIndex }: 
                                     </>
                                 )}
 
-                                {/* Navigation Arrows for Items - Distributed at bottom corners */}
+                                {/* Navigation Arrows for Items - Only on desktop, moved to avoid button interference */}
                                 {items.length > 1 && (
                                     <>
                                         <Button
                                             variant="default"
                                             size="lg"
-                                            className="absolute left-4 md:left-6 bottom-4 md:bottom-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 px-3 md:px-4 py-2 md:py-3 rounded-xl border-2 border-white/20"
+                                            className="hidden lg:flex absolute left-4 md:left-6 top-4 md:top-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 px-3 md:px-4 py-2 md:py-3 rounded-xl border-2 border-white/20"
                                             onClick={() => {
                                                 goToPrevious();
                                                 pauseAutoPlay();
                                             }}
                                         >
                                             <ChevronLeft className="h-5 w-5 md:h-6 md:w-6 mr-1 md:mr-2" />
-                                            <span className="hidden sm:inline font-semibold text-sm md:text-base">
-                                                {isProduct ? 'Producto Anterior' : 'Mascota Anterior'}
+                                            <span className="font-semibold text-sm md:text-base">
+                                                {isProduct ? 'Anterior' : 'Anterior'}
                                             </span>
-                                            <span className="sm:hidden font-semibold text-sm">Anterior</span>
                                         </Button>
                                         <Button
                                             variant="default"
                                             size="lg"
-                                            className="absolute right-4 md:right-6 bottom-4 md:bottom-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 px-3 md:px-4 py-2 md:py-3 rounded-xl border-2 border-white/20"
+                                            className="hidden lg:flex absolute right-4 md:right-6 top-4 md:top-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 px-3 md:px-4 py-2 md:py-3 rounded-xl border-2 border-white/20"
                                             onClick={() => {
                                                 goToNext();
                                                 pauseAutoPlay();
                                             }}
                                         >
-                                            <span className="hidden sm:inline font-semibold text-sm md:text-base">
-                                                {isProduct ? 'Siguiente Producto' : 'Siguiente Mascota'}
+                                            <span className="font-semibold text-sm md:text-base">
+                                                {isProduct ? 'Siguiente' : 'Siguiente'}
                                             </span>
-                                            <span className="sm:hidden font-semibold text-sm">Siguiente</span>
                                             <ChevronRight className="h-5 w-5 md:h-6 md:w-6 ml-1 md:ml-2" />
                                         </Button>
                                     </>
@@ -452,6 +450,36 @@ export default function CarouselModal({ isOpen, onClose, items, initialIndex }: 
 
                                 {/* Action Buttons */}
                                 <div className="space-y-3">
+                                    {/* Mobile Navigation Buttons - Only visible on mobile */}
+                                    {items.length > 1 && (
+                                        <div className="flex gap-2 lg:hidden mb-4">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="flex-1"
+                                                onClick={() => {
+                                                    goToPrevious();
+                                                    pauseAutoPlay();
+                                                }}
+                                            >
+                                                <ChevronLeft className="h-4 w-4 mr-1" />
+                                                Anterior
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="flex-1"
+                                                onClick={() => {
+                                                    goToNext();
+                                                    pauseAutoPlay();
+                                                }}
+                                            >
+                                                Siguiente
+                                                <ChevronRight className="h-4 w-4 ml-1" />
+                                            </Button>
+                                        </div>
+                                    )}
+
                                     {isProduct ? (
                                         <>
                                             <Button 

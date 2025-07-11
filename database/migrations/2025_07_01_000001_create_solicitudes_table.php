@@ -56,6 +56,9 @@ return new class extends Migration
             // Estado
             $table->enum('estado', ['Enviada', 'En Proceso', 'Aprobada', 'Rechazada', 'Cancelada'])->default('Enviada');
 
+            // Comentario de rechazo (visible solo cuando el estado es 'Rechazada')
+            $table->text('comentario_rechazo')->nullable();
+
             $table->timestamps();
         });
     }

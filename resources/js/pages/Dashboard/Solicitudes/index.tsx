@@ -61,6 +61,8 @@ interface Solicitud {
     acepta_proceso_evaluacion: boolean;
     acepta_cuidado_responsable: boolean;
     acepta_contrato_adopcion: boolean;
+    // Comentario de rechazo
+    comentario_rechazo?: string;
 }
 interface SolicitudesPageProps {
     solicitudes: Solicitud[];
@@ -69,6 +71,45 @@ interface SolicitudesPageProps {
 
 export default function SolicitudesIndex({ auth, solicitudes }: SolicitudesPageProps) {
     const [selectedSolicitud, setSelectedSolicitud] = useState<Solicitud | null>(null);
+    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [comentarioRechazo, setComentarioRechazo] = useState('');
+    const [isSubmittingReject, setIsSubmittingReject] = useState(false);
+
+    const handleRejectWithComment = async () => {
+        if (!selectedSolicitud) return;
+
+        setIsSubmittingReject(true);
+        try {
+            const response = await fetch(route('solicitudes.updateEstado', selectedSolicitud.id), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': (document.querySelector('meta[name=csrf-token]') as HTMLMetaElement)?.content || '',
+                },
+                body: JSON.stringify({
+                    estado: 'Rechazada',
+                    comentario_rechazo: comentarioRechazo,
+                }),
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                setSelectedSolicitud({
+                    ...selectedSolicitud,
+                    estado: 'Rechazada',
+                    comentario_rechazo: comentarioRechazo,
+                });
+                setShowRejectModal(false);
+                setComentarioRechazo('');
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error('Error al rechazar solicitud:', error);
+        } finally {
+            setIsSubmittingReject(false);
+        }
+    };
 
     const handleCancel = (solicitudId: number) => {
         if (confirm('¿Estás seguro de que quieres cancelar esta solicitud?')) {
@@ -134,7 +175,12 @@ export default function SolicitudesIndex({ auth, solicitudes }: SolicitudesPageP
                                                     </TableCell>
                                                     <TableCell>{new Date(solicitud.created_at).toLocaleDateString()}</TableCell>
                                                     <TableCell className="flex justify-end gap-2 text-right">
-                                                        <Button variant="outline" size="sm" onClick={() => setSelectedSolicitud(solicitud)}>
+                                                        <Button
+                                                            variant="secondary"
+                                                            size="sm"
+                                                            className="bg-gray-500 text-white hover:bg-gray-600"
+                                                            onClick={() => setSelectedSolicitud(solicitud)}
+                                                        >
                                                             Ver Detalle
                                                         </Button>
                                                         {solicitud.estado === 'Enviada' && (
@@ -157,8 +203,8 @@ export default function SolicitudesIndex({ auth, solicitudes }: SolicitudesPageP
                 </div>
                 {/* Modal/Card para mostrar el detalle de la solicitud */}
                 {selectedSolicitud && (
-                    <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black px-2">
-                        <div className="animate-fade-in relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-2xl md:max-w-2xl dark:border-gray-700 dark:bg-gray-900">
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+                        <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-800">
                             <button
                                 className="absolute top-3 right-3 z-10 rounded-full bg-white p-1 text-2xl text-gray-400 shadow transition-colors hover:text-red-500 dark:bg-gray-900"
                                 onClick={() => setSelectedSolicitud(null)}
@@ -166,146 +212,244 @@ export default function SolicitudesIndex({ auth, solicitudes }: SolicitudesPageP
                             >
                                 ×
                             </button>
-                            <div className="p-6 md:p-8">
-                                <h2 className="mb-6 text-center text-2xl font-bold text-blue-700 dark:text-blue-300">
+                            <div className="p-6">
+                                <h2 className="mb-6 text-center text-2xl font-bold text-gray-800 dark:text-white">
                                     Detalle de Solicitud de Adopción
                                 </h2>
-                                <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-                                    <div>
-                                        <h3 className="mb-2 text-lg font-semibold text-green-700 dark:text-green-300">Datos del Solicitante</h3>
-                                        <div className="mb-1">
-                                            <strong>Nombre completo:</strong> {selectedSolicitud.nombre_completo}
-                                        </div>
-                                        <div className="mb-1">
-                                            <strong>Cédula:</strong> {selectedSolicitud.cedula}
-                                        </div>
-                                        <div className="mb-1">
-                                            <strong>Email:</strong> {selectedSolicitud.email}
-                                        </div>
-                                        <div className="mb-1">
-                                            <strong>Teléfono:</strong> {selectedSolicitud.telefono}
-                                        </div>
-                                        <div className="mb-1">
-                                            <strong>Ciudad:</strong> {selectedSolicitud.direccion_ciudad}
-                                        </div>
-                                        <div className="mb-1">
-                                            <strong>Barrio:</strong> {selectedSolicitud.direccion_barrio}
-                                        </div>
-                                        <div className="mb-1">
-                                            <strong>Código Postal:</strong> {selectedSolicitud.direccion_postal}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <h3 className="mb-2 text-lg font-semibold text-green-700 dark:text-green-300">Vivienda</h3>
-                                        <div className="mb-1">
-                                            <strong>Tipo de vivienda:</strong> {selectedSolicitud.tipo_vivienda}
-                                        </div>
-                                        <div className="mb-1">
-                                            <strong>Propiedad de la vivienda:</strong> {selectedSolicitud.propiedad_vivienda}
-                                        </div>
-                                        <div className="mb-1">
-                                            <strong>Tiene patio:</strong> {selectedSolicitud.tiene_patio}
-                                        </div>
-                                        <div className="mb-1">
-                                            <strong>¿Permiten mascotas en alquiler?:</strong> {selectedSolicitud.permiten_mascotas_alquiler}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-                                    <div>
-                                        <h3 className="mb-2 text-lg font-semibold text-green-700 dark:text-green-300">Convivientes</h3>
-                                        <div className="mb-1">
-                                            <strong>Cantidad de convivientes:</strong> {selectedSolicitud.cantidad_convivientes}
-                                        </div>
-                                        <div className="mb-1">
-                                            <strong>¿Hay niños?:</strong> {selectedSolicitud.hay_ninos}
-                                        </div>
-                                        <div className="mb-1">
-                                            <strong>Edades de los niños:</strong> {selectedSolicitud.edades_ninos}
-                                        </div>
-                                        <div className="mb-1">
-                                            <strong>¿Todos están de acuerdo con la adopción?:</strong> {selectedSolicitud.todos_acuerdo_adopcion}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <h3 className="mb-2 text-lg font-semibold text-green-700 dark:text-green-300">Otras Mascotas</h3>
-                                        <div className="mb-1">
-                                            <strong>¿Tiene otras mascotas?:</strong> {selectedSolicitud.tiene_otras_mascotas}
-                                        </div>
-                                        {selectedSolicitud.tiene_otras_mascotas === 'si' && selectedSolicitud.otras_mascotas_detalles && (
-                                            <div className="mb-1">
-                                                <strong>Detalles de otras mascotas:</strong> {selectedSolicitud.otras_mascotas_detalles}
+                                <div className="space-y-5">
+                                    <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                                        <div>
+                                            <h3 className="mb-3 text-lg font-semibold text-green-600 dark:text-green-400">Datos del Solicitante</h3>
+                                            <div className="space-y-2">
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">Nombre completo:</strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">{selectedSolicitud.nombre_completo}</span>
+                                                </div>
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">Cédula:</strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">{selectedSolicitud.cedula}</span>
+                                                </div>
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">Email:</strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">{selectedSolicitud.email}</span>
+                                                </div>
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">Teléfono:</strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">{selectedSolicitud.telefono}</span>
+                                                </div>
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">Ciudad:</strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">
+                                                        {selectedSolicitud.direccion_ciudad}
+                                                    </span>
+                                                </div>
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">Barrio:</strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">
+                                                        {selectedSolicitud.direccion_barrio}
+                                                    </span>
+                                                </div>
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">Código Postal:</strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">
+                                                        {selectedSolicitud.direccion_postal}
+                                                    </span>
+                                                </div>
                                             </div>
-                                        )}
-                                        <div className="mb-1">
-                                            <strong>¿Tuvo mascotas antes?:</strong> {selectedSolicitud.tuvo_mascotas_antes}
                                         </div>
-                                        {selectedSolicitud.tuvo_mascotas_antes === 'si' && selectedSolicitud.que_paso_mascotas_anteriores && (
-                                            <div className="mb-1">
-                                                <strong>¿Qué pasó con las mascotas anteriores?:</strong>{' '}
-                                                {selectedSolicitud.que_paso_mascotas_anteriores}
+                                        <div>
+                                            <h3 className="mb-3 text-lg font-semibold text-green-600 dark:text-green-400">Vivienda</h3>
+                                            <div className="space-y-2">
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">Tipo de vivienda:</strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">{selectedSolicitud.tipo_vivienda}</span>
+                                                </div>
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">Propiedad de la vivienda:</strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">
+                                                        {selectedSolicitud.propiedad_vivienda}
+                                                    </span>
+                                                </div>
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">Tiene patio:</strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">{selectedSolicitud.tiene_patio}</span>
+                                                </div>
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">¿Permiten mascotas en alquiler?:</strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">
+                                                        {selectedSolicitud.permiten_mascotas_alquiler}
+                                                    </span>
+                                                </div>
                                             </div>
-                                        )}
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="mb-6">
-                                    <h3 className="mb-2 text-lg font-semibold text-green-700 dark:text-green-300">Detalles de Adopción</h3>
-                                    <div className="mb-1">
-                                        <strong>¿Por qué desea adoptar?:</strong> {selectedSolicitud.porque_adopta}
+                                    <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                                        <div>
+                                            <h3 className="mb-3 text-lg font-semibold text-green-600 dark:text-green-400">Convivientes</h3>
+                                            <div className="space-y-2">
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">Cantidad de convivientes:</strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">
+                                                        {selectedSolicitud.cantidad_convivientes}
+                                                    </span>
+                                                </div>
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">¿Hay niños?:</strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">{selectedSolicitud.hay_ninos}</span>
+                                                </div>
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">Edades de los niños:</strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">{selectedSolicitud.edades_ninos}</span>
+                                                </div>
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">
+                                                        ¿Todos están de acuerdo con la adopción?:
+                                                    </strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">
+                                                        {selectedSolicitud.todos_acuerdo_adopcion}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h3 className="mb-3 text-lg font-semibold text-green-600 dark:text-green-400">Otras Mascotas</h3>
+                                            <div className="space-y-2">
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">¿Tiene otras mascotas?:</strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">
+                                                        {selectedSolicitud.tiene_otras_mascotas}
+                                                    </span>
+                                                </div>
+                                                {selectedSolicitud.tiene_otras_mascotas === 'si' && selectedSolicitud.otras_mascotas_detalles && (
+                                                    <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                        <strong className="text-green-600 dark:text-green-400">Detalles de otras mascotas:</strong>
+                                                        <span className="ml-2 text-gray-600 dark:text-gray-300">
+                                                            {selectedSolicitud.otras_mascotas_detalles}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">¿Tuvo mascotas antes?:</strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">
+                                                        {selectedSolicitud.tuvo_mascotas_antes}
+                                                    </span>
+                                                </div>
+                                                {selectedSolicitud.tuvo_mascotas_antes === 'si' && selectedSolicitud.que_paso_mascotas_anteriores && (
+                                                    <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                        <strong className="text-green-600 dark:text-green-400">
+                                                            ¿Qué pasó con las mascotas anteriores?:
+                                                        </strong>
+                                                        <span className="ml-2 text-gray-600 dark:text-gray-300">
+                                                            {selectedSolicitud.que_paso_mascotas_anteriores}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="mb-1">
-                                        <strong>¿Qué espera de la convivencia?:</strong> {selectedSolicitud.que_espera_convivencia}
-                                    </div>
-                                    <div className="mb-1">
-                                        <strong>¿Qué haría ante problemas de comportamiento?:</strong>{' '}
-                                        {selectedSolicitud.que_haria_problemas_comportamiento}
-                                    </div>
-                                    <div className="mb-1">
-                                        <strong>¿Acepta visitas de seguimiento?:</strong> {selectedSolicitud.acepta_visitas_seguimiento}
-                                    </div>
-                                </div>
-                                <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
                                     <div>
-                                        <h3 className="mb-2 text-lg font-semibold text-green-700 dark:text-green-300">Compromisos y Condiciones</h3>
-                                        <div className="mb-1">
-                                            <strong>¿Acepta proceso de evaluación?:</strong>{' '}
-                                            {selectedSolicitud.acepta_proceso_evaluacion ? 'Sí' : 'No'}
+                                        <h3 className="mb-3 text-lg font-semibold text-green-600 dark:text-green-400">Detalles de Adopción</h3>
+                                        <div className="space-y-2">
+                                            <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                <strong className="text-green-600 dark:text-green-400">¿Por qué desea adoptar?:</strong>
+                                                <p className="mt-1 text-gray-600 dark:text-gray-300">{selectedSolicitud.porque_adopta}</p>
+                                            </div>
+                                            <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                <strong className="text-green-600 dark:text-green-400">¿Qué espera de la convivencia?:</strong>
+                                                <p className="mt-1 text-gray-600 dark:text-gray-300">{selectedSolicitud.que_espera_convivencia}</p>
+                                            </div>
+                                            <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                <strong className="text-green-600 dark:text-green-400">
+                                                    ¿Qué haría ante problemas de comportamiento?:
+                                                </strong>
+                                                <p className="mt-1 text-gray-600 dark:text-gray-300">
+                                                    {selectedSolicitud.que_haria_problemas_comportamiento}
+                                                </p>
+                                            </div>
+                                            <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                <strong className="text-green-600 dark:text-green-400">¿Acepta visitas de seguimiento?:</strong>
+                                                <span className="ml-2 text-gray-600 dark:text-gray-300">
+                                                    {selectedSolicitud.acepta_visitas_seguimiento}
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div className="mb-1">
-                                            <strong>¿Acepta cuidado responsable?:</strong>{' '}
-                                            {selectedSolicitud.acepta_cuidado_responsable ? 'Sí' : 'No'}
+                                    </div>
+                                    <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                                        <div>
+                                            <h3 className="mb-3 text-lg font-semibold text-green-600 dark:text-green-400">
+                                                Compromisos y Condiciones
+                                            </h3>
+                                            <div className="space-y-2">
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">¿Acepta proceso de evaluación?:</strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">
+                                                        {selectedSolicitud.acepta_proceso_evaluacion ? 'Sí' : 'No'}
+                                                    </span>
+                                                </div>
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">¿Acepta cuidado responsable?:</strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">
+                                                        {selectedSolicitud.acepta_cuidado_responsable ? 'Sí' : 'No'}
+                                                    </span>
+                                                </div>
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">¿Acepta contrato de adopción?:</strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">
+                                                        {selectedSolicitud.acepta_contrato_adopcion ? 'Sí' : 'No'}
+                                                    </span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="mb-1">
-                                            <strong>¿Acepta contrato de adopción?:</strong> {selectedSolicitud.acepta_contrato_adopcion ? 'Sí' : 'No'}
+                                        <div>
+                                            <h3 className="mb-3 text-lg font-semibold text-green-600 dark:text-green-400">Mascota Solicitada</h3>
+                                            <div className="space-y-2">
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">Nombre:</strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">{selectedSolicitud.mascota?.nombre}</span>
+                                                </div>
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">Especie:</strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">
+                                                        {selectedSolicitud.mascota?.especie}
+                                                    </span>
+                                                </div>
+                                                <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                    <strong className="text-green-600 dark:text-green-400">Raza:</strong>
+                                                    <span className="ml-2 text-gray-600 dark:text-gray-300">{selectedSolicitud.mascota?.raza}</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div>
-                                        <h3 className="mb-2 text-lg font-semibold text-green-700 dark:text-green-300">Mascota Solicitada</h3>
-                                        <div className="mb-1">
-                                            <strong>Nombre:</strong> {selectedSolicitud.mascota?.nombre}
-                                        </div>
-                                        <div className="mb-1">
-                                            <strong>Especie:</strong> {selectedSolicitud.mascota?.especie}
-                                        </div>
-                                        <div className="mb-1">
-                                            <strong>Raza:</strong> {selectedSolicitud.mascota?.raza}
+                                        <h3 className="mb-3 text-lg font-semibold text-green-600 dark:text-green-400">Estado de la Solicitud</h3>
+                                        <div className="space-y-2">
+                                            <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                <strong className="text-green-600 dark:text-green-400">Estado de la solicitud:</strong>
+                                                <span className="ml-2 text-gray-600 dark:text-gray-300">{selectedSolicitud.estado}</span>
+                                            </div>
+                                            <div className="rounded-md border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-700">
+                                                <strong className="text-green-600 dark:text-green-400">Fecha de solicitud:</strong>
+                                                <span className="ml-2 text-gray-600 dark:text-gray-300">
+                                                    {new Date(selectedSolicitud.created_at).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                            {selectedSolicitud.estado === 'Rechazada' && selectedSolicitud.comentario_rechazo && (
+                                                <div className="rounded-md border-red-300 bg-red-50 p-3 dark:border-red-600 dark:bg-red-900/20">
+                                                    <strong className="text-green-600 dark:text-green-400">Motivo de rechazo:</strong>
+                                                    <p className="mt-1 text-red-600 dark:text-red-400">{selectedSolicitud.comentario_rechazo}</p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
-                                <div className="mb-6">
-                                    <div className="mb-1">
-                                        <strong>Estado de la solicitud:</strong> {selectedSolicitud.estado}
-                                    </div>
-                                    <div className="mb-1">
-                                        <strong>Fecha de solicitud:</strong> {new Date(selectedSolicitud.created_at).toLocaleDateString()}
-                                    </div>
-                                </div>
-                                <div className="mt-4 flex flex-wrap justify-center gap-4">
+
+                                {/* Botones de Acción */}
+                                <div className="flex justify-end gap-4 pt-6">
                                     {auth.user.role === 'aliado' && selectedSolicitud.mascota?.user_id === auth.user.id && (
                                         <>
-                                            <Button
-                                                variant="default"
-                                                className="bg-green-600 text-white hover:bg-green-700"
+                                            <button
+                                                type="button"
+                                                className="rounded-md bg-green-600 px-6 py-2 font-semibold text-white shadow-md transition hover:bg-green-700 disabled:opacity-50"
                                                 onClick={async () => {
                                                     if (!selectedSolicitud) return;
                                                     await fetch(route('solicitudes.updateEstado', selectedSolicitud.id), {
@@ -324,34 +468,69 @@ export default function SolicitudesIndex({ auth, solicitudes }: SolicitudesPageP
                                                 disabled={selectedSolicitud.estado === 'Aprobada'}
                                             >
                                                 Aprobar
-                                            </Button>
-                                            <Button
-                                                variant="destructive"
-                                                onClick={async () => {
-                                                    if (!selectedSolicitud) return;
-                                                    await fetch(route('solicitudes.updateEstado', selectedSolicitud.id), {
-                                                        method: 'POST',
-                                                        headers: {
-                                                            'Content-Type': 'application/json',
-                                                            'X-Requested-With': 'XMLHttpRequest',
-                                                            'X-CSRF-TOKEN':
-                                                                (document.querySelector('meta[name=csrf-token]') as HTMLMetaElement)?.content || '',
-                                                        },
-                                                        body: JSON.stringify({ estado: 'Rechazada' }),
-                                                    });
-                                                    setSelectedSolicitud({ ...selectedSolicitud, estado: 'Rechazada' });
-                                                    window.location.reload();
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="rounded-md bg-red-600 px-6 py-2 font-semibold text-white shadow-md transition hover:bg-red-700 disabled:opacity-50"
+                                                onClick={() => {
+                                                    setComentarioRechazo('');
+                                                    setShowRejectModal(true);
                                                 }}
                                                 disabled={selectedSolicitud.estado === 'Rechazada'}
                                             >
                                                 Rechazar
-                                            </Button>
+                                            </button>
                                         </>
                                     )}
-                                    <Button variant="outline" onClick={() => setSelectedSolicitud(null)}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setSelectedSolicitud(null)}
+                                        className="rounded-md bg-gray-200 px-6 py-2 font-semibold text-gray-700 transition hover:bg-gray-300 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
+                                    >
                                         Cerrar
-                                    </Button>
+                                    </button>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Modal de comentario de rechazo */}
+                {showRejectModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+                        <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-800">
+                            <h3 className="mb-4 text-xl font-bold text-gray-800 dark:text-white">Rechazar Solicitud</h3>
+                            <p className="mb-4 text-gray-600 dark:text-gray-300">
+                                ¿Está seguro de que desea rechazar esta solicitud? Puede agregar un comentario explicando el motivo:
+                            </p>
+                            <textarea
+                                value={comentarioRechazo}
+                                onChange={(e) => setComentarioRechazo(e.target.value)}
+                                placeholder="Motivo del rechazo (opcional)"
+                                rows={4}
+                                className="w-full rounded-md border-gray-300 p-3 shadow-sm focus:border-red-500 focus:ring-red-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                maxLength={1000}
+                            />
+                            <div className="mt-2 text-right text-sm text-gray-500">{comentarioRechazo.length}/1000 caracteres</div>
+                            <div className="mt-6 flex justify-end gap-4">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setShowRejectModal(false);
+                                        setComentarioRechazo('');
+                                    }}
+                                    className="rounded-md bg-gray-200 px-6 py-2 font-semibold text-gray-700 transition hover:bg-gray-300 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleRejectWithComment}
+                                    disabled={isSubmittingReject}
+                                    className="rounded-md bg-red-600 px-6 py-2 font-semibold text-white shadow-md transition hover:bg-red-700 disabled:opacity-50"
+                                >
+                                    {isSubmittingReject ? 'Rechazando...' : 'Confirmar Rechazo'}
+                                </button>
                             </div>
                         </div>
                     </div>

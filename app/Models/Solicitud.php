@@ -49,6 +49,7 @@ class Solicitud extends Model
         'acepta_cuidado_responsable',
         'acepta_contrato_adopcion',
         'estado',
+        'comentario_rechazo',
     ];
 
     public function user(): BelongsTo

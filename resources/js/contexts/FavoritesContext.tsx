@@ -79,6 +79,14 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
             // Evitar duplicados y llamadas innecesarias
             if (favoriteSet.has(mascotaId) || isLoading) return;
 
+            // Actualización optimista - actualizar UI inmediatamente
+            setFavoriteIds((prev) => {
+                if (prev.includes(mascotaId)) return prev;
+                const newIds = [...prev, mascotaId];
+                console.log('Agregado a favoritos (optimista):', mascotaId, 'Nueva lista:', newIds);
+                return newIds;
+            });
+
             setIsLoading(true);
             try {
                 const response = await fetch('/favoritos', {
@@ -93,23 +101,17 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
 
                 const data = await response.json();
 
-                if (response.ok) {
-                    setFavoriteIds((prev) => {
-                        // Verificar duplicados antes de agregar
-                        if (prev.includes(mascotaId)) return prev;
-                        const newIds = [...prev, mascotaId];
-                        console.log('Agregado a favoritos:', mascotaId, 'Nueva lista:', newIds);
-                        return newIds;
-                    });
-                } else {
+                if (!response.ok) {
+                    // Revertir cambio optimista en caso de error
+                    setFavoriteIds((prev) => prev.filter((id) => id !== mascotaId));
                     console.error('Error al agregar a favoritos:', data.message);
-                    // Solo mostrar alert en errores no esperados
                     if (response.status !== 409) {
-                        // 409 = Conflict (ya existe)
                         alert(data.message || 'Error al agregar a favoritos');
                     }
                 }
             } catch (error) {
+                // Revertir cambio optimista en caso de error
+                setFavoriteIds((prev) => prev.filter((id) => id !== mascotaId));
                 console.error('Error al agregar a favoritos:', error);
                 alert('Error de conexión al agregar a favoritos');
             } finally {
@@ -123,6 +125,13 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
         async (mascotaId: number) => {
             // Evitar llamadas innecesarias
             if (!favoriteSet.has(mascotaId) || isLoading) return;
+
+            // Actualización optimista - actualizar UI inmediatamente
+            setFavoriteIds((prev) => {
+                const newIds = prev.filter((id) => id !== mascotaId);
+                console.log('Removido de favoritos (optimista):', mascotaId, 'Nueva lista:', newIds);
+                return newIds;
+            });
 
             setIsLoading(true);
             try {
@@ -138,21 +147,23 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
 
                 const data = await response.json();
 
-                if (response.ok) {
+                if (!response.ok) {
+                    // Revertir cambio optimista en caso de error
                     setFavoriteIds((prev) => {
-                        const newIds = prev.filter((id) => id !== mascotaId);
-                        console.log('Removido de favoritos:', mascotaId, 'Nueva lista:', newIds);
-                        return newIds;
+                        if (prev.includes(mascotaId)) return prev;
+                        return [...prev, mascotaId];
                     });
-                } else {
                     console.error('Error al remover de favoritos:', data.message);
-                    // Solo mostrar alert en errores no esperados
                     if (response.status !== 404) {
-                        // 404 = Not Found (no existe)
                         alert(data.message || 'Error al remover de favoritos');
                     }
                 }
             } catch (error) {
+                // Revertir cambio optimista en caso de error
+                setFavoriteIds((prev) => {
+                    if (prev.includes(mascotaId)) return prev;
+                    return [...prev, mascotaId];
+                });
                 console.error('Error al remover de favoritos:', error);
                 alert('Error de conexión al remover de favoritos');
             } finally {

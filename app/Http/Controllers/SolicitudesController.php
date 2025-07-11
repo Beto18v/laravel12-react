@@ -104,16 +104,34 @@ class SolicitudesController extends Controller
     public function updateEstado(Request $request, $id)
     {
         $request->validate([
-            'estado' => 'required|in:Aprobada,Rechazada'
+            'estado' => 'required|in:Aprobada,Rechazada',
+            'comentario_rechazo' => 'nullable|string|max:1000'
         ]);
+
         $solicitud = Solicitud::findOrFail($id);
+
         // Solo el aliado dueño de la mascota puede cambiar el estado
         $user = Auth::user();
         if ($user->role !== 'aliado' || $solicitud->mascota->user_id !== $user->id) {
             abort(403, 'No autorizado.');
         }
+
         $solicitud->estado = $request->estado;
+
+        // Si se rechaza la solicitud, guardar el comentario de rechazo
+        if ($request->estado === 'Rechazada') {
+            $solicitud->comentario_rechazo = $request->comentario_rechazo;
+        } else {
+            // Si se aprueba, limpiar cualquier comentario de rechazo previo
+            $solicitud->comentario_rechazo = null;
+        }
+
         $solicitud->save();
-        return response()->json(['success' => true, 'estado' => $solicitud->estado]);
+
+        return response()->json([
+            'success' => true,
+            'estado' => $solicitud->estado,
+            'comentario_rechazo' => $solicitud->comentario_rechazo
+        ]);
     }
 }
