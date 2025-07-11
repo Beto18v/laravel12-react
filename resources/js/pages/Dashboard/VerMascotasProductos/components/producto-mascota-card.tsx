@@ -1,10 +1,11 @@
+// Tarjeta unificada para mostrar productos y mascotas con acciones específicas por rol
 import { type SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { Heart, Pencil, ShoppingCart, Trash2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import FormularioAdopcion from './formulario-adopcion';
 
-// Definimos el tipo para cada item que la tarjeta puede recibir
+// Tipo para items de producto/mascota
 export type CardItem = {
     id: number;
     nombre: string;
@@ -12,11 +13,11 @@ export type CardItem = {
     descripcion: string;
     precio: number | null;
     imagen?: string;
-    user_id: number; // Aseguramos que el user_id siempre esté presente
-    user?: { name: string }; // El objeto user con el nombre es opcional
+    user_id: number;
+    user?: { name: string };
 };
 
-// Definimos las props que el componente recibirá
+// Props del componente tarjeta
 interface ProductoMascotaCardProps {
     item: CardItem;
     onDelete: (item: CardItem) => void;
@@ -31,26 +32,25 @@ export default function ProductoMascotaCard({ item, onDelete, onEdit, onAction, 
     const { auth } = usePage<SharedData>().props;
     const user = auth.user;
 
-    // Estado para controlar la visibilidad del modal de adopción
+    // Control del modal de adopción
     const [showAdoptionModal, setShowAdoptionModal] = useState(false);
 
     // Abrir automáticamente el modal si autoOpenAdopcion es true
     useEffect(() => {
         if (autoOpenAdopcion) {
-            setShowAdoptionModal(true);
+            window.location.href = `/mascotas/${item.id}`;
             if (onAutoOpenHandled) onAutoOpenHandled();
         }
     }, [autoOpenAdopcion]);
 
     // Verificamos si el usuario es el propietario del item
     const esPropietario = user.role === 'aliado' && user.id === item.user_id;
-    // Verificamos si el usuario es admin
     const esAdmin = user.role === 'admin';
 
     // El cliente ve los botones de acción principales
     const esCliente = user && user.role === 'cliente' && !esPropietario && !esAdmin;
 
-    // El manejador de la acción ahora es condicional
+    // Manejador de acción diferenciado por tipo
     const handleActionClick = () => {
         if (item.tipo === 'mascota') {
             if (!user) {
@@ -63,7 +63,7 @@ export default function ProductoMascotaCard({ item, onDelete, onEdit, onAction, 
             }
             setShowAdoptionModal(true); // Abre el modal de adopción para mascotas
         } else {
-            onAction(item); // Ejecuta la acción original para productos (comprar)
+            onAction(item); // Compra directa para productos
         }
     };
 
@@ -94,7 +94,11 @@ export default function ProductoMascotaCard({ item, onDelete, onEdit, onAction, 
                     <p className="mb-4 line-clamp-2 flex-grow text-sm text-gray-600 dark:text-gray-400">{item.descripcion}</p>
 
                     <div className="mb-4 text-xl font-semibold text-green-600 dark:text-green-400">
-                        {item.tipo === 'producto' ? `$${item.precio?.toLocaleString() ?? 'N/A'}` : 'En Adopción'}
+                        {item.tipo === 'producto'
+                            ? item.precio !== null && item.precio !== undefined
+                                ? `$${item.precio.toLocaleString('es-CO')}`
+                                : 'Precio no disponible'
+                            : 'En Adopción'}
                     </div>
 
                     {/* ✨ SECCIÓN "PUBLICADO POR" RESTAURADA ✨ */}

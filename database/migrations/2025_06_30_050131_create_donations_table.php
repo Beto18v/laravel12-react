@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('donor_name');
             $table->string('donor_email');
             $table->decimal('amount', 10, 2);
+            $table->foreignId('shelter_id')->nullable()->constrained()->onDelete('set null');
             $table->timestamps();
         });
     }

@@ -1,10 +1,10 @@
-import ProductCard from './product-card';
 import { ArrowRight, ShoppingBag, Sparkles } from 'lucide-react';
+import ProductCard from './product-card';
 
 interface Product {
-    name: string;
-    description: string;
-    price: string;
+    nombre: string;
+    descripcion: string;
+    precio: string;
     imageUrl: string;
 }
 
@@ -17,7 +17,7 @@ export default function ProductsSection({ products }: { products: Product[] }) {
                 <div className="absolute bottom-20 left-10 h-24 w-24 rounded-full bg-gradient-to-br from-green-200 to-blue-200 opacity-20 dark:from-green-600 dark:to-blue-600"></div>
             </div>
 
-            <div className="container relative mx-auto px-4">
+            <div className="relative container mx-auto px-4">
                 {/* Header con diseño atractivo */}
                 <div className="mb-16 text-center">
                     <div className="mb-6 inline-flex items-center rounded-full bg-gradient-to-r from-blue-100 to-green-100 px-8 py-3 text-sm font-semibold text-blue-800 dark:from-blue-900 dark:to-green-900 dark:text-blue-200">
@@ -25,17 +25,17 @@ export default function ProductsSection({ products }: { products: Product[] }) {
                         Todo para tu mascota
                         <Sparkles className="ml-2 h-4 w-4" />
                     </div>
-                    
-                    <h2 className="mb-6 text-5xl font-bold text-gray-800 dark:text-white lg:text-6xl">
+
+                    <h2 className="mb-6 text-5xl font-bold text-gray-800 lg:text-6xl dark:text-white">
                         Productos y servicios
                         <br />
                         <span className="bg-gradient-to-r from-blue-600 via-green-600 to-teal-600 bg-clip-text text-transparent">
                             de calidad premium
                         </span>
                     </h2>
-                    
+
                     <p className="mx-auto max-w-3xl text-xl text-gray-600 dark:text-gray-300">
-                        Encuentra todo lo que necesitas para cuidar y consentir a tu mascota. 
+                        Encuentra todo lo que necesitas para cuidar y consentir a tu mascota.
                         <span className="font-semibold text-blue-600 dark:text-blue-400"> Calidad garantizada.</span>
                     </p>
                 </div>
@@ -86,9 +86,7 @@ export default function ProductsSection({ products }: { products: Product[] }) {
                     <div className="mx-auto max-w-4xl rounded-3xl bg-white p-8 shadow-2xl dark:bg-gray-800">
                         <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-2">
                             <div className="text-left">
-                                <h3 className="mb-4 text-3xl font-bold text-gray-800 dark:text-white">
-                                    ¿Eres un aliado comercial?
-                                </h3>
+                                <h3 className="mb-4 text-3xl font-bold text-gray-800 dark:text-white">¿Eres un aliado comercial?</h3>
                                 <p className="mb-6 text-gray-600 dark:text-gray-300">
                                     Únete a nuestra red de aliados y ofrece tus productos y servicios a miles de familias que aman a sus mascotas.
                                 </p>
