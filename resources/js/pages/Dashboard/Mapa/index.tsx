@@ -50,7 +50,12 @@ export default function AdoptionMap() {
                             <div className="flex space-x-2">
                                 <select
                                     value={selectedFilter}
-                                    onChange={(e) => setSelectedFilter(e.target.value)}
+                                    onChange={(e) => {
+                                        setSelectedFilter(e.target.value);
+                                        // Redirige a la misma página con el filtro de especie
+                                        const especie = e.target.value === 'all' ? '' : e.target.value.slice(0, -1); // 'perros' -> 'perro', 'gatos' -> 'gato'
+                                        window.location.href = especie ? `/mapa?especie=${especie}` : '/mapa';
+                                    }}
                                     className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                                 >
                                     <option value="all">Todas las mascotas</option>

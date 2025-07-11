@@ -9,28 +9,42 @@ use Inertia\Inertia;
 
 class MapaController extends Controller
 {
-    public function index()
+    /**
+     * Muestra el mapa de refugios agrupando por refugio individual y filtrando por especie si se solicita.
+     *
+     * @param Request $request
+     * @return \Inertia\Response
+     */
+    public function index(Request $request)
     {
-        // Obtener refugios con coordenadas exactas
+        // Leer el filtro de especie desde la query (?especie=perro o ?especie=gato)
+        $especie = $request->query('especie'); // null, 'perro', 'gato', etc.
+
+        // Obtener refugios con coordenadas exactas y sus mascotas
         $sheltersWithCoordinates = Shelter::with(['user.mascotas'])
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->get();
 
-        // Crear datos de ubicaciones con coordenadas exactas
-        $locationsData = $sheltersWithCoordinates->map(function ($shelter) {
+        // Mostrar cada refugio como un punto individual
+        $locationsData = $sheltersWithCoordinates->map(function ($shelter) use ($especie) {
+            // Filtrar mascotas por especie si se solicita
+            $mascotas = $shelter->user->mascotas;
+            if ($especie) {
+                $mascotas = $mascotas->where('especie', strtolower($especie));
+            }
             return [
                 'id' => $shelter->id,
                 'city' => $shelter->city,
                 'name' => $shelter->name,
-                'count' => $shelter->user->mascotas->count(),
+                'count' => $mascotas->count(), // Solo mascotas de la especie filtrada
                 'shelters' => 1,
                 'lat' => (float) $shelter->latitude,
                 'lng' => (float) $shelter->longitude,
                 'address' => $shelter->address,
             ];
         })->filter(function ($location) {
-            return $location['count'] > 0; // Solo mostrar refugios con mascotas
+            return $location['count'] > 0; // Solo mostrar refugios con mascotas de la especie filtrada
         });
 
         // Fallback: Si no hay refugios con coordenadas, usar el método anterior
@@ -82,6 +96,8 @@ class MapaController extends Controller
                 ];
             });
         }
+
+        // (Log temporal eliminado)
 
         return Inertia::render('Dashboard/Mapa/index', [
             'locations' => $locationsData,

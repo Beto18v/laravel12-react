@@ -2,7 +2,7 @@
 import { type SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { Heart, Pencil, ShoppingCart, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import FormularioAdopcion from './formulario-adopcion';
 
 // Tipo para items de producto/mascota
@@ -23,24 +23,37 @@ interface ProductoMascotaCardProps {
     onDelete: (item: CardItem) => void;
     onEdit: (item: CardItem) => void;
     onAction: (item: CardItem) => void;
+    autoOpenAdopcion?: boolean;
+    onAutoOpenHandled?: () => void;
 }
 
-export default function ProductoMascotaCard({ item, onDelete, onEdit, onAction }: ProductoMascotaCardProps) {
+export default function ProductoMascotaCard({ item, onDelete, onEdit, onAction, autoOpenAdopcion, onAutoOpenHandled }: ProductoMascotaCardProps) {
+    // Obtenemos el usuario autenticado para determinar el rol
     const { auth } = usePage<SharedData>().props;
     const user = auth.user;
 
     // Control del modal de adopción
     const [showAdoptionModal, setShowAdoptionModal] = useState(false);
 
+    // Abrir automáticamente el modal si autoOpenAdopcion es true
+    useEffect(() => {
+        if (autoOpenAdopcion) {
+            setShowAdoptionModal(true);
+            if (onAutoOpenHandled) onAutoOpenHandled();
+        }
+    }, [autoOpenAdopcion]);
+
     // Determinación de roles y permisos
     const esPropietario = user.role === 'aliado' && user.id === item.user_id;
     const esAdmin = user.role === 'admin';
+
+    // El cliente ve los botones de acción principales
     const esCliente = !esPropietario && !esAdmin;
 
     // Manejador de acción diferenciado por tipo
     const handleActionClick = () => {
         if (item.tipo === 'mascota') {
-            setShowAdoptionModal(true); // Modal para adopción
+            setShowAdoptionModal(true); // Abre el modal de adopción para mascotas
         } else {
             onAction(item); // Compra directa para productos
         }

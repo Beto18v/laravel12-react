@@ -5,10 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
+import { LocationPicker } from '@/components/ui/location-picker'; // Importa el componente de mapa interactivo
 
 export default function FormularioFundacion() {
     const { auth } = usePage().props as any;
 
+    // Estado del formulario, ahora incluye latitude y longitude
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         email: auth.user.email || '',
@@ -19,7 +21,15 @@ export default function FormularioFundacion() {
         bank_name: '',
         account_type: 'Ahorros', // Valor inicial por defecto
         account_number: '',
+        latitude: 4.6097,   // Valor inicial para Colombia
+        longitude: -74.0817,
     });
+
+    // Función para actualizar lat/lng desde el mapa interactivo
+    const handleLocationChange = (lat: number, lng: number) => {
+        setData('latitude', lat);
+        setData('longitude', lng);
+    };
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -130,6 +140,23 @@ export default function FormularioFundacion() {
                             />
                             <InputError message={errors.phone} className="mt-2" />
                         </div>
+                    </div>
+                    {/* --- UBICACIÓN EN EL MAPA --- */}
+                    <div className="mt-6">
+                        <Label className="font-semibold text-gray-700 dark:text-gray-300 mb-2 block">
+                            Ubicación en el Mapa
+                        </Label>
+                        {/* Mapa interactivo para seleccionar la ubicación */}
+                        <LocationPicker
+                            initialLat={data.latitude}
+                            initialLng={data.longitude}
+                            onLocationChange={handleLocationChange}
+                        />
+                        <div className="mt-2 text-xs text-gray-500">
+                            Latitud: {data.latitude.toFixed(6)}, Longitud: {data.longitude.toFixed(6)}
+                        </div>
+                        <InputError message={errors.latitude} className="mt-2" />
+                        <InputError message={errors.longitude} className="mt-2" />
                     </div>
                 </fieldset>
 

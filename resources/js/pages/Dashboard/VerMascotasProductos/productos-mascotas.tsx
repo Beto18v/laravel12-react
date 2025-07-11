@@ -21,6 +21,7 @@ export default function ProductosMascotas() {
     const [busqueda, setBusqueda] = useState('');
     const [filtro, setFiltro] = useState<'todo' | 'producto' | 'mascota'>('todo');
     const [mensaje, setMensaje] = useState<string | null>(null);
+    const [adoptarMascotaId, setAdoptarMascotaId] = useState<number | null>(null);
 
     // Mostrar mensaje de éxito del backend
     useEffect(() => {
@@ -28,6 +29,14 @@ export default function ProductosMascotas() {
             mostrarMensaje(success as string);
         }
     }, [success]);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const adoptarMascota = params.get('adoptar_mascota');
+        if (adoptarMascota) {
+            setAdoptarMascotaId(Number(adoptarMascota));
+        }
+    }, []);
 
     // Filtrado de items por búsqueda y tipo
     const productosFiltrados = itemsTyped.filter(
@@ -139,6 +148,8 @@ export default function ProductosMascotas() {
                                 onAction={handleAction}
                                 onDelete={handleDelete}
                                 onEdit={handleEdit}
+                                autoOpenAdopcion={adoptarMascotaId === item.id}
+                                onAutoOpenHandled={() => setAdoptarMascotaId(null)}
                             />
                         ))}
                     </div>

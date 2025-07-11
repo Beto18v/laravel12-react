@@ -60,6 +60,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('solicitudes', [App\Http\Controllers\SolicitudesController::class, 'index'])->name('solicitudes.index');
     Route::post('solicitudes', [App\Http\Controllers\SolicitudesController::class, 'store'])->name('solicitudes.adopcion.store');
     Route::delete('solicitudes/{solicitud}', [App\Http\Controllers\SolicitudesController::class, 'destroy'])->name('solicitudes.destroy');
+    Route::get('solicitudes/{id}', [App\Http\Controllers\SolicitudesController::class, 'show'])->name('solicitudes.show');
+    Route::post('solicitudes/{id}/estado', [App\Http\Controllers\SolicitudesController::class, 'updateEstado'])->name('solicitudes.updateEstado');
+    Route::post('set-intended-url', [App\Http\Controllers\Auth\SetIntendedUrlController::class, 'store'])->name('set-intended-url');
 
     Route::get('/productos-mascotas', [ProductController::class, 'index'])->name('productos.mascotas');
     Route::post('/productos/store', [ProductController::class, 'store'])->name('productos.store');

@@ -27,10 +27,23 @@ export default function Register({ role }: { role: string }) {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+        const params = new URLSearchParams(window.location.search);
+        const adoptarMascota = params.get('adoptar_mascota');
         post(route('register'), {
-            onFinish: () => reset('password', 'password_confirmation'),
+            onSuccess: () => {
+                if (adoptarMascota) {
+                    window.location.href = route('productos.mascotas') + `?adoptar_mascota=${adoptarMascota}`;
+                }
+            },
+            onFinish: () => {
+                reset('password', 'password_confirmation');
+            }
         });
     };
+
+    // Detectar si hay adoptar_mascota en la URL y agregarlo al formulario
+    const params = new URLSearchParams(window.location.search);
+    const adoptarMascota = params.get('adoptar_mascota');
 
     return (
         <div className="flex h-screen items-center justify-center bg-gradient-to-r from-green-400 to-blue-500 dark:from-green-600 dark:to-blue-700">
@@ -45,6 +58,9 @@ export default function Register({ role }: { role: string }) {
                 <form className="flex flex-col gap-6" onSubmit={submit}>
                     {/* Añade un campo oculto para el rol */}
                     <input type="hidden" value={data.role} onChange={(e) => setData('role', e.target.value)} />
+                    {adoptarMascota && (
+                        <input type="hidden" name="adoptar_mascota" value={adoptarMascota} />
+                    )}
                     <div className="grid gap-6">
                         <div className="grid gap-2">
                             <Label htmlFor="name">Nombre</Label>
