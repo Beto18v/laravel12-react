@@ -44,6 +44,9 @@ Route::get('/registro-opciones', function () {
     return Inertia::render('auth/registro-opciones');
 })->name('register.options');
 
+// Ruta pública para obtener IDs de favoritos (maneja autenticación internamente)
+Route::get('favoritos/ids', [App\Http\Controllers\FavoritosController::class, 'getFavoriteIds'])->name('favoritos.ids');
+
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('dashboard', function () {
@@ -51,6 +54,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::get('favoritos', [App\Http\Controllers\FavoritosController::class, 'index'])->name('favoritos.index');
+    Route::post('favoritos', [App\Http\Controllers\FavoritosController::class, 'store'])->name('favoritos.store');
+    Route::delete('favoritos', [App\Http\Controllers\FavoritosController::class, 'destroy'])->name('favoritos.destroy');
+    Route::post('favoritos/check', [App\Http\Controllers\FavoritosController::class, 'check'])->name('favoritos.check');
     Route::get('donaciones', [App\Http\Controllers\DonacionesController::class, 'index'])->name('donaciones.index');
     Route::post('donaciones', [App\Http\Controllers\DonacionesController::class, 'store'])->name('donaciones.store');
     Route::get('mapa', [App\Http\Controllers\MapaController::class, 'index'])->name('mapa.index');

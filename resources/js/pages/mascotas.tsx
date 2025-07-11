@@ -4,6 +4,7 @@ import PetCard from '@/components/mascotas/pet-card';
 import PetHero from '@/components/mascotas/pet-hero';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import CarouselModal from '@/components/ui/carousel-modal';
+import { FavoritesProvider } from '@/contexts/FavoritesContext';
 import { Head, usePage } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -161,146 +162,148 @@ export default function Mascotas({ mascotas = [] }: MascotasProps) {
         filters.selectedEspecie !== 'all' || filters.selectedEdad !== 'all' || filters.selectedCiudad !== 'all' || filters.selectedGenero !== 'all';
 
     return (
-        <div className="flex min-h-screen flex-col bg-white dark:bg-gray-800">
-            <Head title="Mascotas" />
-            <Header />
-            <PetHero />
+        <FavoritesProvider>
+            <div className="flex min-h-screen flex-col bg-white dark:bg-gray-800">
+                <Head title="Mascotas" />
+                <Header />
+                <PetHero />
 
-            <main className="flex-1">
-                <div className="container mx-auto px-4 py-12 md:px-6 md:py-16">
-                    {/* Contenedor de filtros */}
-                    <div className="mb-8 flex flex-wrap items-center gap-4">
-                        <input
-                            type="text"
-                            placeholder="Buscar por nombre o descripción..."
-                            value={filters.searchTerm}
-                            onChange={(e) => handleFilterChange('searchTerm', e.target.value)}
-                            className="flex-grow rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 sm:flex-grow-0 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                        />
+                <main className="flex-1">
+                    <div className="container mx-auto px-4 py-12 md:px-6 md:py-16">
+                        {/* Contenedor de filtros */}
+                        <div className="mb-8 flex flex-wrap items-center gap-4">
+                            <input
+                                type="text"
+                                placeholder="Buscar por nombre o descripción..."
+                                value={filters.searchTerm}
+                                onChange={(e) => handleFilterChange('searchTerm', e.target.value)}
+                                className="flex-grow rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 sm:flex-grow-0 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                            />
 
-                        <select
-                            value={filters.selectedEspecie}
-                            onChange={(e) => handleFilterChange('selectedEspecie', e.target.value)}
-                            className="rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                        >
-                            <option value="all">Todas las especies</option>
-                            {availableEspecies.map((especie) => (
-                                <option key={especie} value={especie}>
-                                    {especie}
-                                </option>
-                            ))}
-                        </select>
+                            <select
+                                value={filters.selectedEspecie}
+                                onChange={(e) => handleFilterChange('selectedEspecie', e.target.value)}
+                                className="rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                            >
+                                <option value="all">Todas las especies</option>
+                                {availableEspecies.map((especie) => (
+                                    <option key={especie} value={especie}>
+                                        {especie}
+                                    </option>
+                                ))}
+                            </select>
 
-                        {/* NUEVO: Filtro de Ciudad */}
-                        <select
-                            value={filters.selectedCiudad}
-                            onChange={(e) => handleFilterChange('selectedCiudad', e.target.value)}
-                            className="rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                        >
-                            <option value="all">Todas las ciudades</option>
-                            {availableCiudades.map((ciudad) => (
-                                <option key={ciudad} value={ciudad}>
-                                    {ciudad}
-                                </option>
-                            ))}
-                        </select>
+                            {/* NUEVO: Filtro de Ciudad */}
+                            <select
+                                value={filters.selectedCiudad}
+                                onChange={(e) => handleFilterChange('selectedCiudad', e.target.value)}
+                                className="rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                            >
+                                <option value="all">Todas las ciudades</option>
+                                {availableCiudades.map((ciudad) => (
+                                    <option key={ciudad} value={ciudad}>
+                                        {ciudad}
+                                    </option>
+                                ))}
+                            </select>
 
-                        <select
-                            value={filters.selectedEdad}
-                            onChange={(e) => handleFilterChange('selectedEdad', e.target.value)}
-                            className="rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                        >
-                            <option value="all">Todas las edades</option>
-                            <option value="joven">Joven (0-2 años)</option>
-                            <option value="adulto">Adulto (2-7 años)</option>
-                            <option value="senior">Senior (7+ años)</option>
-                        </select>
+                            <select
+                                value={filters.selectedEdad}
+                                onChange={(e) => handleFilterChange('selectedEdad', e.target.value)}
+                                className="rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                            >
+                                <option value="all">Todas las edades</option>
+                                <option value="joven">Joven (0-2 años)</option>
+                                <option value="adulto">Adulto (2-7 años)</option>
+                                <option value="senior">Senior (7+ años)</option>
+                            </select>
 
-                        {/* NUEVO: Filtro de Género */}
-                        <select
-                            value={filters.selectedGenero}
-                            onChange={(e) => handleFilterChange('selectedGenero', e.target.value)}
-                            className="rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                        >
-                            <option value="all">Todos los géneros</option>
-                            <option value="Macho">Macho</option>
-                            <option value="Hembra">Hembra</option>
-                        </select>
-                    </div>
-
-                    {/* NUEVO: Sección para mostrar filtros activos y botón de limpieza general */}
-                    {anyFilterActive && (
-                        <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
-                            <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">Filtros Activos:</span>
-                            {/* Píldora para Especie */}
-                            {filters.selectedEspecie !== 'all' && (
-                                <span className="flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                    {filters.selectedEspecie}
-                                    <button onClick={() => handleFilterChange('selectedEspecie', 'all')} className="font-bold">
-                                        ✕
-                                    </button>
-                                </span>
-                            )}
-                            {/* Píldora para Ciudad */}
-                            {filters.selectedCiudad !== 'all' && (
-                                <span className="flex items-center gap-2 rounded-full bg-green-100 px-3 py-1 text-sm text-green-800 dark:bg-green-900 dark:text-green-200">
-                                    {filters.selectedCiudad}
-                                    <button onClick={() => handleFilterChange('selectedCiudad', 'all')} className="font-bold">
-                                        ✕
-                                    </button>
-                                </span>
-                            )}
-                            {/* Píldora para Edad */}
-                            {filters.selectedEdad !== 'all' && (
-                                <span className="flex items-center gap-2 rounded-full bg-yellow-100 px-3 py-1 text-sm text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-                                    {filters.selectedEdad}
-                                    <button onClick={() => handleFilterChange('selectedEdad', 'all')} className="font-bold">
-                                        ✕
-                                    </button>
-                                </span>
-                            )}
-                            {/* Píldora para Género */}
-                            {filters.selectedGenero !== 'all' && (
-                                <span className="flex items-center gap-2 rounded-full bg-purple-100 px-3 py-1 text-sm text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                                    {filters.selectedGenero}
-                                    <button onClick={() => handleFilterChange('selectedGenero', 'all')} className="font-bold">
-                                        ✕
-                                    </button>
-                                </span>
-                            )}
-                            {/* Botón de Limpieza General */}
-                            <button onClick={clearAllFilters} className="text-sm font-semibold text-red-600 hover:underline dark:text-red-400">
-                                Limpiar todos los filtros
-                            </button>
+                            {/* NUEVO: Filtro de Género */}
+                            <select
+                                value={filters.selectedGenero}
+                                onChange={(e) => handleFilterChange('selectedGenero', e.target.value)}
+                                className="rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                            >
+                                <option value="all">Todos los géneros</option>
+                                <option value="Macho">Macho</option>
+                                <option value="Hembra">Hembra</option>
+                            </select>
                         </div>
-                    )}
 
-                    {/* Grid de mascotas */}
-                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                        {filteredPets.length > 0 ? (
-                            filteredPets.map((pet, index) => (
-                                <PetCard
-                                    key={pet.id}
-                                    {...pet}
-                                    onImageClick={() => handlePetClick(index)}
-                                    onViewDetails={() => handlePetClick(index)}
-                                />
-                            ))
-                        ) : (
-                            <p className="col-span-full py-16 text-center text-gray-500">
-                                {allPets.length === 0
-                                    ? 'No hay mascotas disponibles para adopción aún.'
-                                    : 'No se encontraron mascotas con estos filtros.'}
-                            </p>
+                        {/* NUEVO: Sección para mostrar filtros activos y botón de limpieza general */}
+                        {anyFilterActive && (
+                            <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">Filtros Activos:</span>
+                                {/* Píldora para Especie */}
+                                {filters.selectedEspecie !== 'all' && (
+                                    <span className="flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                        {filters.selectedEspecie}
+                                        <button onClick={() => handleFilterChange('selectedEspecie', 'all')} className="font-bold">
+                                            ✕
+                                        </button>
+                                    </span>
+                                )}
+                                {/* Píldora para Ciudad */}
+                                {filters.selectedCiudad !== 'all' && (
+                                    <span className="flex items-center gap-2 rounded-full bg-green-100 px-3 py-1 text-sm text-green-800 dark:bg-green-900 dark:text-green-200">
+                                        {filters.selectedCiudad}
+                                        <button onClick={() => handleFilterChange('selectedCiudad', 'all')} className="font-bold">
+                                            ✕
+                                        </button>
+                                    </span>
+                                )}
+                                {/* Píldora para Edad */}
+                                {filters.selectedEdad !== 'all' && (
+                                    <span className="flex items-center gap-2 rounded-full bg-yellow-100 px-3 py-1 text-sm text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                                        {filters.selectedEdad}
+                                        <button onClick={() => handleFilterChange('selectedEdad', 'all')} className="font-bold">
+                                            ✕
+                                        </button>
+                                    </span>
+                                )}
+                                {/* Píldora para Género */}
+                                {filters.selectedGenero !== 'all' && (
+                                    <span className="flex items-center gap-2 rounded-full bg-purple-100 px-3 py-1 text-sm text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                                        {filters.selectedGenero}
+                                        <button onClick={() => handleFilterChange('selectedGenero', 'all')} className="font-bold">
+                                            ✕
+                                        </button>
+                                    </span>
+                                )}
+                                {/* Botón de Limpieza General */}
+                                <button onClick={clearAllFilters} className="text-sm font-semibold text-red-600 hover:underline dark:text-red-400">
+                                    Limpiar todos los filtros
+                                </button>
+                            </div>
                         )}
+
+                        {/* Grid de mascotas */}
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                            {filteredPets.length > 0 ? (
+                                filteredPets.map((pet, index) => (
+                                    <PetCard
+                                        key={pet.id}
+                                        {...pet}
+                                        onImageClick={() => handlePetClick(index)}
+                                        onViewDetails={() => handlePetClick(index)}
+                                    />
+                                ))
+                            ) : (
+                                <p className="col-span-full py-16 text-center text-gray-500">
+                                    {allPets.length === 0
+                                        ? 'No hay mascotas disponibles para adopción aún.'
+                                        : 'No se encontraron mascotas con estos filtros.'}
+                                </p>
+                            )}
+                        </div>
                     </div>
-                </div>
-            </main>
+                </main>
 
-            <Footer />
-            <ThemeSwitcher />
+                <Footer />
+                <ThemeSwitcher />
 
-            <CarouselModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} items={filteredPets} initialIndex={selectedIndex} />
-        </div>
+                <CarouselModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} items={filteredPets} initialIndex={selectedIndex} />
+            </div>
+        </FavoritesProvider>
     );
 }

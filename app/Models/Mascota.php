@@ -116,4 +116,21 @@ class Mascota extends Model
     {
         return $this->hasMany(MascotaImage::class)->orderBy('orden');
     }
+
+    /**
+     * Relación: Mascota puede estar en favoritos de múltiples usuarios
+     */
+    public function favoritos()
+    {
+        return $this->hasMany(Favorito::class);
+    }
+
+    /**
+     * Relación many-to-many con usuarios que la han marcado como favorita
+     */
+    public function usuariosFavoritos()
+    {
+        return $this->belongsToMany(User::class, 'favoritos', 'mascota_id', 'user_id')
+            ->withTimestamps();
+    }
 }

@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import FormularioAdopcionModal from '@/components/ui/formulario-adopcion-modal';
+import { useFavorites } from '@/contexts/FavoritesContext';
 import { Heart, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 
@@ -33,6 +34,16 @@ export default function PetCard({
     onViewDetails,
 }: PetCardProps) {
     const [showAdoptionForm, setShowAdoptionForm] = useState(false);
+    const { isFavorite, toggleFavorite, isLoading, isInitialized } = useFavorites();
+
+    const handleFavoriteClick = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        console.log('Click en favorito para mascota:', id);
+        await toggleFavorite(id);
+    };
+
+    const isCurrentlyFavorite = isFavorite(id);
+    console.log(`PetCard ${id} - Es favorito:`, isCurrentlyFavorite);
 
     return (
         <>
@@ -56,6 +67,8 @@ export default function PetCard({
                             <p className="text-sm text-gray-600 dark:text-gray-300">
                                 {edad} {edad === 1 ? 'año' : 'años'}
                             </p>
+                            {sexo && <p className="text-sm text-gray-600 dark:text-gray-300">{sexo}</p>}
+                            {ciudad && <p className="text-sm text-gray-600 dark:text-gray-300">📍 {ciudad}</p>}
                             <p className="mt-1 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">{descripcion}</p>
 
                             <div className="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
@@ -63,8 +76,18 @@ export default function PetCard({
                                 <span className="text-blue-600 dark:text-blue-400">Publicado por: {shelter}</span>
                             </div>
                         </div>
-                        <Button variant="ghost" size="icon" className="absolute top-2 right-2 z-20">
-                            <Heart className="h-5 w-5 text-gray-500 hover:fill-red-500 hover:text-red-500" />
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="absolute top-2 right-2 z-20 bg-white/80 hover:bg-white/90 dark:bg-gray-800/80 dark:hover:bg-gray-800/90"
+                            onClick={handleFavoriteClick}
+                            disabled={isLoading || !isInitialized}
+                        >
+                            <Heart
+                                className={`h-5 w-5 transition-all duration-200 ${
+                                    isCurrentlyFavorite ? 'scale-110 fill-red-500 text-red-500' : 'text-gray-600 hover:scale-105 hover:text-red-500'
+                                } ${isLoading ? 'animate-pulse opacity-50' : ''}`}
+                            />
                         </Button>
                     </div>
                     <div className="mt-4 flex items-center justify-between">

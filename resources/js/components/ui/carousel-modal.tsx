@@ -1,10 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { X, ChevronLeft, ChevronRight, Heart, Share2, Star, MapPin, Calendar, User, ShoppingCart, Phone, MessageCircle, Play, Pause } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCarousel } from '@/hooks/use-carousel';
 import FormularioAdopcionModal from '@/components/ui/formulario-adopcion-modal';
+import { useFavorites } from '@/contexts/FavoritesContext';
+
+// Hook personalizado para manejar favoritos de manera opcional
+function useOptionalFavorites() {
+    try {
+        return useFavorites();
+    } catch {
+        return {
+            isFavorite: () => false,
+            toggleFavorite: async () => {},
+            isLoading: false,
+            isInitialized: false,
+            addToFavorites: async () => {},
+            removeFromFavorites: async () => {},
+            refreshFavorites: async () => {},
+            favoriteIds: []
+        };
+    }
+}
 
 interface BaseItem {
     id: number;
@@ -44,10 +63,12 @@ interface CarouselModalProps {
 }
 
 export default function CarouselModal({ isOpen, onClose, items, initialIndex }: CarouselModalProps) {
-    const [isLiked, setIsLiked] = useState(false);
     const [imageLoading, setImageLoading] = useState(true);
-    const [currentImageIndex, setCurrentImageIndex] = useState(0); // <-- AÑADIDO: índice de imagen actual
-    const [showAdoptionForm, setShowAdoptionForm] = useState(false); // <-- AÑADIDO: estado para el formulario de adopción
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [showAdoptionForm, setShowAdoptionForm] = useState(false);
+    
+    // Hook de favoritos con manejo opcional - retorna funciones seguras si no hay contexto
+    const { isFavorite, toggleFavorite, isLoading: favoritesLoading } = useOptionalFavorites();
     
     const {
         currentIndex,
@@ -121,6 +142,20 @@ export default function CarouselModal({ isOpen, onClose, items, initialIndex }: 
     
     const currentDisplayImage = currentImages[currentImageIndex] || currentItem?.imageUrl;
 
+    // Función optimizada para manejar favoritos
+    const handleFavoriteClick = useCallback(async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        
+        if (currentItem?.type === 'pet' && !favoritesLoading) {
+            try {
+                await toggleFavorite(currentItem.id);
+            } catch (error) {
+                console.error('Error al cambiar favorito:', error);
+            }
+        }
+    }, [currentItem, favoritesLoading, toggleFavorite]);
+
     if (!isOpen || !currentItem) return null;
 
     const isProduct = currentItem.type === 'product';
@@ -176,9 +211,17 @@ export default function CarouselModal({ isOpen, onClose, items, initialIndex }: 
                                 )}
                             </div>
                             <div className="flex items-center space-x-2">
-                                <Button variant="ghost" size="icon" onClick={() => setIsLiked(!isLiked)}>
-                                    <Heart className={`h-5 w-5 ${isLiked ? 'fill-red-500 text-red-500' : 'text-gray-500'}`} />
-                                </Button>
+                                {currentItem.type === 'pet' && (
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        onClick={handleFavoriteClick}
+                                        disabled={favoritesLoading}
+                                        className="transition-colors hover:bg-red-50 dark:hover:bg-red-900/20"
+                                    >
+                                        <Heart className={`h-5 w-5 transition-colors ${isFavorite(currentItem.id) ? 'fill-red-500 text-red-500' : 'text-gray-500 hover:text-red-400'}`} />
+                                    </Button>
+                                )}
                                 <Button variant="ghost" size="icon">
                                     <Share2 className="h-5 w-5 text-gray-500" />
                                 </Button>

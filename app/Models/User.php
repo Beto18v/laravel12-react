@@ -58,4 +58,17 @@ class User extends Authenticatable
     {
         return $this->hasMany(Mascota::class);
     }
+
+    // Relación entre User y Favoritos
+    public function favoritos()
+    {
+        return $this->hasMany(Favorito::class);
+    }
+
+    // Relación many-to-many con mascotas favoritas
+    public function mascotasFavoritas()
+    {
+        return $this->belongsToMany(Mascota::class, 'favoritos', 'user_id', 'mascota_id')
+            ->withTimestamps();
+    }
 }
