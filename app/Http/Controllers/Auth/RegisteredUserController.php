@@ -82,7 +82,7 @@ class RegisteredUserController extends Controller
             $url = route('productos.mascotas') . '?adoptar_mascota=' . $id;
             if ($request->header('X-Inertia')) {
                 // Forzar redirección completa del navegador
-                return response('', 409)->header('X-Inertia-Location', $url);
+                return redirect($url)->header('X-Inertia-Location', $url);
             }
             return redirect($url);
         }
