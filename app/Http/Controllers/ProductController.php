@@ -28,7 +28,7 @@ class ProductController extends Controller
      */
     public function indexPublic()
     {
-        $productos = Product::with('user')->get()->map(function ($producto) {
+        $productos = Product::with('user')->orderBy('created_at', 'desc')->get()->map(function ($producto) {
             return (object) [
                 'id' => $producto->id,
                 'nombre' => $producto->nombre,        // Usar accessor
@@ -50,9 +50,10 @@ class ProductController extends Controller
 
         // Si es aliado, solo mostrar sus propios productos y mascotas
         if ($user && $user->role === 'aliado') {
-            // Productos del aliado autenticado
+            // Productos del aliado autenticado (ordenados por fecha de creación descendente)
             $productos = Product::with('user')
                 ->where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($producto) {
                     return (object) [
@@ -63,13 +64,15 @@ class ProductController extends Controller
                         'imagen' => $producto->imagen,
                         'user_id' => $producto->user_id,
                         'user' => $producto->user,
-                        'tipo' => 'producto'
+                        'tipo' => 'producto',
+                        'created_at' => $producto->created_at
                     ];
                 });
 
-            // Mascotas del aliado autenticado
+            // Mascotas del aliado autenticado (ordenadas por fecha de creación descendente)
             $mascotas = Mascota::with('user')
                 ->where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($mascota) {
                     return (object) [
@@ -80,12 +83,13 @@ class ProductController extends Controller
                         'imagen' => $mascota->imagen,
                         'user_id' => $mascota->user_id,
                         'user' => $mascota->user,
-                        'tipo' => 'mascota'
+                        'tipo' => 'mascota',
+                        'created_at' => $mascota->created_at
                     ];
                 });
         } else {
-            // Para clientes y otros roles, mostrar todos los productos y mascotas
-            $productos = Product::with('user')->get()->map(function ($producto) {
+            // Para clientes y otros roles, mostrar todos los productos y mascotas (ordenados por fecha)
+            $productos = Product::with('user')->orderBy('created_at', 'desc')->get()->map(function ($producto) {
                 return (object) [
                     'id' => $producto->id,
                     'nombre' => $producto->nombre,        // Usar accessor
@@ -94,12 +98,13 @@ class ProductController extends Controller
                     'imagen' => $producto->imagen,
                     'user_id' => $producto->user_id,
                     'user' => $producto->user,
-                    'tipo' => 'producto'
+                    'tipo' => 'producto',
+                    'created_at' => $producto->created_at
                 ];
             });
 
-            // Mascotas con tipo identificador (sin precio)
-            $mascotas = Mascota::with('user')->get()->map(function ($mascota) {
+            // Mascotas con tipo identificador (sin precio, ordenadas por fecha)
+            $mascotas = Mascota::with('user')->orderBy('created_at', 'desc')->get()->map(function ($mascota) {
                 return (object) [
                     'id' => $mascota->id,
                     'nombre' => $mascota->nombre,
@@ -108,13 +113,16 @@ class ProductController extends Controller
                     'imagen' => $mascota->imagen,
                     'user_id' => $mascota->user_id,
                     'user' => $mascota->user,
-                    'tipo' => 'mascota'
+                    'tipo' => 'mascota',
+                    'created_at' => $mascota->created_at
                 ];
             });
         }
 
-        // Combinar y mezclar items para vista dinámica
-        $items = $productos->concat($mascotas)->shuffle();
+        // Combinar items y ordenar por fecha de creación (más recientes primero)
+        $items = $productos->concat($mascotas)->sortByDesc(function ($item) {
+            return $item->created_at;
+        })->values(); // values() reindexes the collection
 
         return Inertia::render('Dashboard/VerMascotasProductos/productos-mascotas', [
             'items' => $items

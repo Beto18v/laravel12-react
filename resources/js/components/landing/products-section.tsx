@@ -35,7 +35,7 @@ export default function ProductsSection({ products }: { products: Product[] }) {
                     </h2>
 
                     <p className="mx-auto max-w-3xl text-xl text-gray-600 dark:text-gray-300">
-                        Encuentra todo lo que necesitas para cuidar y consentir a tu mascota.
+                        Descubre una muestra de nuestros productos más recientes para cuidar y consentir a tu mascota.
                         <span className="font-semibold text-blue-600 dark:text-blue-400"> Calidad garantizada.</span>
                     </p>
                 </div>

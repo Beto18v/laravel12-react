@@ -45,29 +45,33 @@ interface IndexProps {
 export default function Welcome({ productos = [], mascotas = [] }: IndexProps) {
     const { props } = usePage<SharedData>();
 
-    // Transformar productos de BD al formato esperado por ProductsSection
+    // Transformar productos de BD al formato esperado por ProductsSection (máximo 3, los más recientes)
     const products = useMemo(() => {
-        return productos.map((producto) => ({
-            nombre: producto.nombre,
-            descripcion: producto.descripcion,
-            precio: `$${producto.precio ? producto.precio.toLocaleString('es-CO') : '0'}`,
-            imageUrl: producto.imagen
-                ? `/storage/${producto.imagen}`
-                : 'https://images.unsplash.com/photo-1598133894005-6d5c4b6f634d?auto=format&fit=crop&w=800&q=60',
-        }));
+        return productos
+            .slice(0, 3) // Limitar a los primeros 3 (asumiendo que vienen ordenados por fecha desde el backend)
+            .map((producto) => ({
+                nombre: producto.nombre,
+                descripcion: producto.descripcion,
+                precio: `$${producto.precio ? producto.precio.toLocaleString('es-CO') : '0'}`,
+                imageUrl: producto.imagen
+                    ? `/storage/${producto.imagen}`
+                    : 'https://images.unsplash.com/photo-1598133894005-6d5c4b6f634d?auto=format&fit=crop&w=800&q=60',
+            }));
     }, [productos]);
 
-    // Transformar mascotas de BD al formato esperado por PetsSection
+    // Transformar mascotas de BD al formato esperado por PetsSection (máximo 3, las más recientes)
     const pets = useMemo(() => {
-        return mascotas.map((mascota) => ({
-            name: mascota.nombre,
-            breed: mascota.raza || mascota.especie,
-            age: `${mascota.edad} ${mascota.edad === 1 ? 'año' : 'años'}`,
-            description: mascota.descripcion,
-            imageUrl: mascota.imagen
-                ? `/storage/${mascota.imagen}`
-                : 'https://images.unsplash.com/photo-1534361960057-19889db9621e?fm=jpg&q=60&w=3000',
-        }));
+        return mascotas
+            .slice(0, 3) // Limitar a las primeras 3 (asumiendo que vienen ordenadas por fecha desde el backend)
+            .map((mascota) => ({
+                name: mascota.nombre,
+                breed: mascota.raza || mascota.especie,
+                age: `${mascota.edad} ${mascota.edad === 1 ? 'año' : 'años'}`,
+                description: mascota.descripcion,
+                imageUrl: mascota.imagen
+                    ? `/storage/${mascota.imagen}`
+                    : 'https://images.unsplash.com/photo-1534361960057-19889db9621e?fm=jpg&q=60&w=3000',
+            }));
     }, [mascotas]);
 
     // Calcular conteos dinámicos de perros y gatos y crear enlaces con filtros
@@ -104,10 +108,10 @@ export default function Welcome({ productos = [], mascotas = [] }: IndexProps) {
                 <CategoriesSection categories={categories} />
 
                 {/* 3. Mascotas - Prioridad máxima, contenido principal */}
-                <PetsSection pets={[]} />
+                <PetsSection pets={pets} />
 
                 {/* 4. Productos - Complemento importante */}
-                <ProductsSection products={[]} />
+                <ProductsSection products={products} />
             </main>
 
             <Footer />
