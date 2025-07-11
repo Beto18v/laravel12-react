@@ -11,7 +11,16 @@ use App\Http\Controllers\SolicitudesController;
 
 Route::get('/', function () {
     // Obtener los últimos 3 productos y 3 mascotas para mostrar en el landing
-    $productos = \App\Models\Product::with('user')->latest()->take(3)->get();
+    $productos = \App\Models\Product::with('user')->latest()->take(3)->get()->map(function ($producto) {
+        return (object) [
+            'id' => $producto->id,
+            'nombre' => $producto->nombre,        // Usar accessor
+            'descripcion' => $producto->descripcion, // Usar accessor
+            'precio' => $producto->precio,        // Usar accessor
+            'imagen' => $producto->imagen,
+            'user' => $producto->user,
+        ];
+    });
     $mascotas = \App\Models\Mascota::with('user')->latest()->take(3)->get();
 
     return Inertia::render('index', [

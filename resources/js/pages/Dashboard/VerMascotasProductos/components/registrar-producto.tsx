@@ -50,7 +50,8 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
                 onClose();
                 setMensaje('¡Producto registrado exitosamente!');
             },
-            onError: () => {
+            onError: (errors) => {
+                setMensaje('Error al registrar producto. Revisa los datos e intenta nuevamente.');
                 // Limpia imágenes tras error después de 3 segundos
                 setTimeout(() => {
                     setData('imagenes', []);

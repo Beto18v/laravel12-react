@@ -20,9 +20,9 @@ class Product extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'nombre',
-        'descripcion',
-        'precio',
+        'name',        // Cambiado de 'nombre'
+        'description', // Cambiado de 'descripcion'  
+        'price',       // Cambiado de 'precio'
         'stock',
         'user_id',
         'imagen', // Imagen principal (compatibilidad)
@@ -42,5 +42,26 @@ class Product extends Model
     public function images(): HasMany
     {
         return $this->hasMany(ProductImage::class)->orderBy('order');
+    }
+
+    // Accessors para compatibilidad con nombres de campos anteriores
+    public function getNombreAttribute()
+    {
+        return $this->name;
+    }
+
+    public function getDescripcionAttribute()
+    {
+        return $this->description;
+    }
+
+    public function getPrecioAttribute()
+    {
+        return $this->price;
+    }
+
+    public function getCantidadAttribute()
+    {
+        return $this->stock;
     }
 }

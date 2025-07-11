@@ -114,7 +114,7 @@ export function InteractiveMap({ locations, className = '' }: InteractiveMapProp
             marker.bindPopup(popupContent);
 
             // Efecto hover
-            marker.on('mouseover', function() {
+            marker.on('mouseover', function(this: L.Marker) {
                 this.openPopup();
             });
         });

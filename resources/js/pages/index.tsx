@@ -48,9 +48,9 @@ export default function Welcome({ productos = [], mascotas = [] }: IndexProps) {
     // Transformar productos de BD al formato esperado por ProductsSection
     const products = useMemo(() => {
         return productos.map((producto) => ({
-            name: producto.nombre,
-            description: producto.descripcion,
-            price: `$${producto.precio.toLocaleString('es-CO')}`,
+            nombre: producto.nombre,
+            descripcion: producto.descripcion,
+            precio: `$${producto.precio ? producto.precio.toLocaleString('es-CO') : '0'}`,
             imageUrl: producto.imagen
                 ? `/storage/${producto.imagen}`
                 : 'https://images.unsplash.com/photo-1598133894005-6d5c4b6f634d?auto=format&fit=crop&w=800&q=60',

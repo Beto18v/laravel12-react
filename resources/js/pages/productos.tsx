@@ -29,19 +29,19 @@ export default function Productos({ productos = [] }: ProductosProps) {
     const allProducts = useMemo(() => {
         return productos.map((producto) => ({
             id: producto.id,
-            name: producto.nombre,
+            nombre: producto.nombre || '',
             category: 'Productos',
-            price: producto.precio,
+            precio: producto.precio || 0,
             imageUrl: producto.imagen ? `/storage/${producto.imagen}` : 'https://images.unsplash.com/photo-1591946614725-3b9b0d5b248b?q=80&w=400',
-            description: producto.descripcion,
-            seller: producto.user.name,
-            shelter: producto.user.name,
+            descripcion: producto.descripcion || '',
+            seller: producto.user?.name || 'Usuario',
+            shelter: producto.user?.name || 'Usuario',
         }));
     }, [productos]);
 
     const availableFilters = useMemo(() => {
         const categories = Array.from(new Set(allProducts.map((p) => p.category)));
-        const prices = allProducts.map((p) => p.price);
+        const prices = allProducts.map((p) => p.precio);
         const maxPrice = prices.length > 0 ? Math.max(...prices) : 150000;
 
         return {
@@ -63,10 +63,10 @@ export default function Productos({ productos = [] }: ProductosProps) {
 
     const filteredProducts = useMemo(() => {
         return allProducts.filter((product) => {
-            const searchTermMatch = product.name.toLowerCase().includes(filters.searchTerm.toLowerCase());
+            const searchTermMatch = (product.nombre || '').toLowerCase().includes((filters.searchTerm || '').toLowerCase());
             // Se usa `filters.category` en lugar de `filters.selectedCategory`
             const categoryMatch = filters.category === 'Todas' || product.category === filters.category;
-            const priceMatch = product.price <= filters.priceLimit;
+            const priceMatch = product.precio <= filters.priceLimit;
             return searchTermMatch && categoryMatch && priceMatch;
         });
     }, [filters, allProducts]);

@@ -97,7 +97,8 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
                 onClose();
                 setMensaje('¡Mascota registrada exitosamente!');
             },
-            onError: () => {
+            onError: (errors) => {
+                setMensaje('Error al registrar mascota. Revisa los datos e intenta nuevamente.');
                 // Limpia imágenes después de 3 segundos si hay error
                 setTimeout(() => {
                     setData('imagenes', []);

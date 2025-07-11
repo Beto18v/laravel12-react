@@ -31,7 +31,7 @@ export default function ProductosMascotas() {
 
     // Filtrado de items por búsqueda y tipo
     const productosFiltrados = itemsTyped.filter(
-        (item) => item.nombre.toLowerCase().includes(busqueda.toLowerCase()) && (filtro === 'todo' || item.tipo === filtro),
+        (item) => (item.nombre || '').toLowerCase().includes((busqueda || '').toLowerCase()) && (filtro === 'todo' || item.tipo === filtro),
     );
 
     const mostrarMensaje = (msg: string) => {
@@ -148,6 +148,8 @@ export default function ProductosMascotas() {
                             No se encontraron resultados que coincidan con tu búsqueda.
                         </div>
                     )}
+
+                    {/* Mensaje de confirmación o error */}
                 </div>
             </main>
             <ThemeSwitcher />

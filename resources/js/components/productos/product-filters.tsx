@@ -45,7 +45,9 @@ export default function ProductFilters({ onFilterChange, currentFilters, priceRa
                         <Label htmlFor="price" className="font-semibold">
                             Precio máximo
                         </Label>
-                        <span className="font-medium text-blue-600 dark:text-blue-400">${currentFilters.priceLimit.toLocaleString('es-CO')}</span>
+                        <span className="font-medium text-blue-600 dark:text-blue-400">
+                            ${currentFilters.priceLimit ? currentFilters.priceLimit.toLocaleString('es-CO') : '0'}
+                        </span>
                     </div>
                     <Input
                         id="price"

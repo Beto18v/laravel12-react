@@ -28,7 +28,16 @@ class ProductController extends Controller
      */
     public function indexPublic()
     {
-        $productos = Product::with('user')->get();
+        $productos = Product::with('user')->get()->map(function ($producto) {
+            return (object) [
+                'id' => $producto->id,
+                'nombre' => $producto->nombre,        // Usar accessor
+                'descripcion' => $producto->descripcion, // Usar accessor
+                'precio' => $producto->precio,        // Usar accessor
+                'imagen' => $producto->imagen,
+                'user' => $producto->user,
+            ];
+        });
         return Inertia::render('productos', ['productos' => $productos]);
     }
 
@@ -37,29 +46,33 @@ class ProductController extends Controller
      */
     public function index()
     {
-        // Debug: verificar qué datos se están obteniendo
-        Log::info('Cargando dashboard - obteniendo productos y mascotas');
-
-        // Productos con tipo identificador
+        // Productos con tipo identificador usando accessors del modelo
         $productos = Product::with('user')->get()->map(function ($producto) {
-            $producto->tipo = 'producto';
-            return $producto;
+            return (object) [
+                'id' => $producto->id,
+                'nombre' => $producto->nombre,        // Usar accessor
+                'descripcion' => $producto->descripcion, // Usar accessor
+                'precio' => $producto->precio,        // Usar accessor
+                'imagen' => $producto->imagen,
+                'user_id' => $producto->user_id,
+                'user' => $producto->user,
+                'tipo' => 'producto'
+            ];
         });
 
         // Mascotas con tipo identificador (sin precio)
         $mascotas = Mascota::with('user')->get()->map(function ($mascota) {
-            $mascota->tipo = 'mascota';
-            $mascota->precio = null;
-            return $mascota;
+            return (object) [
+                'id' => $mascota->id,
+                'nombre' => $mascota->nombre,
+                'descripcion' => $mascota->descripcion,
+                'precio' => null,
+                'imagen' => $mascota->imagen,
+                'user_id' => $mascota->user_id,
+                'user' => $mascota->user,
+                'tipo' => 'mascota'
+            ];
         });
-
-        // Debug: contar items obtenidos
-        Log::info('Items obtenidos:', [
-            'productos_count' => $productos->count(),
-            'mascotas_count' => $mascotas->count(),
-            'productos' => $productos->pluck('name'),
-            'mascotas' => $mascotas->pluck('nombre')
-        ]);
 
         // Combinar y mezclar items para vista dinámica
         $items = $productos->concat($mascotas)->shuffle();
@@ -75,11 +88,8 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        // Debug: verificar qué datos están llegando
-        Log::info('Datos recibidos para registro de producto:', $request->all());
-
         // Validación para múltiples imágenes
-        $request->validate([
+        $validatedData = $request->validate([
             'nombre' => 'required|string|max:255',
             'descripcion' => 'required|string',
             'precio' => 'required|numeric|min:0',
@@ -88,15 +98,12 @@ class ProductController extends Controller
             'imagenes.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Debug: datos después de validación
-        Log::info('Datos validados para producto');
-
-        // Crear producto principal
+        // Crear producto principal con nombres de campos actualizados
         $producto = new Product();
-        $producto->nombre = $request->nombre;
-        $producto->descripcion = $request->descripcion;
-        $producto->precio = $request->precio;
-        $producto->stock = $request->cantidad;
+        $producto->name = $request->nombre;         // Mapear nombre -> name
+        $producto->description = $request->descripcion; // Mapear descripcion -> description
+        $producto->price = $request->precio;        // Mapear precio -> price
+        $producto->stock = $request->cantidad;      // Mapear cantidad -> stock
         $producto->user_id = Auth::id();
 
         // Usar primera imagen como imagen principal (compatibilidad con sistema anterior)

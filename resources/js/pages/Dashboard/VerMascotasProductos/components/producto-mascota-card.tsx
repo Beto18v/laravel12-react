@@ -73,7 +73,11 @@ export default function ProductoMascotaCard({ item, onDelete, onEdit, onAction }
                     <p className="mb-4 line-clamp-2 flex-grow text-sm text-gray-600 dark:text-gray-400">{item.descripcion}</p>
 
                     <div className="mb-4 text-xl font-semibold text-green-600 dark:text-green-400">
-                        {item.tipo === 'producto' ? `$${item.precio?.toLocaleString() ?? 'N/A'}` : 'En Adopción'}
+                        {item.tipo === 'producto'
+                            ? item.precio !== null && item.precio !== undefined
+                                ? `$${item.precio.toLocaleString('es-CO')}`
+                                : 'Precio no disponible'
+                            : 'En Adopción'}
                     </div>
 
                     {/* ✨ SECCIÓN "PUBLICADO POR" RESTAURADA ✨ */}

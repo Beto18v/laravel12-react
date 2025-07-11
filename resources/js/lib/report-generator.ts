@@ -43,7 +43,7 @@ export const generateDonationsReport = (donations: Donation[], user: User) => {
             donations.forEach((d) =>
                 tableRows.push([
                     d.shelter?.name ?? 'N/A',
-                    `$${parseFloat(d.amount).toLocaleString('es-CO')}`,
+                    `$${d.amount ? parseFloat(d.amount).toLocaleString('es-CO') : '0'}`,
                     new Date(d.created_at).toLocaleDateString('es-CO'),
                 ]),
             );
@@ -55,7 +55,7 @@ export const generateDonationsReport = (donations: Donation[], user: User) => {
             donations.forEach((d) =>
                 tableRows.push([
                     d.donor_name,
-                    `$${parseFloat(d.amount).toLocaleString('es-CO')}`,
+                    `$${d.amount ? parseFloat(d.amount).toLocaleString('es-CO') : '0'}`,
                     new Date(d.created_at).toLocaleDateString('es-CO'),
                 ]),
             );
@@ -68,7 +68,7 @@ export const generateDonationsReport = (donations: Donation[], user: User) => {
                 tableRows.push([
                     d.donor_name,
                     d.shelter?.name ?? 'N/A',
-                    `$${parseFloat(d.amount).toLocaleString('es-CO')}`,
+                    `$${d.amount ? parseFloat(d.amount).toLocaleString('es-CO') : '0'}`,
                     new Date(d.created_at).toLocaleDateString('es-CO'),
                 ]),
             );
