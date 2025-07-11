@@ -19,7 +19,15 @@ const formatCurrency = (amount: string | number | bigint) => {
     }).format(numericAmount);
 };
 
-const DonationsTable = ({ donations, userRole }: any) => (
+type DonationType = {
+    id: number;
+    shelter?: { name?: string };
+    donor_name?: string;
+    amount: number;
+    created_at: string;
+};
+
+const DonationsTable = ({ donations, userRole }: { donations: DonationType[]; userRole: string }) => (
     <div className="overflow-hidden rounded-lg bg-white shadow dark:bg-gray-800">
         <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -39,7 +47,7 @@ const DonationsTable = ({ donations, userRole }: any) => (
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
-                    {donations.map((donation: any) => (
+                    {donations.map((donation: DonationType) => (
                         <tr key={donation.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                             <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900 dark:text-white">
                                 {userRole === 'cliente' ? (donation.shelter?.name ?? 'N/A') : donation.donor_name}
@@ -66,7 +74,15 @@ const DonationsTable = ({ donations, userRole }: any) => (
 );
 
 // --- VISTAS ESPECÍFICAS PARA CADA ROL ---
-const ClientView = ({ donations, stats, onDonateClick }: any) => (
+const ClientView = ({
+    donations,
+    stats,
+    onDonateClick,
+}: {
+    donations: DonationType[];
+    stats: { totalAmount: number; donationsCount: number };
+    onDonateClick: () => void;
+}) => (
     <>
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="rounded-lg bg-purple-50 p-4 dark:bg-purple-900">
@@ -90,7 +106,15 @@ const ClientView = ({ donations, stats, onDonateClick }: any) => (
     </>
 );
 
-const AllyAdminView = ({ donations, stats, userRole }: any) => (
+const AllyAdminView = ({
+    donations,
+    stats,
+    userRole,
+}: {
+    donations: DonationType[];
+    stats: { totalAmount: number; donorsCount: number; donationsCount: number };
+    userRole: string;
+}) => (
     <>
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="rounded-lg bg-purple-50 p-4 dark:bg-purple-900">
@@ -108,13 +132,19 @@ const AllyAdminView = ({ donations, stats, userRole }: any) => (
 
 // --- COMPONENTE PRINCIPAL ---
 export default function DonationsSummary() {
-    const { donations, shelters, auth } = usePage().props as any;
+    const page = usePage();
+    const props = page.props as unknown as {
+        donations: DonationType[];
+        shelters: unknown[];
+        auth: { user: { role: string; shelter?: unknown } };
+    };
+    const { donations, shelters, auth } = props;
     const { user } = auth;
     const [showDonationFormModal, setShowDonationFormModal] = useState(false);
 
     const stats = {
-        totalAmount: donations.reduce((acc: number, curr: any) => acc + parseFloat(curr.amount), 0),
-        donorsCount: new Set(donations.map((d: any) => d.donor_email)).size,
+        totalAmount: donations.reduce((acc: number, curr: DonationType) => acc + parseFloat(curr.amount.toString()), 0),
+        donorsCount: new Set(donations.map((d: DonationType) => (d as unknown as { donor_email: string }).donor_email)).size,
         donationsCount: donations.length,
     };
 
@@ -123,7 +153,16 @@ export default function DonationsSummary() {
             alert('No hay donaciones para generar un reporte.');
             return;
         }
-        generateDonationsReport(donations, user);
+        // Temporary type assertion para evitar errores de ESLint
+        const reportDonations = donations as unknown as {
+            id: number;
+            donor_name: string;
+            amount: string;
+            created_at: string;
+            shelter?: { name: string };
+        }[];
+        const reportUser = user as unknown as { name: string; role: string; shelter?: { name: string } };
+        generateDonationsReport(reportDonations as never, reportUser as never);
     };
 
     const renderContentByRole = () => {
@@ -159,7 +198,11 @@ export default function DonationsSummary() {
                     </div>
                     {renderContentByRole()}
                     {user.role === 'cliente' && (
-                        <FormularioDonacion showModal={showDonationFormModal} onClose={() => setShowDonationFormModal(false)} shelters={shelters} />
+                        <FormularioDonacion
+                            showModal={showDonationFormModal}
+                            onClose={() => setShowDonationFormModal(false)}
+                            shelters={shelters as unknown as { id: number; name: string }[]}
+                        />
                     )}
                 </div>
             </main>

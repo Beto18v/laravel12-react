@@ -109,7 +109,7 @@ export default function CarouselModal({ isOpen, onClose, items, initialIndex }: 
 
         document.addEventListener('keydown', handleKeyDown);
         return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [isOpen, goToNext, goToPrevious, toggleAutoPlay]);
+    }, [isOpen, goToNext, goToPrevious, toggleAutoPlay, onClose]);
 
     // Reset image loading when index changes
     useEffect(() => {
@@ -560,7 +560,7 @@ export default function CarouselModal({ isOpen, onClose, items, initialIndex }: 
                     onClose={() => setShowAdoptionForm(false)}
                     mascota={{
                         id: currentItem.id,
-                        nombre: (currentItem as any).nombre || 'Mascota sin nombre',
+                        nombre: currentItem.type === 'pet' ? (currentItem as Pet).name : 'Mascota sin nombre',
                         type: 'pet'
                     }}
                 />

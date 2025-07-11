@@ -62,7 +62,7 @@ export default function Productos({ productos = [] }: ProductosProps) {
         priceLimit: availableFilters.priceRange[1],
     });
 
-    const handleFilterChange = (key: string, value: any) => {
+    const handleFilterChange = (key: string, value: string | number | boolean) => {
         setFilters((prev) => ({ ...prev, [key]: value }));
     };
 

@@ -20,7 +20,8 @@ interface FormularioDonacionProps {
 type PaymentMethod = 'nequi' | 'daviplata';
 
 export default function FormularioDonacion({ showModal, onClose, shelters }: FormularioDonacionProps) {
-    const { auth } = usePage().props as any;
+    const page = usePage();
+    const auth = (page.props as unknown as { auth: { user: { name?: string; email?: string } } }).auth;
 
     const { data, setData, post, processing, errors, reset, wasSuccessful, clearErrors } = useForm({
         donor_name: auth.user.name || '',

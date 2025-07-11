@@ -9,7 +9,7 @@ const roleDisplayNames = {
     admin: 'Admin',
 };
 
-export function UserInfo({ user, showEmail = false, showRole = false }: { user: User; showEmail?: boolean; showRole?: boolean }) {
+export function UserInfo({ user, showRole = false }: { user: User; showEmail?: boolean; showRole?: boolean }) {
     const getInitials = useInitials();
 
     return (

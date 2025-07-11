@@ -94,7 +94,7 @@ export default function SolicitudesIndex({ auth, solicitudes }: SolicitudesPageP
             });
 
             if (response.ok) {
-                const result = await response.json();
+                await response.json();
                 setSelectedSolicitud({
                     ...selectedSolicitud,
                     estado: 'Rechazada',

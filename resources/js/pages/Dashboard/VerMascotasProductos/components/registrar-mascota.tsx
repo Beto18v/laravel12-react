@@ -97,7 +97,7 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
                 onClose();
                 setMensaje('¡Mascota registrada exitosamente!');
             },
-            onError: (errors) => {
+            onError: () => {
                 setMensaje('Error al registrar mascota. Revisa los datos e intenta nuevamente.');
                 // Limpia imágenes después de 3 segundos si hay error
                 setTimeout(() => {
@@ -115,7 +115,7 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
             setEdadCalculada('');
             reset();
         }
-    }, [isOpen]);
+    }, [isOpen, reset]);
 
     // Función para manejar múltiples imágenes (máximo 3)
     const handleAddImages = (files: FileList | null) => {

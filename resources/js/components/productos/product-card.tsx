@@ -12,7 +12,7 @@ interface ProductCardProps {
     onViewDetails?: () => void;
 }
 
-export default function ProductCard({ id, nombre, shelter, descripcion, precio, imageUrl, onImageClick, onViewDetails }: ProductCardProps) {
+export default function ProductCard({ nombre, shelter, descripcion, precio, imageUrl, onImageClick, onViewDetails }: ProductCardProps) {
     return (
         <div className="group relative overflow-hidden rounded-lg shadow-lg transition-all hover:shadow-xl">
             <div className="cursor-pointer" onClick={onImageClick}>

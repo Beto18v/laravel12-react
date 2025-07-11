@@ -5,7 +5,7 @@ import { ListFilter } from 'lucide-react';
 
 interface ProductFiltersProps {
     // Función para manejar todos los cambios de filtro
-    onFilterChange: (key: string, value: any) => void;
+    onFilterChange: (key: string, value: string | number) => void;
     // Estado actual de los filtros para sincronizar la UI
     currentFilters: {
         searchTerm: string;

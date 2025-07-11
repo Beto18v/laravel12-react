@@ -19,7 +19,7 @@ interface Mascota {
 }
 
 interface AdopcionFormData {
-    [key: string]: any; // Firma de índice para compatibilidad con Inertia
+    [key: string]: string | number | boolean; // Firma de índice para compatibilidad con Inertia
     nombre_completo: string;
     cedula: string;
     email: string;
@@ -64,7 +64,8 @@ const FormSection = ({ title, children }: { title: string; children: React.React
 );
 
 export default function FormularioAdopcion({ mascota, show, onClose }: FormularioAdopcionProps) {
-    const { auth } = usePage().props as any;
+    const page = usePage();
+    const auth = (page.props as unknown as { auth: { user: { name?: string; email?: string } } }).auth;
 
     const { data, setData, post, processing, errors, reset, wasSuccessful } = useForm<AdopcionFormData>({
         nombre_completo: auth.user.name || '',
@@ -99,15 +100,13 @@ export default function FormularioAdopcion({ mascota, show, onClose }: Formulari
     // Estados para campos condicionales
     const [viviendaAlquilada, setViviendaAlquilada] = useState(false);
     const [hayNinos, setHayNinos] = useState(false);
-    const [tieneOtrasMascotas, setTieneOtrasMascotas] = useState(false);
-    const [tuvoMascotasAntes, setTuvoMascotasAntes] = useState(false);
 
     useEffect(() => {
         if (wasSuccessful) {
             onClose();
             reset();
         }
-    }, [wasSuccessful]);
+    }, [wasSuccessful, onClose, reset]);
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();

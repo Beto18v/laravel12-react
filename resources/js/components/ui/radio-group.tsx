@@ -53,7 +53,7 @@ interface RadioGroupItemProps extends React.HTMLAttributes<HTMLButtonElement> {
 }
 
 const RadioGroupItem = React.forwardRef<HTMLButtonElement, RadioGroupItemProps>(
-    ({ className, value, children, ...props }, ref) => {
+    ({ className, value, ...props }, ref) => {
         const context = React.useContext(RadioGroupContext);
         
         if (!context) {

@@ -1,5 +1,4 @@
-import { type SharedData } from '@/types';
-import { Head, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { useMemo } from 'react';
 
 // 1. Importa los componentes de sección que acabamos de crear
@@ -43,8 +42,6 @@ interface IndexProps {
 }
 
 export default function Welcome({ productos = [], mascotas = [] }: IndexProps) {
-    const { props } = usePage<SharedData>();
-
     // Transformar productos de BD al formato esperado por ProductsSection (máximo 3, los más recientes)
     const products = useMemo(() => {
         return productos

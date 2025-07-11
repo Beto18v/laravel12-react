@@ -22,7 +22,7 @@ interface MascotaAdopcion {
 }
 
 interface AdopcionFormData {
-    [key: string]: any;
+    [key: string]: string | number | boolean;
     nombre_completo: string;
     cedula: string;
     email: string;
@@ -67,7 +67,8 @@ const FormSection = ({ title, children }: { title: string; children: React.React
 );
 
 export default function FormularioAdopcionModal({ mascota, show, onClose }: FormularioAdopcionModalProps) {
-    const { auth } = usePage().props as any;
+    const page = usePage();
+    const auth = (page.props as { auth?: { user?: { name?: string; email?: string } } }).auth;
     
     // Obtener el nombre de la mascota de forma flexible
     const nombreMascota = mascota.name || mascota.nombre || 'Mascota';
@@ -126,7 +127,7 @@ export default function FormularioAdopcionModal({ mascota, show, onClose }: Form
             reset();
             onClose();
         }
-    }, [wasSuccessful]);
+    }, [wasSuccessful, reset, onClose]);
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();

@@ -11,8 +11,17 @@ import RegistrarProducto from './components/registrar-producto';
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Productos y Mascotas', href: route('productos.mascotas') }];
 
 export default function ProductosMascotas() {
-    const { items = [], auth, success } = usePage().props as any;
-    const itemsTyped = items as CardItem[];
+    const page = usePage();
+    const {
+        items = [],
+        auth,
+        success,
+    } = page.props as unknown as {
+        items: CardItem[];
+        auth: { user?: { role?: string } };
+        success?: string;
+    };
+    const itemsTyped = items;
     const esAliado = auth.user?.role === 'aliado';
 
     // Estados del componente

@@ -2,7 +2,7 @@
 import { type SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { Heart, Pencil, ShoppingCart, Trash2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import FormularioAdopcion from './formulario-adopcion';
 
 // Tipo para items de producto/mascota
@@ -41,7 +41,7 @@ export default function ProductoMascotaCard({ item, onDelete, onEdit, onAction, 
             setShowAdoptionModal(true);
             if (onAutoOpenHandled) onAutoOpenHandled();
         }
-    }, [autoOpenAdopcion]);
+    }, [autoOpenAdopcion, onAutoOpenHandled]);
 
     // Determinación de roles y permisos
     const esPropietario = user.role === 'aliado' && user.id === item.user_id;

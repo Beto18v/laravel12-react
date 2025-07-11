@@ -5,7 +5,7 @@ import PetHero from '@/components/mascotas/pet-hero';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import CarouselModal from '@/components/ui/carousel-modal';
 import { FavoritesProvider } from '@/contexts/FavoritesContext';
-import { Head, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
 
 // ACTUALIZADO: Asegúrate de que tu prop 'mascotas' incluya ciudad y sexo.
@@ -37,7 +37,6 @@ interface MascotasProps {
 }
 
 export default function Mascotas({ mascotas = [] }: MascotasProps) {
-    const { url } = usePage();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -106,7 +105,7 @@ export default function Mascotas({ mascotas = [] }: MascotasProps) {
         }
     }, []);
 
-    const handleFilterChange = (key: string, value: any) => {
+    const handleFilterChange = (key: string, value: string | number | boolean) => {
         setFilters((prev) => ({ ...prev, [key]: value }));
     };
 

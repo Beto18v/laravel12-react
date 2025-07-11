@@ -3,17 +3,18 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { LocationPicker } from '@/components/ui/location-picker'; // Importa el componente de mapa interactivo
 import { useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
-import { LocationPicker } from '@/components/ui/location-picker'; // Importa el componente de mapa interactivo
 
 export default function FormularioFundacion() {
-    const { auth } = usePage().props as any;
+    const page = usePage();
+    const auth = (page.props as unknown as { auth: { user?: { name?: string; email?: string } } }).auth;
 
     // Estado del formulario, ahora incluye latitude y longitude
     const { data, setData, post, processing, errors } = useForm({
         name: '',
-        email: auth.user.email || '',
+        email: auth?.user?.email || '',
         description: '',
         address: '',
         city: '',
@@ -21,7 +22,7 @@ export default function FormularioFundacion() {
         bank_name: '',
         account_type: 'Ahorros', // Valor inicial por defecto
         account_number: '',
-        latitude: 4.6097,   // Valor inicial para Colombia
+        latitude: 4.6097, // Valor inicial para Colombia
         longitude: -74.0817,
     });
 
@@ -143,15 +144,9 @@ export default function FormularioFundacion() {
                     </div>
                     {/* --- UBICACIÓN EN EL MAPA --- */}
                     <div className="mt-6">
-                        <Label className="font-semibold text-gray-700 dark:text-gray-300 mb-2 block">
-                            Ubicación en el Mapa
-                        </Label>
+                        <Label className="mb-2 block font-semibold text-gray-700 dark:text-gray-300">Ubicación en el Mapa</Label>
                         {/* Mapa interactivo para seleccionar la ubicación */}
-                        <LocationPicker
-                            initialLat={data.latitude}
-                            initialLng={data.longitude}
-                            onLocationChange={handleLocationChange}
-                        />
+                        <LocationPicker initialLat={data.latitude} initialLng={data.longitude} onLocationChange={handleLocationChange} />
                         <div className="mt-2 text-xs text-gray-500">
                             Latitud: {data.latitude.toFixed(6)}, Longitud: {data.longitude.toFixed(6)}
                         </div>

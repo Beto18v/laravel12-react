@@ -76,13 +76,13 @@ export const generateDonationsReport = (donations: Donation[], user: User) => {
     }
 
     // --- Función para añadir Encabezado y Pie de Página (MODIFICADA) ---
-    const addHeaderAndFooter = (data: any) => {
+    const addHeaderAndFooter = (data: unknown) => {
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
 
         // --- Marca de Agua ---
         doc.saveGraphicsState();
-        doc.setGState(new (doc as any).GState({ opacity: 0.1 }));
+        doc.setGState(new (doc as unknown as { GState: new (options: { opacity: number }) => unknown }).GState({ opacity: 0.1 }));
         doc.addImage(logo, 'PNG', pageWidth / 2 - 40, pageHeight / 2 - 25, 80, 50, undefined, 'FAST');
         doc.restoreGraphicsState();
 
@@ -98,7 +98,7 @@ export const generateDonationsReport = (donations: Donation[], user: User) => {
         doc.text(`Generado el: ${reportDate}`, 14, 28);
 
         // --- Pie de Página con Leyenda Mejorada ---
-        const pageNumber = `Página ${data.pageNumber} de ${doc.internal.pages.length}`;
+        const pageNumber = `Página ${(data as { pageNumber?: number }).pageNumber || 1} de ${doc.internal.pages.length}`;
 
         // Solo muestra la leyenda para los donantes (rol 'cliente')
         if (user.role === 'cliente') {
@@ -142,7 +142,7 @@ export const generateDonationsReport = (donations: Donation[], user: User) => {
     for (let i = 1; i <= totalPages; i++) {
         doc.setPage(i);
         // Llama a la función de pie de página nuevamente para asegurar el conteo total correcto
-        addHeaderAndFooter({ pageNumber: i });
+        addHeaderAndFooter({ pageNumber: i } as unknown);
     }
 
     doc.save(`reporte_donaciones_${user.role}.pdf`);

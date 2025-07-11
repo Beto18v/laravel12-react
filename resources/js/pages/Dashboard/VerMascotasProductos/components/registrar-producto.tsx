@@ -50,7 +50,7 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
                 onClose();
                 setMensaje('¡Producto registrado exitosamente!');
             },
-            onError: (errors) => {
+            onError: () => {
                 setMensaje('Error al registrar producto. Revisa los datos e intenta nuevamente.');
                 // Limpia imágenes tras error después de 3 segundos
                 setTimeout(() => {
@@ -67,7 +67,7 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje }: Regis
             setImagePreviews([]);
             reset();
         }
-    }, [isOpen]);
+    }, [isOpen, reset]);
 
     // Maneja la selección de múltiples imágenes (máximo 3)
     const handleAddImages = (files: FileList | null) => {

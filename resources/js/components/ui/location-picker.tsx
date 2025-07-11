@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 
 // Fix para los iconos de Leaflet
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+delete (L.Icon.Default.prototype as L.Icon.Default & { _getIconUrl?: unknown })._getIconUrl;
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
     iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
@@ -66,7 +66,7 @@ export function LocationPicker({
                 mapInstanceRef.current = null;
             }
         };
-    }, []);
+    }, [initialLat, initialLng, onLocationChange]);
 
     // Función para buscar por dirección (geocodificación simple)
     const searchAddress = async (address: string) => {
