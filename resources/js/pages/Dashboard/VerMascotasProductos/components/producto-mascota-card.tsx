@@ -38,29 +38,21 @@ export default function ProductoMascotaCard({ item, onDelete, onEdit, onAction, 
     // Abrir automáticamente el modal si autoOpenAdopcion es true
     useEffect(() => {
         if (autoOpenAdopcion) {
-            window.location.href = `/mascotas/${item.id}`;
+            setShowAdoptionModal(true);
             if (onAutoOpenHandled) onAutoOpenHandled();
         }
     }, [autoOpenAdopcion]);
 
-    // Verificamos si el usuario es el propietario del item
+    // Determinación de roles y permisos
     const esPropietario = user.role === 'aliado' && user.id === item.user_id;
     const esAdmin = user.role === 'admin';
 
     // El cliente ve los botones de acción principales
-    const esCliente = user && user.role === 'cliente' && !esPropietario && !esAdmin;
+    const esCliente = !esPropietario && !esAdmin;
 
     // Manejador de acción diferenciado por tipo
     const handleActionClick = () => {
         if (item.tipo === 'mascota') {
-            if (!user) {
-                window.location.href = route('login');
-                return;
-            }
-            if (user.role !== 'cliente') {
-                window.location.href = route('register.options');
-                return;
-            }
             setShowAdoptionModal(true); // Abre el modal de adopción para mascotas
         } else {
             onAction(item); // Compra directa para productos

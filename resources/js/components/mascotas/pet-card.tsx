@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Link, usePage } from '@inertiajs/react';
+ import { Link, usePage } from '@inertiajs/react';
 import { Heart, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 import FormularioAdopcion from '@/pages/Dashboard/VerMascotasProductos/components/formulario-adopcion';
@@ -19,20 +19,9 @@ export default function PetCard(props: PetCardProps) {
     const { auth } = usePage().props as any;
     const [showAdoptionModal, setShowAdoptionModal] = useState(false);
 
-    const handleAdoptClick = async () => {
-        if (!auth?.user || auth.user.role !== 'cliente') {
-            // Guardar la URL de destino en la sesión antes de redirigir
-            const intendedUrl = route('productos.mascotas') + `?adoptar_mascota=${props.id}`;
-            await fetch(route('set-intended-url'), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': (document.querySelector('meta[name=csrf-token]') as HTMLMetaElement)?.content || ''
-                },
-                body: JSON.stringify({ url: intendedUrl })
-            });
-            window.location.href = route('register', { role: 'cliente' });
+    const handleAdoptClick = () => {
+        if (!auth?.user) {
+            window.location.href = route('login');
             return;
         }
         setShowAdoptionModal(true);
