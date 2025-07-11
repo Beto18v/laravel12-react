@@ -25,7 +25,7 @@ class SolicitudesController extends Controller
         if ($user->role === 'aliado') {
             $mascotaIds = Mascota::where('user_id', $user->id)->pluck('id');
             // Incluimos user_id explícitamente en la relación mascota
-            $solicitudes = Solicitud::with(['user', 'mascota' => function($q) {
+            $solicitudes = Solicitud::with(['user', 'mascota' => function ($q) {
                 $q->select('id', 'nombre', 'imagen', 'user_id', 'especie', 'raza');
             }])
                 ->whereIn('mascota_id', $mascotaIds)
@@ -33,7 +33,7 @@ class SolicitudesController extends Controller
                 ->get();
         } else {
             // Para clientes, muestra solo sus solicitudes
-            $solicitudes = Solicitud::with(['user', 'mascota' => function($q) {
+            $solicitudes = Solicitud::with(['user', 'mascota' => function ($q) {
                 $q->select('id', 'nombre', 'imagen', 'user_id', 'especie', 'raza');
             }])
                 ->where('user_id', $user->id)
@@ -67,6 +67,8 @@ class SolicitudesController extends Controller
             'mascota_id' => 'required|exists:mascotas,id',
             'nombre_completo' => 'required|string|max:255',
             'cedula' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'telefono' => 'required|string|max:255',
             'acepta_proceso_evaluacion' => 'required|accepted',
             'acepta_cuidado_responsable' => 'required|accepted',
             'acepta_contrato_adopcion' => 'required|accepted',

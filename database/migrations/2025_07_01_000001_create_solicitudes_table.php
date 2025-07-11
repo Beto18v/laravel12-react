@@ -24,26 +24,28 @@ return new class extends Migration
             $table->string('direccion_postal')->nullable();
 
             // Vivienda
-            $table->string('tipo_vivienda');
-            $table->string('propiedad_vivienda');
-            $table->string('tiene_patio');
+            $table->string('tipo_vivienda')->nullable();
+            $table->string('propiedad_vivienda')->nullable();
+            $table->string('tiene_patio')->nullable();
             $table->string('permiten_mascotas_alquiler')->nullable();
 
             // Convivientes
-            $table->integer('cantidad_convivientes');
-            $table->string('hay_ninos');
+            $table->integer('cantidad_convivientes')->nullable();
+            $table->string('hay_ninos')->nullable();
             $table->string('edades_ninos')->nullable();
-            $table->string('todos_acuerdo_adopcion');
+            $table->string('todos_acuerdo_adopcion')->nullable();
 
-            // Otras Mascotas (Campos de texto largos eliminados)
-            $table->string('tiene_otras_mascotas')->nullable();
+            // Otras Mascotas
+            $table->string('tiene_otras_mascotas')->default('no');
+            $table->text('otras_mascotas_detalles')->nullable();
             $table->string('tuvo_mascotas_antes')->nullable();
+            $table->text('que_paso_mascotas_anteriores')->nullable();
 
             // Detalles de Adopción
-            $table->text('porque_adopta');
-            $table->text('que_espera_convivencia');
-            $table->text('que_haria_problemas_comportamiento');
-            $table->string('acepta_visitas_seguimiento');
+            $table->text('porque_adopta')->nullable();
+            $table->text('que_espera_convivencia')->nullable();
+            $table->text('que_haria_problemas_comportamiento')->nullable();
+            $table->string('acepta_visitas_seguimiento')->nullable();
 
             // ✨ CAMPOS AÑADIDOS ✨
             // Punto 6. Compromisos y Condiciones

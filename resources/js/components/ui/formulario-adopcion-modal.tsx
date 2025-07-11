@@ -80,23 +80,23 @@ export default function FormularioAdopcionModal({ mascota, show, onClose }: Form
         direccion_ciudad: '',
         direccion_barrio: '',
         direccion_postal: '',
-        tipo_vivienda: '',
-        propiedad_vivienda: '',
-        tiene_patio: '',
-        permiten_mascotas_alquiler: '',
-        cantidad_convivientes: 0,
-        hay_ninos: '',
+        tipo_vivienda: 'casa',
+        propiedad_vivienda: 'propia',
+        tiene_patio: 'no',
+        permiten_mascotas_alquiler: 'si',
+        cantidad_convivientes: 1,
+        hay_ninos: 'no',
         edades_ninos: '',
-        todos_acuerdo_adopcion: '',
+        todos_acuerdo_adopcion: 'si',
         tiene_otras_mascotas: 'no',
         otras_mascotas_detalles: '',
-        tuvo_mascotas_antes: '',
+        tuvo_mascotas_antes: 'no',
         que_paso_mascotas_anteriores: '',
         mascota_id: mascota.id,
         porque_adopta: '',
         que_espera_convivencia: '',
         que_haria_problemas_comportamiento: '',
-        acepta_visitas_seguimiento: '',
+        acepta_visitas_seguimiento: 'si',
         acepta_proceso_evaluacion: false,
         acepta_cuidado_responsable: false,
         acepta_contrato_adopcion: false,
@@ -130,7 +130,7 @@ export default function FormularioAdopcionModal({ mascota, show, onClose }: Form
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('adopcion.store'), {
+        post(route('solicitudes.adopcion.store'), {
             preserveScroll: true,
         });
     };
@@ -398,6 +398,40 @@ export default function FormularioAdopcionModal({ mascota, show, onClose }: Form
                                 </div>
                             )}
 
+                            <div className="space-y-2">
+                                <Label>¿Tuvo mascotas antes? *</Label>
+                                <RadioGroup 
+                                    value={data.tuvo_mascotas_antes} 
+                                    onValueChange={(value) => setData('tuvo_mascotas_antes', value)}
+                                >
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="si" id="tuvo_si" />
+                                        <Label htmlFor="tuvo_si">Sí</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="no" id="tuvo_no" />
+                                        <Label htmlFor="tuvo_no">No</Label>
+                                    </div>
+                                </RadioGroup>
+                                <InputError message={errors.tuvo_mascotas_antes} />
+                            </div>
+
+                            {data.tuvo_mascotas_antes === 'si' && (
+                                <div className="space-y-2 md:col-span-2">
+                                    <Label htmlFor="que_paso_mascotas_anteriores">¿Qué pasó con las mascotas anteriores?</Label>
+                                    <Textarea
+                                        id="que_paso_mascotas_anteriores"
+                                        placeholder="Cuéntanos qué ocurrió con tus mascotas anteriores..."
+                                        value={data.que_paso_mascotas_anteriores}
+                                        onChange={(e) => setData('que_paso_mascotas_anteriores', e.target.value)}
+                                    />
+                                    <InputError message={errors.que_paso_mascotas_anteriores} />
+                                </div>
+                            )}
+                        </FormSection>
+
+                        {/* Motivación */}
+                        <FormSection title="💭 Motivación para Adoptar">
                             <div className="space-y-2 md:col-span-3">
                                 <Label htmlFor="porque_adopta">¿Por qué quieres adoptar esta mascota? *</Label>
                                 <Textarea
@@ -408,6 +442,48 @@ export default function FormularioAdopcionModal({ mascota, show, onClose }: Form
                                     required
                                 />
                                 <InputError message={errors.porque_adopta} />
+                            </div>
+
+                            <div className="space-y-2 md:col-span-3">
+                                <Label htmlFor="que_espera_convivencia">¿Qué esperas de la convivencia con la mascota? *</Label>
+                                <Textarea
+                                    id="que_espera_convivencia"
+                                    placeholder="Describe qué esperas de vivir con tu nueva mascota..."
+                                    value={data.que_espera_convivencia}
+                                    onChange={(e) => setData('que_espera_convivencia', e.target.value)}
+                                    required
+                                />
+                                <InputError message={errors.que_espera_convivencia} />
+                            </div>
+
+                            <div className="space-y-2 md:col-span-3">
+                                <Label htmlFor="que_haria_problemas_comportamiento">¿Qué harías ante problemas de comportamiento? *</Label>
+                                <Textarea
+                                    id="que_haria_problemas_comportamiento"
+                                    placeholder="Explica cómo manejarías problemas de comportamiento..."
+                                    value={data.que_haria_problemas_comportamiento}
+                                    onChange={(e) => setData('que_haria_problemas_comportamiento', e.target.value)}
+                                    required
+                                />
+                                <InputError message={errors.que_haria_problemas_comportamiento} />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label>¿Aceptas visitas de seguimiento? *</Label>
+                                <RadioGroup 
+                                    value={data.acepta_visitas_seguimiento} 
+                                    onValueChange={(value) => setData('acepta_visitas_seguimiento', value)}
+                                >
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="si" id="visitas_si" />
+                                        <Label htmlFor="visitas_si">Sí</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="no" id="visitas_no" />
+                                        <Label htmlFor="visitas_no">No</Label>
+                                    </div>
+                                </RadioGroup>
+                                <InputError message={errors.acepta_visitas_seguimiento} />
                             </div>
                         </FormSection>
 
