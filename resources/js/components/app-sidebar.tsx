@@ -53,13 +53,13 @@ export function AppSidebar() {
     let finalNavItems: NavItem[] = [];
 
     if (user.role === 'cliente') {
-        // Rutas que SÍ debe ver el cliente
-        const allowedHrefs = ['/dashboard', '/favoritos', '/mapa', '/donaciones', '/solicitudes', route('productos.mascotas')];
+        // Rutas que SÍ debe ver el cliente (SIN productos y mascotas)
+        const allowedHrefs = ['/dashboard', '/favoritos', '/mapa', '/donaciones', '/solicitudes'];
         finalNavItems = baseNavItems.filter((item) => allowedHrefs.includes(item.href as string));
     } else if (user.role === 'aliado') {
-        // Rutas que NO debe ver el aliado
-        const disallowedHrefs = ['/favoritos', '/estadisticas', '/productos'];
-        finalNavItems = baseNavItems.filter((item) => !disallowedHrefs.includes(item.href as string));
+        // Rutas que SÍ debe ver el aliado (CON productos y mascotas, CON favoritos, SIN estadísticas)
+        const allowedHrefs = ['/dashboard', '/favoritos', '/solicitudes', '/mapa', '/donaciones', route('productos.mascotas')];
+        finalNavItems = baseNavItems.filter((item) => allowedHrefs.includes(item.href as string));
     } else {
         // Lógica para otros roles (El admin ve todo)
         finalNavItems = baseNavItems;

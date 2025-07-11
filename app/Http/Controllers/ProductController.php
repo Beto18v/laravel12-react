@@ -46,33 +46,72 @@ class ProductController extends Controller
      */
     public function index()
     {
-        // Productos con tipo identificador usando accessors del modelo
-        $productos = Product::with('user')->get()->map(function ($producto) {
-            return (object) [
-                'id' => $producto->id,
-                'nombre' => $producto->nombre,        // Usar accessor
-                'descripcion' => $producto->descripcion, // Usar accessor
-                'precio' => $producto->precio,        // Usar accessor
-                'imagen' => $producto->imagen,
-                'user_id' => $producto->user_id,
-                'user' => $producto->user,
-                'tipo' => 'producto'
-            ];
-        });
+        $user = Auth::user();
 
-        // Mascotas con tipo identificador (sin precio)
-        $mascotas = Mascota::with('user')->get()->map(function ($mascota) {
-            return (object) [
-                'id' => $mascota->id,
-                'nombre' => $mascota->nombre,
-                'descripcion' => $mascota->descripcion,
-                'precio' => null,
-                'imagen' => $mascota->imagen,
-                'user_id' => $mascota->user_id,
-                'user' => $mascota->user,
-                'tipo' => 'mascota'
-            ];
-        });
+        // Si es aliado, solo mostrar sus propios productos y mascotas
+        if ($user && $user->role === 'aliado') {
+            // Productos del aliado autenticado
+            $productos = Product::with('user')
+                ->where('user_id', $user->id)
+                ->get()
+                ->map(function ($producto) {
+                    return (object) [
+                        'id' => $producto->id,
+                        'nombre' => $producto->nombre,        // Usar accessor
+                        'descripcion' => $producto->descripcion, // Usar accessor
+                        'precio' => $producto->precio,        // Usar accessor
+                        'imagen' => $producto->imagen,
+                        'user_id' => $producto->user_id,
+                        'user' => $producto->user,
+                        'tipo' => 'producto'
+                    ];
+                });
+
+            // Mascotas del aliado autenticado
+            $mascotas = Mascota::with('user')
+                ->where('user_id', $user->id)
+                ->get()
+                ->map(function ($mascota) {
+                    return (object) [
+                        'id' => $mascota->id,
+                        'nombre' => $mascota->nombre,
+                        'descripcion' => $mascota->descripcion,
+                        'precio' => null,
+                        'imagen' => $mascota->imagen,
+                        'user_id' => $mascota->user_id,
+                        'user' => $mascota->user,
+                        'tipo' => 'mascota'
+                    ];
+                });
+        } else {
+            // Para clientes y otros roles, mostrar todos los productos y mascotas
+            $productos = Product::with('user')->get()->map(function ($producto) {
+                return (object) [
+                    'id' => $producto->id,
+                    'nombre' => $producto->nombre,        // Usar accessor
+                    'descripcion' => $producto->descripcion, // Usar accessor
+                    'precio' => $producto->precio,        // Usar accessor
+                    'imagen' => $producto->imagen,
+                    'user_id' => $producto->user_id,
+                    'user' => $producto->user,
+                    'tipo' => 'producto'
+                ];
+            });
+
+            // Mascotas con tipo identificador (sin precio)
+            $mascotas = Mascota::with('user')->get()->map(function ($mascota) {
+                return (object) [
+                    'id' => $mascota->id,
+                    'nombre' => $mascota->nombre,
+                    'descripcion' => $mascota->descripcion,
+                    'precio' => null,
+                    'imagen' => $mascota->imagen,
+                    'user_id' => $mascota->user_id,
+                    'user' => $mascota->user,
+                    'tipo' => 'mascota'
+                ];
+            });
+        }
 
         // Combinar y mezclar items para vista dinámica
         $items = $productos->concat($mascotas)->shuffle();
