@@ -39,6 +39,13 @@ export default function PetCard({
     const handleFavoriteClick = async (e: React.MouseEvent) => {
         e.stopPropagation();
         console.log('Click en favorito para mascota:', id);
+
+        // Verificar si el contexto está inicializado
+        if (!isInitialized) {
+            console.log('Contexto de favoritos no inicializado aún');
+            return;
+        }
+
         await toggleFavorite(id);
     };
 
@@ -82,6 +89,7 @@ export default function PetCard({
                             className="absolute top-2 right-2 z-20 bg-white/80 hover:bg-white/90 dark:bg-gray-800/80 dark:hover:bg-gray-800/90"
                             onClick={handleFavoriteClick}
                             disabled={isLoading || !isInitialized}
+                            title={isCurrentlyFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'}
                         >
                             <Heart
                                 className={`h-5 w-5 transition-all duration-200 ${

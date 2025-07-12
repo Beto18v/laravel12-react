@@ -4,6 +4,7 @@ import PetCard from '@/components/mascotas/pet-card';
 import PetHero from '@/components/mascotas/pet-hero';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import CarouselModal from '@/components/ui/carousel-modal';
+import { useNotifications } from '@/components/ui/notification';
 import { FavoritesProvider } from '@/contexts/FavoritesContext';
 import { Head } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
@@ -39,6 +40,7 @@ interface MascotasProps {
 export default function Mascotas({ mascotas = [] }: MascotasProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(0);
+    const { addNotification, NotificationContainer } = useNotifications();
 
     const getEspecieFromUrl = () => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -161,7 +163,7 @@ export default function Mascotas({ mascotas = [] }: MascotasProps) {
         filters.selectedEspecie !== 'all' || filters.selectedEdad !== 'all' || filters.selectedCiudad !== 'all' || filters.selectedGenero !== 'all';
 
     return (
-        <FavoritesProvider>
+        <FavoritesProvider showNotification={addNotification}>
             <div className="flex min-h-screen flex-col bg-white dark:bg-gray-800">
                 <Head title="Mascotas" />
                 <Header />
@@ -300,6 +302,7 @@ export default function Mascotas({ mascotas = [] }: MascotasProps) {
 
                 <Footer />
                 <ThemeSwitcher />
+                <NotificationContainer />
 
                 <CarouselModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} items={filteredPets} initialIndex={selectedIndex} />
             </div>

@@ -9,11 +9,18 @@ interface FavoritesContextType {
     addToFavorites: (mascotaId: number) => Promise<void>;
     removeFromFavorites: (mascotaId: number) => Promise<void>;
     refreshFavorites: () => Promise<void>;
+    showNotification?: (message: string, type: 'error' | 'success' | 'info') => void;
 }
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
 
-export function FavoritesProvider({ children }: { children: React.ReactNode }) {
+export function FavoritesProvider({
+    children,
+    showNotification,
+}: {
+    children: React.ReactNode;
+    showNotification?: (message: string, type: 'error' | 'success' | 'info') => void;
+}) {
     const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
@@ -105,15 +112,31 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
                     // Revertir cambio optimista en caso de error
                     setFavoriteIds((prev) => prev.filter((id) => id !== mascotaId));
                     console.error('Error al agregar a favoritos:', data.message);
-                    if (response.status !== 409) {
-                        alert(data.message || 'Error al agregar a favoritos');
+
+                    // Manejar diferentes tipos de errores
+                    if (response.status === 401) {
+                        const message = 'Para agregar mascotas a favoritos necesitas iniciar sesión';
+                        showNotification ? showNotification(message, 'error') : alert(message);
+                    } else if (response.status === 409) {
+                        // Favorito ya existe, no mostrar error
+                    } else {
+                        const message = data.message || 'Error al agregar a favoritos';
+                        showNotification ? showNotification(message, 'error') : alert(message);
                     }
                 }
             } catch (error) {
                 // Revertir cambio optimista en caso de error
                 setFavoriteIds((prev) => prev.filter((id) => id !== mascotaId));
                 console.error('Error al agregar a favoritos:', error);
-                alert('Error de conexión al agregar a favoritos');
+
+                // Verificar si el error es por autenticación
+                if (error instanceof TypeError && error.message.includes('fetch')) {
+                    const message = 'Para agregar mascotas a favoritos necesitas iniciar sesión';
+                    showNotification ? showNotification(message, 'error') : alert(message);
+                } else {
+                    const message = 'Error de conexión al agregar a favoritos';
+                    showNotification ? showNotification(message, 'error') : alert(message);
+                }
             } finally {
                 setIsLoading(false);
             }
@@ -154,8 +177,16 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
                         return [...prev, mascotaId];
                     });
                     console.error('Error al remover de favoritos:', data.message);
-                    if (response.status !== 404) {
-                        alert(data.message || 'Error al remover de favoritos');
+
+                    // Manejar diferentes tipos de errores
+                    if (response.status === 401) {
+                        const message = 'Para gestionar favoritos necesitas iniciar sesión';
+                        showNotification ? showNotification(message, 'error') : alert(message);
+                    } else if (response.status === 404) {
+                        // Favorito no existe, no mostrar error
+                    } else {
+                        const message = data.message || 'Error al remover de favoritos';
+                        showNotification ? showNotification(message, 'error') : alert(message);
                     }
                 }
             } catch (error) {
@@ -165,7 +196,15 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
                     return [...prev, mascotaId];
                 });
                 console.error('Error al remover de favoritos:', error);
-                alert('Error de conexión al remover de favoritos');
+
+                // Verificar si el error es por autenticación
+                if (error instanceof TypeError && error.message.includes('fetch')) {
+                    const message = 'Para gestionar favoritos necesitas iniciar sesión';
+                    showNotification ? showNotification(message, 'error') : alert(message);
+                } else {
+                    const message = 'Error de conexión al remover de favoritos';
+                    showNotification ? showNotification(message, 'error') : alert(message);
+                }
             } finally {
                 setIsLoading(false);
             }
@@ -194,6 +233,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
         addToFavorites,
         removeFromFavorites,
         refreshFavorites,
+        showNotification,
     };
 
     return <FavoritesContext.Provider value={value}>{children}</FavoritesContext.Provider>;
