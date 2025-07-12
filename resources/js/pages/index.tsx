@@ -39,9 +39,10 @@ interface Mascota {
 interface IndexProps {
     productos: Product[];
     mascotas: Mascota[];
+    todasLasMascotas: Mascota[]; // Todas las mascotas para calcular conteos correctos
 }
 
-export default function Welcome({ productos = [], mascotas = [] }: IndexProps) {
+export default function Welcome({ productos = [], mascotas = [], todasLasMascotas = [] }: IndexProps) {
     // Transformar productos de BD al formato esperado por ProductsSection (máximo 3, los más recientes)
     const products = useMemo(() => {
         return productos
@@ -71,10 +72,10 @@ export default function Welcome({ productos = [], mascotas = [] }: IndexProps) {
             }));
     }, [mascotas]);
 
-    // Calcular conteos dinámicos de perros y gatos y crear enlaces con filtros
+    // Calcular conteos dinámicos de perros y gatos usando TODAS las mascotas
     const categories = useMemo(() => {
-        const perrosCount = mascotas.filter((m) => m.especie.toLowerCase() === 'perro').length;
-        const gatosCount = mascotas.filter((m) => m.especie.toLowerCase() === 'gato').length;
+        const perrosCount = todasLasMascotas.filter((m) => m.especie.toLowerCase() === 'perro').length;
+        const gatosCount = todasLasMascotas.filter((m) => m.especie.toLowerCase() === 'gato').length;
 
         return [
             {
@@ -90,7 +91,7 @@ export default function Welcome({ productos = [], mascotas = [] }: IndexProps) {
                 link: '/mascotas?especie=gato',
             },
         ];
-    }, [mascotas]);
+    }, [todasLasMascotas]);
 
     return (
         <>

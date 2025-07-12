@@ -10,7 +10,7 @@ use App\Http\Controllers\SolicitudesController;
 
 
 Route::get('/', function () {
-    // Obtener los últimos 3 productos y 3 mascotas para mostrar en el landing
+    // Obtener los últimos 3 productos para mostrar en el landing
     $productos = \App\Models\Product::with('user')->latest()->take(3)->get()->map(function ($producto) {
         return (object) [
             'id' => $producto->id,
@@ -21,11 +21,17 @@ Route::get('/', function () {
             'user' => $producto->user,
         ];
     });
-    $mascotas = \App\Models\Mascota::with(['user', 'images'])->latest()->take(3)->get();
+
+    // Obtener TODAS las mascotas para calcular conteos correctos de categorías
+    $todasLasMascotas = \App\Models\Mascota::with(['user', 'images'])->latest()->get();
+
+    // Obtener solo las últimas 3 mascotas para mostrar en la sección de mascotas
+    $mascotasParaMostrar = $todasLasMascotas->take(3);
 
     return Inertia::render('index', [
         'productos' => $productos,
-        'mascotas' => $mascotas
+        'mascotas' => $mascotasParaMostrar,
+        'todasLasMascotas' => $todasLasMascotas // Enviar todas para calcular conteos
     ]);
 })->name('index');
 
