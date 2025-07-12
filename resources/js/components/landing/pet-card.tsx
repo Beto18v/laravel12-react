@@ -19,7 +19,7 @@ export default function PetCard({ name, breed, age, description, imageUrl }: Pet
                 </p>
                 <p className="mb-4 text-gray-700 dark:text-gray-300">{description}</p>
                 <Link
-                    href="/conocer-mas"
+                    href="/mascotas"
                     className="block w-full rounded-lg bg-blue-600 py-2 text-center text-white transition hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
                 >
                     Conocer más
