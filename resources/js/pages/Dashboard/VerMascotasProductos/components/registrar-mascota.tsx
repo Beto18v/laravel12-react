@@ -27,7 +27,7 @@ interface RegistrarMascotaProps {
 
 export default function RegistrarMascota({ isOpen, onClose, setMensaje, mascotaEditar, modoEdicion = false }: RegistrarMascotaProps) {
     // Form handler con todos los campos de mascota, incluyendo array de imágenes
-    const { data, setData, post, put, processing, errors, reset } = useForm({
+    const { data, setData, post, processing, errors, reset } = useForm({
         nombre: '',
         especie: '',
         raza: '',
@@ -222,7 +222,7 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje, mascotaE
             setImagenesExistentes([]);
             setEdadCalculada('');
         }
-    }, [isOpen, modoEdicion, mascotaEditar]);
+    }, [isOpen, modoEdicion, mascotaEditar, reset, setData]);
 
     // Función para manejar múltiples imágenes (máximo 3)
     const handleAddImages = (files: FileList | null) => {

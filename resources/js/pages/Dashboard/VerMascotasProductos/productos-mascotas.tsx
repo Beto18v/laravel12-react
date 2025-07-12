@@ -8,6 +8,28 @@ import ProductoMascotaCard, { type CardItem } from './components/producto-mascot
 import RegistrarMascota from './components/registrar-mascota';
 import RegistrarProducto from './components/registrar-producto';
 
+// Interfaces específicas para edición
+interface MascotaEdicion {
+    id: number;
+    nombre: string;
+    especie: string;
+    raza: string;
+    fecha_nacimiento: string;
+    sexo: string;
+    ciudad: string;
+    descripcion: string;
+    imagenes_existentes: Array<{ id: number; ruta: string }>;
+}
+
+interface ProductoEdicion {
+    id: number;
+    nombre: string;
+    descripcion: string;
+    precio: string;
+    cantidad: string;
+    imagenes_existentes: Array<{ id: number; ruta: string }>;
+}
+
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Productos y Mascotas', href: route('productos.mascotas') }];
 
 export default function ProductosMascotas() {
@@ -220,14 +242,14 @@ export default function ProductosMascotas() {
                             mascotaEditando
                                 ? {
                                       id: mascotaEditando.id,
-                                      nombre: (mascotaEditando as any).nombre || '',
-                                      especie: (mascotaEditando as any).especie || '',
-                                      raza: (mascotaEditando as any).raza || '',
-                                      fecha_nacimiento: (mascotaEditando as any).fecha_nacimiento || '',
-                                      sexo: (mascotaEditando as any).sexo || '',
-                                      ciudad: (mascotaEditando as any).ciudad || '',
-                                      descripcion: (mascotaEditando as any).descripcion || '',
-                                      imagenes_existentes: (mascotaEditando as any).imagenes_existentes || [],
+                                      nombre: (mascotaEditando as unknown as MascotaEdicion).nombre || '',
+                                      especie: (mascotaEditando as unknown as MascotaEdicion).especie || '',
+                                      raza: (mascotaEditando as unknown as MascotaEdicion).raza || '',
+                                      fecha_nacimiento: (mascotaEditando as unknown as MascotaEdicion).fecha_nacimiento || '',
+                                      sexo: (mascotaEditando as unknown as MascotaEdicion).sexo || '',
+                                      ciudad: (mascotaEditando as unknown as MascotaEdicion).ciudad || '',
+                                      descripcion: (mascotaEditando as unknown as MascotaEdicion).descripcion || '',
+                                      imagenes_existentes: (mascotaEditando as unknown as MascotaEdicion).imagenes_existentes?.map(img => img.ruta) || [],
                                   }
                                 : null
                         }
@@ -241,11 +263,11 @@ export default function ProductosMascotas() {
                             productoEditando
                                 ? {
                                       id: productoEditando.id,
-                                      nombre: (productoEditando as any).nombre || '',
-                                      descripcion: (productoEditando as any).descripcion || '',
-                                      precio: (productoEditando as any).precio?.toString() || '0',
-                                      cantidad: (productoEditando as any).cantidad?.toString() || '1',
-                                      imagenes_existentes: (productoEditando as any).imagenes_existentes || [],
+                                      nombre: (productoEditando as unknown as ProductoEdicion).nombre || '',
+                                      descripcion: (productoEditando as unknown as ProductoEdicion).descripcion || '',
+                                      precio: (productoEditando as unknown as ProductoEdicion).precio?.toString() || '0',
+                                      cantidad: (productoEditando as unknown as ProductoEdicion).cantidad?.toString() || '1',
+                                      imagenes_existentes: (productoEditando as unknown as ProductoEdicion).imagenes_existentes?.map(img => img.ruta) || [],
                                   }
                                 : null
                         }

@@ -134,7 +134,7 @@ export default function RegistrarProducto({ isOpen, onClose, setMensaje, product
             reset();
             setImagenesExistentes([]);
         }
-    }, [isOpen, modoEdicion, productoEditar]);
+    }, [isOpen, modoEdicion, productoEditar, reset, setData]);
 
     // Maneja la selección de múltiples imágenes (máximo 3)
     const handleAddImages = (files: FileList | null) => {
