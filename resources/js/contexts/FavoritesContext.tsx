@@ -116,12 +116,20 @@ export function FavoritesProvider({
                     // Manejar diferentes tipos de errores
                     if (response.status === 401) {
                         const message = 'Para agregar mascotas a favoritos necesitas iniciar sesión';
-                        showNotification ? showNotification(message, 'error') : alert(message);
+                        if (showNotification) {
+                            showNotification(message, 'error');
+                        } else {
+                            alert(message);
+                        }
                     } else if (response.status === 409) {
                         // Favorito ya existe, no mostrar error
                     } else {
                         const message = data.message || 'Error al agregar a favoritos';
-                        showNotification ? showNotification(message, 'error') : alert(message);
+                        if (showNotification) {
+                            showNotification(message, 'error');
+                        } else {
+                            alert(message);
+                        }
                     }
                 }
             } catch (error) {
@@ -132,16 +140,24 @@ export function FavoritesProvider({
                 // Verificar si el error es por autenticación
                 if (error instanceof TypeError && error.message.includes('fetch')) {
                     const message = 'Para agregar mascotas a favoritos necesitas iniciar sesión';
-                    showNotification ? showNotification(message, 'error') : alert(message);
+                    if (showNotification) {
+                        showNotification(message, 'error');
+                    } else {
+                        alert(message);
+                    }
                 } else {
                     const message = 'Error de conexión al agregar a favoritos';
-                    showNotification ? showNotification(message, 'error') : alert(message);
+                    if (showNotification) {
+                        showNotification(message, 'error');
+                    } else {
+                        alert(message);
+                    }
                 }
             } finally {
                 setIsLoading(false);
             }
         },
-        [favoriteSet, isLoading],
+        [favoriteSet, isLoading, showNotification],
     );
 
     const removeFromFavorites = useCallback(
@@ -181,12 +197,20 @@ export function FavoritesProvider({
                     // Manejar diferentes tipos de errores
                     if (response.status === 401) {
                         const message = 'Para gestionar favoritos necesitas iniciar sesión';
-                        showNotification ? showNotification(message, 'error') : alert(message);
+                        if (showNotification) {
+                            showNotification(message, 'error');
+                        } else {
+                            alert(message);
+                        }
                     } else if (response.status === 404) {
                         // Favorito no existe, no mostrar error
                     } else {
                         const message = data.message || 'Error al remover de favoritos';
-                        showNotification ? showNotification(message, 'error') : alert(message);
+                        if (showNotification) {
+                            showNotification(message, 'error');
+                        } else {
+                            alert(message);
+                        }
                     }
                 }
             } catch (error) {
@@ -200,16 +224,24 @@ export function FavoritesProvider({
                 // Verificar si el error es por autenticación
                 if (error instanceof TypeError && error.message.includes('fetch')) {
                     const message = 'Para gestionar favoritos necesitas iniciar sesión';
-                    showNotification ? showNotification(message, 'error') : alert(message);
+                    if (showNotification) {
+                        showNotification(message, 'error');
+                    } else {
+                        alert(message);
+                    }
                 } else {
                     const message = 'Error de conexión al remover de favoritos';
-                    showNotification ? showNotification(message, 'error') : alert(message);
+                    if (showNotification) {
+                        showNotification(message, 'error');
+                    } else {
+                        alert(message);
+                    }
                 }
             } finally {
                 setIsLoading(false);
             }
         },
-        [favoriteSet, isLoading],
+        [favoriteSet, isLoading, showNotification],
     );
 
     const toggleFavorite = useCallback(
