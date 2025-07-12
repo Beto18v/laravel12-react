@@ -95,7 +95,7 @@ export default function Welcome({ productos = [], mascotas = [], todasLasMascota
 
     return (
         <>
-            <Head title="Bienvenido" />
+            <Head title="Inicio" />
             <Header />
 
             <main className="relative z-10 w-full bg-white dark:bg-gray-800">
