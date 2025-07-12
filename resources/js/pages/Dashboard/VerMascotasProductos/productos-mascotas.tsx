@@ -249,7 +249,8 @@ export default function ProductosMascotas() {
                                       sexo: (mascotaEditando as unknown as MascotaEdicion).sexo || '',
                                       ciudad: (mascotaEditando as unknown as MascotaEdicion).ciudad || '',
                                       descripcion: (mascotaEditando as unknown as MascotaEdicion).descripcion || '',
-                                      imagenes_existentes: (mascotaEditando as unknown as MascotaEdicion).imagenes_existentes?.map(img => img.ruta) || [],
+                                      imagenes_existentes:
+                                          (mascotaEditando as unknown as MascotaEdicion).imagenes_existentes?.map((img) => img.ruta) || [],
                                   }
                                 : null
                         }
@@ -267,7 +268,8 @@ export default function ProductosMascotas() {
                                       descripcion: (productoEditando as unknown as ProductoEdicion).descripcion || '',
                                       precio: (productoEditando as unknown as ProductoEdicion).precio?.toString() || '0',
                                       cantidad: (productoEditando as unknown as ProductoEdicion).cantidad?.toString() || '1',
-                                      imagenes_existentes: (productoEditando as unknown as ProductoEdicion).imagenes_existentes?.map(img => img.ruta) || [],
+                                      imagenes_existentes:
+                                          (productoEditando as unknown as ProductoEdicion).imagenes_existentes?.map((img) => img.ruta) || [],
                                   }
                                 : null
                         }
