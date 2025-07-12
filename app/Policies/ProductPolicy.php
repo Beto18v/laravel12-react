@@ -21,7 +21,8 @@ class ProductPolicy
      */
     public function view(User $user, Product $product): bool
     {
-        return false;
+        // Permite ver si el usuario es admin o el aliado propietario
+        return $user->role === 'admin' || $user->id === $product->user_id;
     }
 
     /**
@@ -29,7 +30,8 @@ class ProductPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        // Permite crear si el usuario es aliado o admin
+        return $user->role === 'aliado' || $user->role === 'admin';
     }
 
     /**
@@ -37,7 +39,8 @@ class ProductPolicy
      */
     public function update(User $user, Product $product): bool
     {
-        return false;
+        // Permite actualizar si el usuario es admin o el aliado propietario
+        return $user->role === 'admin' || $user->id === $product->user_id;
     }
 
     /**

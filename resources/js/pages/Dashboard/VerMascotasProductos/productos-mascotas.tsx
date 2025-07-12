@@ -32,6 +32,11 @@ export default function ProductosMascotas() {
     const [mensaje, setMensaje] = useState<string | null>(null);
     const [adoptarMascotaId, setAdoptarMascotaId] = useState<number | null>(null);
 
+    // Estados para edición
+    const [mascotaEditando, setMascotaEditando] = useState<CardItem | null>(null);
+    const [productoEditando, setProductoEditando] = useState<CardItem | null>(null);
+    const [modoEdicion, setModoEdicion] = useState(false);
+
     // Mostrar mensaje de éxito del backend
     useEffect(() => {
         if (success) {
@@ -57,6 +62,34 @@ export default function ProductosMascotas() {
         setTimeout(() => setMensaje(null), 4000);
     };
 
+    // Función para cerrar modal de mascota y resetear edición
+    const cerrarModalMascota = () => {
+        setMascotaModalOpen(false);
+        setMascotaEditando(null);
+        setModoEdicion(false);
+    };
+
+    // Función para cerrar modal de producto y resetear edición
+    const cerrarModalProducto = () => {
+        setProductoModalOpen(false);
+        setProductoEditando(null);
+        setModoEdicion(false);
+    };
+
+    // Función para abrir modal de mascota en modo creación
+    const abrirModalMascotaCreacion = () => {
+        setMascotaEditando(null);
+        setModoEdicion(false);
+        setMascotaModalOpen(true);
+    };
+
+    // Función para abrir modal de producto en modo creación
+    const abrirModalProductoCreacion = () => {
+        setProductoEditando(null);
+        setModoEdicion(false);
+        setProductoModalOpen(true);
+    };
+
     // Acción cliente: comprar/adoptar
     const handleAction = (item: CardItem) => {
         const actionType = item.tipo === 'producto' ? 'compra' : 'adopcion';
@@ -70,10 +103,67 @@ export default function ProductosMascotas() {
         );
     };
 
-    // Acción aliado: editar (placeholder)
-    const handleEdit = (item: CardItem) => {
-        alert(`Funcionalidad de editar para "${item.nombre}" aún no implementada.`);
-        console.log('Editar item:', item);
+    // Acción aliado: editar
+    const handleEdit = async (item: CardItem) => {
+        try {
+            if (item.tipo === 'mascota') {
+                // Obtener datos completos de la mascota desde el backend
+                const response = await fetch(`/mascotas/${item.id}`, {
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+
+                if (response.ok) {
+                    const mascotaCompleta = await response.json();
+                    setMascotaEditando({
+                        ...item,
+                        ...mascotaCompleta,
+                    });
+                } else {
+                    // Fallback a datos básicos si no se pueden obtener datos completos
+                    setMascotaEditando(item);
+                }
+
+                setModoEdicion(true);
+                setMascotaModalOpen(true);
+            } else if (item.tipo === 'producto') {
+                // Obtener datos completos del producto desde el backend
+                const response = await fetch(`/productos/${item.id}`, {
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+
+                if (response.ok) {
+                    const productoCompleto = await response.json();
+                    setProductoEditando({
+                        ...item,
+                        ...productoCompleto,
+                    });
+                } else {
+                    // Fallback a datos básicos si no se pueden obtener datos completos
+                    setProductoEditando(item);
+                }
+
+                setModoEdicion(true);
+                setProductoModalOpen(true);
+            }
+        } catch (error) {
+            console.error('Error al obtener datos para edición:', error);
+            // Fallback a datos básicos en caso de error
+            if (item.tipo === 'mascota') {
+                setMascotaEditando(item);
+                setModoEdicion(true);
+                setMascotaModalOpen(true);
+            } else {
+                setProductoEditando(item);
+                setModoEdicion(true);
+                setProductoModalOpen(true);
+            }
+        }
     };
 
     // Acción aliado: eliminar
@@ -107,13 +197,13 @@ export default function ProductosMascotas() {
                     {esAliado && (
                         <div className="mb-6 flex justify-center gap-4">
                             <button
-                                onClick={() => setMascotaModalOpen(true)}
+                                onClick={abrirModalMascotaCreacion}
                                 className="rounded-lg bg-blue-600 px-6 py-3 text-white shadow-md transition-transform hover:scale-105"
                             >
                                 Registrar Mascota
                             </button>
                             <button
-                                onClick={() => setProductoModalOpen(true)}
+                                onClick={abrirModalProductoCreacion}
                                 className="rounded-lg bg-green-600 px-6 py-3 text-white shadow-md transition-transform hover:scale-105"
                             >
                                 Registrar Producto
@@ -121,9 +211,46 @@ export default function ProductosMascotas() {
                         </div>
                     )}
 
-                    {/* Modales de registro */}
-                    <RegistrarMascota isOpen={isMascotaModalOpen} onClose={() => setMascotaModalOpen(false)} setMensaje={mostrarMensaje} />
-                    <RegistrarProducto isOpen={isProductoModalOpen} onClose={() => setProductoModalOpen(false)} setMensaje={mostrarMensaje} />
+                    {/* Modales de registro/edición */}
+                    <RegistrarMascota
+                        isOpen={isMascotaModalOpen}
+                        onClose={cerrarModalMascota}
+                        setMensaje={mostrarMensaje}
+                        mascotaEditar={
+                            mascotaEditando
+                                ? {
+                                      id: mascotaEditando.id,
+                                      nombre: (mascotaEditando as any).nombre || '',
+                                      especie: (mascotaEditando as any).especie || '',
+                                      raza: (mascotaEditando as any).raza || '',
+                                      fecha_nacimiento: (mascotaEditando as any).fecha_nacimiento || '',
+                                      sexo: (mascotaEditando as any).sexo || '',
+                                      ciudad: (mascotaEditando as any).ciudad || '',
+                                      descripcion: (mascotaEditando as any).descripcion || '',
+                                      imagenes_existentes: (mascotaEditando as any).imagenes_existentes || [],
+                                  }
+                                : null
+                        }
+                        modoEdicion={modoEdicion && mascotaEditando !== null}
+                    />
+                    <RegistrarProducto
+                        isOpen={isProductoModalOpen}
+                        onClose={cerrarModalProducto}
+                        setMensaje={mostrarMensaje}
+                        productoEditar={
+                            productoEditando
+                                ? {
+                                      id: productoEditando.id,
+                                      nombre: (productoEditando as any).nombre || '',
+                                      descripcion: (productoEditando as any).descripcion || '',
+                                      precio: (productoEditando as any).precio?.toString() || '0',
+                                      cantidad: (productoEditando as any).cantidad?.toString() || '1',
+                                      imagenes_existentes: (productoEditando as any).imagenes_existentes || [],
+                                  }
+                                : null
+                        }
+                        modoEdicion={modoEdicion && productoEditando !== null}
+                    />
 
                     {/* Filtros y búsqueda */}
                     <div className="mx-auto flex max-w-2xl flex-col items-center justify-center gap-4 rounded-lg bg-white p-4 shadow-sm md:flex-row dark:bg-gray-800">

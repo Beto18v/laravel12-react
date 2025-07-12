@@ -178,28 +178,59 @@ class ProductController extends Controller
     }
 
     /**
-     * Actualiza producto existente con validación de autorización
+     * Muestra los datos de un producto específico para edición
+     */
+    public function show(Product $product)
+    {
+        Gate::authorize('view', $product);
+
+        $product->load(['user', 'images']);
+
+        return response()->json([
+            'id' => $product->id,
+            'nombre' => $product->nombre,
+            'descripcion' => $product->descripcion,
+            'precio' => $product->precio,
+            'cantidad' => $product->stock,
+            'imagenes_existentes' => $product->images->pluck('image_path')->toArray(),
+        ]);
+    }
+
+    /**
+     * Actualiza producto existente con el mismo formato que store
      */
     public function update(UpdateProductRequest $request, Product $product)
     {
-        $this->authorize('update', $product);
-        $validatedData = $request->validated();
+        Gate::authorize('update', $product);
 
-        // Actualizar datos del producto
-        $product->update([
-            'nombre' => $validatedData['name'],
-            'descripcion' => $validatedData['description'],
-            'precio' => $validatedData['price'],
-            'stock' => $validatedData['stock'],
-        ]);
+        // Actualizar campos usando los mismos nombres del formulario
+        $product->name = $request->nombre;
+        $product->description = $request->descripcion;
+        $product->price = $request->precio;
+        $product->stock = $request->cantidad;
 
-        // Actualizar imagen si se proporciona nueva
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('productos', 'public');
-            $product->update(['imagen' => $imagePath]);
+        // Actualizar imagen principal si se proporciona nueva
+        if ($request->hasFile('imagenes') && count($request->file('imagenes')) > 0) {
+            $firstImage = $request->file('imagenes')[0];
+            $path = $firstImage->store('productos', 'public');
+            $product->imagen = $path;
         }
 
-        return redirect()->route('productos.mascotas')->with('success', 'Producto actualizado exitosamente.');
+        $product->save();
+
+        // Agregar nuevas imágenes (manteniendo las existentes por ahora)
+        if ($request->hasFile('imagenes')) {
+            foreach ($request->file('imagenes') as $index => $imagen) {
+                $path = $imagen->store('productos', 'public');
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_path' => $path,
+                    'order' => $product->images()->count() + $index + 1,
+                ]);
+            }
+        }
+
+        return Redirect::route('productos.mascotas')->with('success', 'Producto actualizado exitosamente.');
     }
 
     /**

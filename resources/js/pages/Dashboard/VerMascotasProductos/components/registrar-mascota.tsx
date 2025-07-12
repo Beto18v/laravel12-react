@@ -5,15 +5,29 @@ import { useForm } from '@inertiajs/react';
 import { Plus, X } from 'lucide-react'; // Iconos para agregar y eliminar imágenes
 import React, { useEffect, useRef, useState } from 'react';
 
+interface MascotaData {
+    id?: number;
+    nombre: string;
+    especie: string;
+    raza: string;
+    fecha_nacimiento: string;
+    sexo: string;
+    ciudad: string;
+    descripcion: string;
+    imagenes_existentes?: string[];
+}
+
 interface RegistrarMascotaProps {
     isOpen: boolean;
     onClose: () => void;
     setMensaje: (mensaje: string) => void;
+    mascotaEditar?: MascotaData | null;
+    modoEdicion?: boolean;
 }
 
-export default function RegistrarMascota({ isOpen, onClose, setMensaje }: RegistrarMascotaProps) {
+export default function RegistrarMascota({ isOpen, onClose, setMensaje, mascotaEditar, modoEdicion = false }: RegistrarMascotaProps) {
     // Form handler con todos los campos de mascota, incluyendo array de imágenes
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, post, put, processing, errors, reset } = useForm({
         nombre: '',
         especie: '',
         raza: '',
@@ -22,6 +36,7 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
         ciudad: '',
         descripcion: '',
         imagenes: [] as File[], // Array para múltiples imágenes
+        _method: '' as string, // Para el workaround de FormData con PUT
     });
 
     const modalRef = useRef<HTMLDivElement>(null);
@@ -29,6 +44,7 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
     // Estados para manejar las imágenes y sus previews
     const [additionalFiles, setAdditionalFiles] = useState<File[]>([]);
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+    const [imagenesExistentes, setImagenesExistentes] = useState<string[]>([]);
     // Estado para mostrar edad calculada
     const [edadCalculada, setEdadCalculada] = useState<string>('');
 
@@ -86,43 +102,135 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Envía datos con forceFormData para manejar archivos correctamente
-        post('/mascotas/store', {
-            forceFormData: true,
-            onSuccess: () => {
-                reset();
-                setAdditionalFiles([]);
-                setImagePreviews([]);
-                setEdadCalculada('');
-                onClose();
-                setMensaje('¡Mascota registrada exitosamente!');
-            },
-            onError: () => {
-                setMensaje('Error al registrar mascota. Revisa los datos e intenta nuevamente.');
-                // Limpia imágenes después de 3 segundos si hay error
-                setTimeout(() => {
-                    setData('imagenes', []);
-                }, 3000);
-            },
-        });
+
+        console.log('=== DEBUGGING FORM SUBMISSION ===');
+        console.log('Datos del formulario al enviar:', data);
+        console.log('Modo edición:', modoEdicion);
+        console.log('Mascota a editar:', mascotaEditar);
+        console.log('Form data individual:');
+        console.log('- nombre:', data.nombre, 'length:', data.nombre?.length);
+        console.log('- especie:', data.especie, 'length:', data.especie?.length);
+        console.log('- raza:', data.raza, 'length:', data.raza?.length);
+        console.log('- fecha_nacimiento:', data.fecha_nacimiento);
+        console.log('- sexo:', data.sexo);
+        console.log('- ciudad:', data.ciudad, 'length:', data.ciudad?.length);
+        console.log('- descripcion:', data.descripcion, 'length:', data.descripcion?.length);
+        console.log('===================================');
+
+        const submitData = {
+            ...data,
+            imagenes_a_eliminar: modoEdicion ? [] : undefined, // Se puede agregar lógica para eliminar imágenes específicas
+        };
+
+        if (modoEdicion && mascotaEditar?.id) {
+            // Actualizar mascota existente - usar POST con _method para FormData
+            console.log('Enviando actualización con datos:', submitData);
+
+            // Actualizar el formulario de Inertia con _method
+            setData('_method', 'PUT');
+
+            // Enviar usando POST con _method=PUT (workaround para FormData)
+            setTimeout(() => {
+                post(`/mascotas/${mascotaEditar.id}`, {
+                    forceFormData: true,
+                    onSuccess: () => {
+                        reset();
+                        setAdditionalFiles([]);
+                        setImagePreviews([]);
+                        setImagenesExistentes([]);
+                        setEdadCalculada('');
+                        onClose();
+                        setMensaje('¡Mascota actualizada exitosamente!');
+                    },
+                    onError: (errors) => {
+                        console.log('Errores de validación:', errors);
+                        setMensaje('Error al actualizar mascota. Revisa los datos e intenta nuevamente.');
+                    },
+                });
+            }, 100);
+        } else {
+            // Crear nueva mascota
+            post('/mascotas/store', {
+                forceFormData: true,
+                onSuccess: () => {
+                    reset();
+                    setAdditionalFiles([]);
+                    setImagePreviews([]);
+                    setEdadCalculada('');
+                    onClose();
+                    setMensaje('¡Mascota registrada exitosamente!');
+                },
+                onError: (errors) => {
+                    console.log('Errores de validación:', errors);
+                    setMensaje('Error al registrar mascota. Revisa los datos e intenta nuevamente.');
+                    setTimeout(() => {
+                        setData('imagenes', []);
+                    }, 3000);
+                },
+            });
+        }
     };
 
     // Resetea las imágenes y edad calculada al cerrar el modal
     useEffect(() => {
         if (!isOpen) {
+            // Limpiar al cerrar
             setAdditionalFiles([]);
             setImagePreviews([]);
             setEdadCalculada('');
+            setImagenesExistentes([]);
             reset();
+        } else if (isOpen && modoEdicion && mascotaEditar) {
+            // Cargar datos cuando se abre en modo edición
+            console.log('Cargando datos de mascota para editar:', mascotaEditar);
+
+            // Resetear primero para limpiar cualquier estado previo
+            reset();
+
+            // Usar un setTimeout más largo para asegurar que el formulario se actualice después del render
+            setTimeout(() => {
+                // Crear un nuevo objeto con todos los datos
+                const formData = {
+                    nombre: mascotaEditar.nombre || '',
+                    especie: mascotaEditar.especie || '',
+                    raza: mascotaEditar.raza || '',
+                    fecha_nacimiento: mascotaEditar.fecha_nacimiento || '',
+                    sexo: mascotaEditar.sexo || '',
+                    ciudad: mascotaEditar.ciudad || '',
+                    descripcion: mascotaEditar.descripcion || '',
+                    imagenes: [] as File[],
+                };
+
+                // Actualizar todo de una vez
+                Object.entries(formData).forEach(([key, value]) => {
+                    setData(key as keyof typeof formData, value);
+                });
+
+                // Cargar imágenes existentes
+                setImagenesExistentes(mascotaEditar.imagenes_existentes || []);
+
+                // Calcular edad si hay fecha
+                if (mascotaEditar.fecha_nacimiento) {
+                    calcularEdad(mascotaEditar.fecha_nacimiento);
+                }
+
+                console.log('Datos cargados en el formulario:', formData);
+            }, 300); // Aumentamos el timeout
+        } else if (isOpen && !modoEdicion) {
+            // Limpiar al abrir en modo creación
+            reset();
+            setImagenesExistentes([]);
+            setEdadCalculada('');
         }
-    }, [isOpen, reset]);
+    }, [isOpen, modoEdicion, mascotaEditar]);
 
     // Función para manejar múltiples imágenes (máximo 3)
     const handleAddImages = (files: FileList | null) => {
         if (!files) return;
 
         const newFiles = Array.from(files);
-        const availableSlots = 3 - additionalFiles.length; // Calcula espacios disponibles
+        const totalExistingImages = imagenesExistentes.length + additionalFiles.length;
+        const availableSlots = 3 - totalExistingImages; // Calcula espacios disponibles
         const filesToAdd = newFiles.slice(0, availableSlots);
 
         if (filesToAdd.length > 0) {
@@ -156,12 +264,20 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
         }
     };
 
+    // Elimina una imagen existente
+    const removeExistingImage = (indexToRemove: number) => {
+        const updatedExisting = imagenesExistentes.filter((_, index) => index !== indexToRemove);
+        setImagenesExistentes(updatedExisting);
+    };
+
     if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
             <div ref={modalRef} className="w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-800">
-                <h2 className="mb-6 text-center text-2xl font-bold text-gray-800 dark:text-white">Registrar Nueva Mascota</h2>
+                <h2 className="mb-6 text-center text-2xl font-bold text-gray-800 dark:text-white">
+                    {modoEdicion ? 'Editar Mascota' : 'Registrar Nueva Mascota'}
+                </h2>
                 <form onSubmit={handleSubmit} className="space-y-5">
                     {/* Campo Nombre */}
                     <div>
@@ -295,42 +411,70 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
                     <div>
                         <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Imágenes de la mascota (hasta 3)</label>
 
-                        {/* Vista previa de imágenes seleccionadas */}
-                        {imagePreviews.length > 0 && (
-                            <div className="mb-4 grid grid-cols-3 gap-3">
-                                {imagePreviews.map((preview, index) => (
-                                    <div key={index} className="group relative">
-                                        <img
-                                            src={preview}
-                                            alt={`Preview ${index + 1}`}
-                                            className="h-20 w-full rounded-md border border-gray-300 object-cover dark:border-gray-600"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => removeImage(index)}
-                                            className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 hover:bg-red-600"
-                                        >
-                                            <X className="h-3 w-3" />
-                                        </button>
-                                        <div className="bg-opacity-50 absolute right-0 bottom-0 left-0 truncate rounded-b-md bg-black p-1 text-xs text-white">
-                                            {additionalFiles[index]?.name}
+                        {/* Vista previa de imágenes existentes (solo en modo edición) */}
+                        {modoEdicion && imagenesExistentes.length > 0 && (
+                            <>
+                                <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">Imágenes actuales:</p>
+                                <div className="mb-4 grid grid-cols-3 gap-3">
+                                    {imagenesExistentes.map((imagen, index) => (
+                                        <div key={`existing-${index}`} className="group relative">
+                                            <img
+                                                src={`/storage/${imagen}`}
+                                                alt={`Imagen existente ${index + 1}`}
+                                                className="h-20 w-full rounded-md border border-gray-300 object-cover dark:border-gray-600"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => removeExistingImage(index)}
+                                                className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 hover:bg-red-600"
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </button>
                                         </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+
+                        {/* Vista previa de imágenes nuevas seleccionadas */}
+                        {imagePreviews.length > 0 && (
+                            <>
+                                {modoEdicion && <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">Nuevas imágenes:</p>}
+                                <div className="mb-4 grid grid-cols-3 gap-3">
+                                    {imagePreviews.map((preview, index) => (
+                                        <div key={`new-${index}`} className="group relative">
+                                            <img
+                                                src={preview}
+                                                alt={`Preview ${index + 1}`}
+                                                className="h-20 w-full rounded-md border border-gray-300 object-cover dark:border-gray-600"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => removeImage(index)}
+                                                className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 hover:bg-red-600"
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </button>
+                                            <div className="bg-opacity-50 absolute right-0 bottom-0 left-0 truncate rounded-b-md bg-black p-1 text-xs text-white">
+                                                {additionalFiles[index]?.name}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
                         )}
 
                         {/* Botón para agregar imágenes (solo si no se ha llegado al límite) */}
-                        {additionalFiles.length < 3 && (
+                        {imagenesExistentes.length + additionalFiles.length < 3 && (
                             <label
                                 htmlFor="imagenes-mascota"
                                 className="flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed border-gray-300 bg-gray-50 p-6 text-center transition hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
                             >
                                 <Plus className="h-10 w-10 text-gray-400" />
                                 <span className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                                    {additionalFiles.length === 0
+                                    {imagenesExistentes.length + additionalFiles.length === 0
                                         ? 'Seleccionar imágenes de la mascota'
-                                        : `Agregar más imágenes (${3 - additionalFiles.length} disponibles)`}
+                                        : `Agregar más imágenes (${3 - (imagenesExistentes.length + additionalFiles.length)} disponibles)`}
                                 </span>
                                 <span className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF hasta 2MB cada una</span>
                             </label>
@@ -365,7 +509,13 @@ export default function RegistrarMascota({ isOpen, onClose, setMensaje }: Regist
                             disabled={processing}
                             className="rounded-md bg-blue-600 px-6 py-2 font-semibold text-white shadow-md transition hover:bg-blue-700 disabled:opacity-50"
                         >
-                            {processing ? 'Registrando...' : 'Registrar Mascota'}
+                            {processing
+                                ? modoEdicion
+                                    ? 'Actualizando...'
+                                    : 'Registrando...'
+                                : modoEdicion
+                                  ? 'Guardar cambios'
+                                  : 'Registrar Mascota'}
                         </button>
                     </div>
                 </form>

@@ -72,10 +72,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/productos-mascotas', [ProductController::class, 'index'])->name('productos.mascotas');
     Route::post('/productos/store', [ProductController::class, 'store'])->name('productos.store');
+    Route::get('/productos/{product}', [ProductController::class, 'show'])->name('productos.show');
     Route::put('/productos/{product}', [ProductController::class, 'update'])->name('productos.update');
-    Route::post('/mascotas/store', [MascotaController::class, 'store'])->name('mascotas.store');
-    Route::delete('/mascotas/{mascota}', [App\Http\Controllers\MascotaController::class, 'destroy'])->name('mascotas.destroy');
+    Route::post('/productos/{product}', [ProductController::class, 'update'])->name('productos.update.post'); // Workaround para FormData
     Route::delete('/productos/{product}', [ProductController::class, 'destroy'])->name('productos.destroy');
+
+    Route::post('/mascotas/store', [MascotaController::class, 'store'])->name('mascotas.store');
+    Route::get('/mascotas/{mascota}', [MascotaController::class, 'show'])->name('mascotas.show');
+    Route::put('/mascotas/{mascota}', [MascotaController::class, 'update'])->name('mascotas.update');
+    Route::post('/mascotas/{mascota}', [MascotaController::class, 'update'])->name('mascotas.update.post'); // Workaround para FormData
+    Route::delete('/mascotas/{mascota}', [App\Http\Controllers\MascotaController::class, 'destroy'])->name('mascotas.destroy');
 
 
     // Route::get('/mascotas', [MascotaController::class, 'index'])->name('mascotas.index');
