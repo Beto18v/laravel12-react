@@ -38,7 +38,6 @@ export default function PetCard({
 
     const handleFavoriteClick = async (e: React.MouseEvent) => {
         e.stopPropagation();
-        console.log('Click en favorito para mascota:', id);
 
         // Verificar si el contexto está inicializado
         if (!isInitialized) {
@@ -50,7 +49,6 @@ export default function PetCard({
     };
 
     const isCurrentlyFavorite = isFavorite(id);
-    console.log(`PetCard ${id} - Es favorito:`, isCurrentlyFavorite);
 
     return (
         <>

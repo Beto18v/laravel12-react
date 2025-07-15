@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 interface FavoritesContextType {
@@ -13,6 +14,14 @@ interface FavoritesContextType {
 }
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
+
+// Helper function para manejar errores de autenticación
+const handleAuthError = () => {
+    // Guardar la URL actual para redirigir después del login
+    sessionStorage.setItem('intended_url', window.location.pathname);
+    // Redirigir al login
+    router.visit('/login');
+};
 
 export function FavoritesProvider({
     children,
@@ -40,20 +49,28 @@ export function FavoritesProvider({
                 credentials: 'same-origin',
             });
 
+            if (response.status === 401) {
+                // Usuario no autenticado - esto es normal, no redirigir aquí
+                setFavoriteIds([]);
+                console.log('Usuario no autenticado, favoritos vacíos');
+                return;
+            }
+
             if (response.ok) {
                 const contentType = response.headers.get('content-type');
                 if (contentType && contentType.includes('application/json')) {
-                    const data = await response.json();
-                    setFavoriteIds(data.favorite_ids || []);
-                    console.log('Favoritos cargados:', data.favorite_ids || []);
+                    try {
+                        const data = await response.json();
+                        setFavoriteIds(data.favorite_ids || []);
+                        console.log('Favoritos cargados:', data.favorite_ids || []);
+                    } catch (jsonError) {
+                        console.error('Error al parsear JSON en favoritos:', jsonError);
+                        setFavoriteIds([]);
+                    }
                 } else {
                     console.error('Respuesta no es JSON:', await response.text());
                     setFavoriteIds([]);
                 }
-            } else if (response.status === 401) {
-                // Usuario no autenticado
-                setFavoriteIds([]);
-                console.log('Usuario no autenticado, favoritos vacíos');
             } else {
                 console.error('Error en respuesta:', response.status, response.statusText);
                 setFavoriteIds([]);
@@ -74,11 +91,9 @@ export function FavoritesProvider({
 
     const isFavorite = useCallback(
         (mascotaId: number): boolean => {
-            const result = favoriteSet.has(mascotaId);
-            console.log(`¿Es favorito ${mascotaId}?`, result, 'Lista:', favoriteIds);
-            return result;
+            return favoriteSet.has(mascotaId);
         },
-        [favoriteSet, favoriteIds],
+        [favoriteSet],
     );
 
     const addToFavorites = useCallback(
@@ -89,9 +104,7 @@ export function FavoritesProvider({
             // Actualización optimista - actualizar UI inmediatamente
             setFavoriteIds((prev) => {
                 if (prev.includes(mascotaId)) return prev;
-                const newIds = [...prev, mascotaId];
-                console.log('Agregado a favoritos (optimista):', mascotaId, 'Nueva lista:', newIds);
-                return newIds;
+                return [...prev, mascotaId];
             });
 
             setIsLoading(true);
@@ -106,22 +119,30 @@ export function FavoritesProvider({
                     body: JSON.stringify({ mascota_id: mascotaId }),
                 });
 
-                const data = await response.json();
+                // Manejar errores de autenticación antes de intentar parsear JSON
+                if (response.status === 401) {
+                    setFavoriteIds((prev) => prev.filter((id) => id !== mascotaId));
+                    handleAuthError();
+                    return;
+                }
+
+                let data;
+                try {
+                    data = await response.json();
+                } catch (jsonError) {
+                    // Si no se puede parsear JSON, probablemente es un error de autenticación
+                    console.error('Error al parsear JSON:', jsonError);
+                    setFavoriteIds((prev) => prev.filter((id) => id !== mascotaId));
+                    handleAuthError();
+                    return;
+                }
 
                 if (!response.ok) {
                     // Revertir cambio optimista en caso de error
                     setFavoriteIds((prev) => prev.filter((id) => id !== mascotaId));
                     console.error('Error al agregar a favoritos:', data.message);
 
-                    // Manejar diferentes tipos de errores
-                    if (response.status === 401) {
-                        const message = 'Para agregar mascotas a favoritos necesitas iniciar sesión';
-                        if (showNotification) {
-                            showNotification(message, 'error');
-                        } else {
-                            alert(message);
-                        }
-                    } else if (response.status === 409) {
+                    if (response.status === 409) {
                         // Favorito ya existe, no mostrar error
                     } else {
                         const message = data.message || 'Error al agregar a favoritos';
@@ -139,12 +160,8 @@ export function FavoritesProvider({
 
                 // Verificar si el error es por autenticación
                 if (error instanceof TypeError && error.message.includes('fetch')) {
-                    const message = 'Para agregar mascotas a favoritos necesitas iniciar sesión';
-                    if (showNotification) {
-                        showNotification(message, 'error');
-                    } else {
-                        alert(message);
-                    }
+                    handleAuthError();
+                    return;
                 } else {
                     const message = 'Error de conexión al agregar a favoritos';
                     if (showNotification) {
@@ -167,9 +184,7 @@ export function FavoritesProvider({
 
             // Actualización optimista - actualizar UI inmediatamente
             setFavoriteIds((prev) => {
-                const newIds = prev.filter((id) => id !== mascotaId);
-                console.log('Removido de favoritos (optimista):', mascotaId, 'Nueva lista:', newIds);
-                return newIds;
+                return prev.filter((id) => id !== mascotaId);
             });
 
             setIsLoading(true);
@@ -184,7 +199,29 @@ export function FavoritesProvider({
                     body: JSON.stringify({ mascota_id: mascotaId }),
                 });
 
-                const data = await response.json();
+                // Manejar errores de autenticación antes de intentar parsear JSON
+                if (response.status === 401) {
+                    setFavoriteIds((prev) => {
+                        if (prev.includes(mascotaId)) return prev;
+                        return [...prev, mascotaId];
+                    });
+                    handleAuthError();
+                    return;
+                }
+
+                let data;
+                try {
+                    data = await response.json();
+                } catch (jsonError) {
+                    // Si no se puede parsear JSON, probablemente es un error de autenticación
+                    console.error('Error al parsear JSON:', jsonError);
+                    setFavoriteIds((prev) => {
+                        if (prev.includes(mascotaId)) return prev;
+                        return [...prev, mascotaId];
+                    });
+                    handleAuthError();
+                    return;
+                }
 
                 if (!response.ok) {
                     // Revertir cambio optimista en caso de error
@@ -194,15 +231,7 @@ export function FavoritesProvider({
                     });
                     console.error('Error al remover de favoritos:', data.message);
 
-                    // Manejar diferentes tipos de errores
-                    if (response.status === 401) {
-                        const message = 'Para gestionar favoritos necesitas iniciar sesión';
-                        if (showNotification) {
-                            showNotification(message, 'error');
-                        } else {
-                            alert(message);
-                        }
-                    } else if (response.status === 404) {
+                    if (response.status === 404) {
                         // Favorito no existe, no mostrar error
                     } else {
                         const message = data.message || 'Error al remover de favoritos';
@@ -223,12 +252,8 @@ export function FavoritesProvider({
 
                 // Verificar si el error es por autenticación
                 if (error instanceof TypeError && error.message.includes('fetch')) {
-                    const message = 'Para gestionar favoritos necesitas iniciar sesión';
-                    if (showNotification) {
-                        showNotification(message, 'error');
-                    } else {
-                        alert(message);
-                    }
+                    handleAuthError();
+                    return;
                 } else {
                     const message = 'Error de conexión al remover de favoritos';
                     if (showNotification) {
@@ -246,7 +271,6 @@ export function FavoritesProvider({
 
     const toggleFavorite = useCallback(
         async (mascotaId: number) => {
-            console.log('Toggle favorito:', mascotaId, 'Es favorito actual:', isFavorite(mascotaId));
             if (isFavorite(mascotaId)) {
                 await removeFromFavorites(mascotaId);
             } else {

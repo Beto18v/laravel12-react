@@ -66,9 +66,11 @@ export default function CarouselModal({ isOpen, onClose, items, initialIndex }: 
     const [imageLoading, setImageLoading] = useState(true);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [showAdoptionForm, setShowAdoptionForm] = useState(false);
+    const [favoriteState, setFavoriteState] = useState<Record<number, boolean>>({});
+    const [favoriteChanges, setFavoriteChanges] = useState(false); // Flag para rastrear cambios
     
     // Hook de favoritos con manejo opcional - retorna funciones seguras si no hay contexto
-    const { isFavorite, toggleFavorite, isLoading: favoritesLoading } = useOptionalFavorites();
+    const { isFavorite, toggleFavorite, isLoading: favoritesLoading, favoriteIds, refreshFavorites } = useOptionalFavorites();
     
     const {
         currentIndex,
@@ -117,6 +119,31 @@ export default function CarouselModal({ isOpen, onClose, items, initialIndex }: 
         setCurrentImageIndex(0); // <-- AÑADIDO: resetear índice de imagen
     }, [currentIndex]);
 
+    // Sincronizar estado local de favoritos con el contexto global
+    useEffect(() => {
+        const newFavoriteState: Record<number, boolean> = {};
+        items.forEach(item => {
+            if (item.type === 'pet') {
+                newFavoriteState[item.id] = isFavorite(item.id);
+            }
+        });
+        setFavoriteState(newFavoriteState);
+    }, [favoriteIds, items, isFavorite, isOpen]); // Agregué isOpen para sincronizar al abrir
+
+    // Inicializar estado de favoritos al abrir el modal
+    useEffect(() => {
+        if (isOpen) {
+            const initialFavoriteState: Record<number, boolean> = {};
+            items.forEach(item => {
+                if (item.type === 'pet') {
+                    initialFavoriteState[item.id] = isFavorite(item.id);
+                }
+            });
+            setFavoriteState(initialFavoriteState);
+            setFavoriteChanges(false); // Reset del flag al abrir
+        }
+    }, [isOpen, items, isFavorite]);
+
     // Pause autoplay when modal is closed
     useEffect(() => {
         if (!isOpen) {
@@ -124,7 +151,30 @@ export default function CarouselModal({ isOpen, onClose, items, initialIndex }: 
         }
     }, [isOpen, pauseAutoPlay]);
 
+    // Sincronizar favoritos cuando el modal se cierra (solo si hay cambios)
+    useEffect(() => {
+        if (!isOpen && favoriteChanges && refreshFavorites) {
+            // Delay pequeño para asegurar que cualquier operación pendiente se complete
+            const timeoutId = setTimeout(() => {
+                refreshFavorites();
+                setFavoriteChanges(false); // Reset del flag
+            }, 100);
+            
+            return () => clearTimeout(timeoutId);
+        }
+    }, [isOpen, favoriteChanges, refreshFavorites]);
+
     const currentItem = items[currentIndex];
+    
+    // Sincronizar estado cuando cambia el item actual en el carrusel
+    useEffect(() => {
+        if (currentItem && currentItem.type === 'pet') {
+            setFavoriteState(prev => ({
+                ...prev,
+                [currentItem.id]: isFavorite(currentItem.id)
+            }));
+        }
+    }, [currentItem, isFavorite]);
     
     // Funciones para navegar entre las imágenes del elemento actual
     const currentImages = currentItem?.images || [currentItem?.imageUrl].filter(Boolean);
@@ -142,19 +192,47 @@ export default function CarouselModal({ isOpen, onClose, items, initialIndex }: 
     
     const currentDisplayImage = currentImages[currentImageIndex] || currentItem?.imageUrl;
 
+    // Función helper para obtener el estado actual de favorito
+    const getCurrentFavoriteState = useCallback((petId: number) => {
+        // Priorizar el estado local si existe, sino usar el del contexto
+        return favoriteState.hasOwnProperty(petId) ? favoriteState[petId] : isFavorite(petId);
+    }, [favoriteState, isFavorite]);
+
     // Función optimizada para manejar favoritos
     const handleFavoriteClick = useCallback(async (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
         
         if (currentItem?.type === 'pet' && !favoritesLoading) {
+            const petId = currentItem.id;
+            const currentFavoriteState = getCurrentFavoriteState(petId);
+            
             try {
-                await toggleFavorite(currentItem.id);
+                // Actualización optimista inmediata del estado local
+                setFavoriteState(prev => ({
+                    ...prev,
+                    [petId]: !currentFavoriteState
+                }));
+                
+                // Marcar que se han hecho cambios
+                setFavoriteChanges(true);
+                
+                // Ejecutar la acción de toggle
+                await toggleFavorite(petId);
+                
+                // No necesitamos hacer nada más aquí, el contexto ya maneja la sincronización
             } catch (error) {
                 console.error('Error al cambiar favorito:', error);
+                // Revertir el cambio optimista en caso de error
+                setFavoriteState(prev => ({
+                    ...prev,
+                    [petId]: currentFavoriteState
+                }));
+                // No marcar cambios si hubo error
+                setFavoriteChanges(false);
             }
         }
-    }, [currentItem, favoritesLoading, toggleFavorite]);
+    }, [currentItem, favoritesLoading, toggleFavorite, getCurrentFavoriteState]);
 
     if (!isOpen || !currentItem) return null;
 
@@ -218,8 +296,13 @@ export default function CarouselModal({ isOpen, onClose, items, initialIndex }: 
                                         onClick={handleFavoriteClick}
                                         disabled={favoritesLoading}
                                         className="transition-colors hover:bg-red-50 dark:hover:bg-red-900/20"
+                                        title={getCurrentFavoriteState(currentItem.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'}
                                     >
-                                        <Heart className={`h-5 w-5 transition-colors ${isFavorite(currentItem.id) ? 'fill-red-500 text-red-500' : 'text-gray-500 hover:text-red-400'}`} />
+                                        <Heart className={`h-5 w-5 transition-all duration-200 ${
+                                            getCurrentFavoriteState(currentItem.id)
+                                                ? 'fill-red-500 text-red-500 scale-110' 
+                                                : 'text-gray-500 hover:text-red-400 hover:scale-105'
+                                        } ${favoritesLoading ? 'animate-pulse opacity-50' : ''}`} />
                                     </Button>
                                 )}
                                 <Button variant="ghost" size="icon">
