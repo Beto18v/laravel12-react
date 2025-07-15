@@ -55,9 +55,7 @@ Route::get('favoritos/ids', [App\Http\Controllers\FavoritosController::class, 'g
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    Route::get('dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('favoritos', [App\Http\Controllers\FavoritosController::class, 'index'])->name('favoritos.index');
     Route::post('favoritos', [App\Http\Controllers\FavoritosController::class, 'store'])->name('favoritos.store');

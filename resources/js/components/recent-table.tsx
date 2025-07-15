@@ -1,62 +1,29 @@
 interface Activity {
     id: number;
-    type: string;
-    description: string;
-    date: string;
-    status: string;
+    tipo: string;
+    mascota: string;
+    usuario: string;
+    estado: string;
+    fecha: string;
 }
 
-export function RecentTable() {
-    const activities: Activity[] = [
-        {
-            id: 1,
-            type: 'adopción',
-            description: 'Juan Pérez adoptó a Max (Labrador)',
-            date: '2023-11-15',
-            status: 'completado',
-        },
-        {
-            id: 2,
-            type: 'donación',
-            description: 'María López donó $150.000',
-            date: '2023-11-14',
-            status: 'completado',
-        },
-        {
-            id: 3,
-            type: 'registro',
-            description: 'Carlos Rodríguez registró a Luna (Gato Siamés)',
-            date: '2023-11-13',
-            status: 'pendiente',
-        },
-        {
-            id: 4,
-            type: 'adopción',
-            description: 'Ana Martínez adoptó a Toby (Beagle)',
-            date: '2023-11-12',
-            status: 'completado',
-        },
-        {
-            id: 5,
-            type: 'donación',
-            description: 'Pedro Gómez donó $75.000',
-            date: '2023-11-11',
-            status: 'completado',
-        },
-    ];
+interface RecentTableProps {
+    activities: Activity[];
+}
 
-    const getStatusBadge = (status: string) => {
+export function RecentTable({ activities = [] }: RecentTableProps) {
+    const getStatusBadge = (estado: string) => {
         const statusClasses = {
-            completado: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+            aprobada: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
             pendiente: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-            cancelado: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+            rechazada: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
         };
-        return statusClasses[status as keyof typeof statusClasses] || statusClasses.pendiente;
+        return statusClasses[estado as keyof typeof statusClasses] || statusClasses.pendiente;
     };
 
-    const getTypeIcon = (type: string) => {
+    const getTypeIcon = (tipo: string) => {
         const icons = {
-            adopción: (
+            'Solicitud de adopción': (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
                         strokeLinecap="round"
@@ -66,17 +33,9 @@ export function RecentTable() {
                     />
                 </svg>
             ),
-            donación: (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                    />
-                </svg>
-            ),
-            registro: (
+        };
+        return (
+            icons[tipo as keyof typeof icons] || (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
                         strokeLinecap="round"
@@ -85,10 +44,28 @@ export function RecentTable() {
                         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                     />
                 </svg>
-            ),
-        };
-        return icons[type as keyof typeof icons] || icons.registro;
+            )
+        );
     };
+
+    if (activities.length === 0) {
+        return (
+            <div className="py-8 text-center">
+                <div className="text-gray-500 dark:text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4 h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                        />
+                    </svg>
+                    <p className="text-lg font-medium">No hay actividades recientes</p>
+                    <p className="text-sm">Las actividades aparecerán aquí cuando se registren</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="overflow-x-auto">
@@ -99,16 +76,16 @@ export function RecentTable() {
                             Tipo
                         </th>
                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300">
-                            Descripción
+                            Mascota
                         </th>
                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300">
-                            Fecha
+                            Usuario
                         </th>
                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300">
                             Estado
                         </th>
                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300">
-                            Acciones
+                            Fecha
                         </th>
                     </tr>
                 </thead>
@@ -117,24 +94,25 @@ export function RecentTable() {
                         <tr key={activity.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                             <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex items-center">
-                                    {getTypeIcon(activity.type)}
-                                    <span className="ml-2 text-sm text-gray-900 capitalize dark:text-gray-100">{activity.type}</span>
+                                    {getTypeIcon(activity.tipo)}
+                                    <span className="ml-2 text-sm text-gray-900 dark:text-gray-100">{activity.tipo}</span>
                                 </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-900 dark:text-gray-100">{activity.description}</div>
+                                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{activity.mascota}</div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-500 dark:text-gray-400">{activity.date}</div>
+                                <div className="text-sm text-gray-900 dark:text-gray-100">{activity.usuario}</div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                                <span className={`inline-flex rounded-full px-2 text-xs leading-5 font-semibold ${getStatusBadge(activity.status)}`}>
-                                    {activity.status}
+                                <span
+                                    className={`inline-flex rounded-full px-2 text-xs leading-5 font-semibold capitalize ${getStatusBadge(activity.estado)}`}
+                                >
+                                    {activity.estado}
                                 </span>
                             </td>
-                            <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
-                                <button className="mr-3 text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">Ver</button>
-                                <button className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300">Editar</button>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-500 dark:text-gray-400">{activity.fecha}</div>
                             </td>
                         </tr>
                     ))}

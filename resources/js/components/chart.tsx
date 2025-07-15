@@ -5,7 +5,16 @@ import { Bar } from 'react-chartjs-2';
 // Registra los componentes necesarios
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-export function Chart() {
+interface AdopcionMes {
+    mes: string;
+    adopciones: number;
+}
+
+interface ChartProps {
+    data: AdopcionMes[];
+}
+
+export function Chart({ data = [] }: ChartProps) {
     const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
 
     useEffect(() => {
@@ -56,33 +65,22 @@ export function Chart() {
         },
     };
 
-    const labels = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'];
-    const data = {
+    // Usar datos reales si están disponibles, sino usar datos de ejemplo
+    const labels = data.length > 0 ? data.map((item) => item.mes) : ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'];
+    const adopcionesData = data.length > 0 ? data.map((item) => item.adopciones) : [56, 55, 60, 70, 75, 80];
+
+    const chartData = {
         labels,
         datasets: [
             {
-                label: 'Perros',
-                data: [56, 55, 60, 70, 75, 80],
+                label: 'Adopciones',
+                data: adopcionesData,
                 backgroundColor: 'rgba(37, 99, 235, 0.7)',
                 borderColor: 'rgba(37, 99, 235, 1)',
-                borderWidth: 1,
-            },
-            {
-                label: 'Gatos',
-                data: [35, 40, 45, 50, 55, 60],
-                backgroundColor: 'rgba(22, 163, 74, 0.7)',
-                borderColor: 'rgba(22, 163, 74, 1)',
-                borderWidth: 1,
-            },
-            {
-                label: 'Otros',
-                data: [15, 18, 20, 22, 25, 28],
-                backgroundColor: 'rgba(124, 58, 237, 0.7)',
-                borderColor: 'rgba(124, 58, 237, 1)',
                 borderWidth: 1,
             },
         ],
     };
 
-    return <Bar options={options} data={data} />;
+    return <Bar options={options} data={chartData} />;
 }
