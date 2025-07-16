@@ -3,12 +3,22 @@ import { Button } from '@/components/ui/button';
 import { Copy, ExternalLink, Share2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
+/**
+ * Propiedades del componente ShareButton
+ */
 interface ShareButtonProps {
+    /** ID de la publicación a compartir */
     postId: number;
+    /** Si el botón está deshabilitado */
     disabled?: boolean;
+    /** Clases CSS adicionales */
     className?: string;
 }
 
+/**
+ * Componente para compartir publicaciones en redes sociales y generar enlaces únicos
+ * Permite compartir en WhatsApp, Facebook, Twitter, Telegram y copiar enlace al portapapeles
+ */
 export default function ShareButton({ postId, disabled = false, className = '' }: ShareButtonProps) {
     const [isSharing, setIsSharing] = useState(false);
     const [shareUrl, setShareUrl] = useState('');
@@ -73,8 +83,9 @@ export default function ShareButton({ postId, disabled = false, className = '' }
                             url: data.url,
                         });
                         setShowShareMenu(false);
-                    } catch (err) {
+                    } catch {
                         // El usuario canceló el compartir, mostrar menú normal
+                        console.log('Usuario canceló compartir nativo');
                     }
                 }
             } else {
@@ -92,8 +103,8 @@ export default function ShareButton({ postId, disabled = false, className = '' }
             await navigator.clipboard.writeText(shareUrl);
             setCopySuccess(true);
             setTimeout(() => setCopySuccess(false), 2000);
-        } catch (err) {
-            console.error('Error al copiar al portapapeles:', err);
+        } catch (error) {
+            console.error('Error al copiar al portapapeles:', error);
         }
     };
 

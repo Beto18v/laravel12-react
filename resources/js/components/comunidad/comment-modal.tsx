@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Heart, MessageCircle, Send } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface User {
     id: number;
@@ -55,20 +55,8 @@ export default function CommentModal({ isOpen, onClose, post, user, comments = [
     const [currentPost, setCurrentPost] = useState(post);
     const [isLiking, setIsLiking] = useState(false);
 
-    // Cargar comentarios cuando se abre el modal
-    useEffect(() => {
-        if (isOpen) {
-            loadComments();
-            setCurrentPost(post);
-        }
-    }, [isOpen, post.id]);
-
-    // Actualizar el post cuando cambien las props
-    useEffect(() => {
-        setCurrentPost(post);
-    }, [post.likes, post.is_liked]);
-
-    const loadComments = async () => {
+    // Cargar comentarios con useCallback para evitar recrear la función en cada render
+    const loadComments = useCallback(async () => {
         setIsLoadingComments(true);
         try {
             const response = await fetch(`/comunidad/posts/${post.id}/comments`);
@@ -81,7 +69,20 @@ export default function CommentModal({ isOpen, onClose, post, user, comments = [
         } finally {
             setIsLoadingComments(false);
         }
-    };
+    }, [post.id]);
+
+    // Cargar comentarios cuando se abre el modal
+    useEffect(() => {
+        if (isOpen) {
+            loadComments();
+            setCurrentPost(post);
+        }
+    }, [isOpen, loadComments, post]);
+
+    // Actualizar el post cuando cambien las props
+    useEffect(() => {
+        setCurrentPost(post);
+    }, [post]);
 
     const handleLike = async () => {
         if (!user || isLiking) return;

@@ -99,12 +99,6 @@ export default function Comunidad({ auth, posts: initialPosts, flash }: Comunida
         setFilteredPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
     };
 
-    // Función para agregar nuevos posts cuando se creen
-    const handleNewPost = (newPost: Post) => {
-        setPosts((prevPosts) => [newPost, ...prevPosts]);
-        setFilteredPosts((prevPosts) => [newPost, ...prevPosts]);
-    };
-
     // Función para recargar posts desde el servidor
     const handlePostCreated = () => {
         router.reload({ only: ['posts'] });

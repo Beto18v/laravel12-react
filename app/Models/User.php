@@ -10,7 +10,8 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -23,7 +24,6 @@ class User extends Authenticatable
         'role', // cliente, aliado, admin
     ];
 
-    use HasFactory, Notifiable, SoftDeletes;
     /**
      * The attributes that should be hidden for serialization.
      *

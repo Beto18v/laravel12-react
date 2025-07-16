@@ -40,7 +40,6 @@ interface PostCardProps {
 export default function PostCard({ post, user, onDelete, onLikeUpdate, onCommentUpdate }: PostCardProps) {
     const [likes, setLikes] = useState(post.likes);
     const [isLiked, setIsLiked] = useState(post.is_liked || false);
-    const [comments, setComments] = useState(post.comments);
     const [isLiking, setIsLiking] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [showCommentModal, setShowCommentModal] = useState(false);
@@ -50,20 +49,8 @@ export default function PostCard({ post, user, onDelete, onLikeUpdate, onComment
     useEffect(() => {
         setLikes(post.likes);
         setIsLiked(post.is_liked || false);
-        setComments(post.comments);
         setCurrentPost(post);
-    }, [post.likes, post.is_liked, post.comments]);
-
-    // Función para manejar actualizaciones de comentarios desde el modal
-    const handleCommentUpdate = (postId: number, commentsCount: number) => {
-        setComments(commentsCount);
-        setCurrentPost((prev) => ({ ...prev, comments: commentsCount }));
-
-        // Notificar al componente padre
-        if (onCommentUpdate) {
-            onCommentUpdate(postId, commentsCount);
-        }
-    };
+    }, [post.likes, post.is_liked, post.comments, post]);
 
     const getCategoryClass = (category: string) => {
         switch (category) {
@@ -246,7 +233,6 @@ export default function PostCard({ post, user, onDelete, onLikeUpdate, onComment
                 }}
                 onCommentUpdate={(postId, commentsCount) => {
                     // Actualizar el estado local del post card
-                    setComments(commentsCount);
                     setCurrentPost((prev) => ({
                         ...prev,
                         comments: commentsCount,

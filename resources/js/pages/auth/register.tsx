@@ -37,7 +37,7 @@ export default function Register({ role }: { role: string }) {
             },
             onFinish: () => {
                 reset('password', 'password_confirmation');
-            }
+            },
         });
     };
 
@@ -58,9 +58,7 @@ export default function Register({ role }: { role: string }) {
                 <form className="flex flex-col gap-6" onSubmit={submit}>
                     {/* Añade un campo oculto para el rol */}
                     <input type="hidden" value={data.role} onChange={(e) => setData('role', e.target.value)} />
-                    {adoptarMascota && (
-                        <input type="hidden" name="adoptar_mascota" value={adoptarMascota} />
-                    )}
+                    {adoptarMascota && <input type="hidden" name="adoptar_mascota" value={adoptarMascota} />}
                     <div className="grid gap-6">
                         <div className="grid gap-2">
                             <Label htmlFor="name">Nombre</Label>
