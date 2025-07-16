@@ -195,7 +195,7 @@ export default function CarouselModal({ isOpen, onClose, items, initialIndex }: 
     // Función helper para obtener el estado actual de favorito
     const getCurrentFavoriteState = useCallback((petId: number) => {
         // Priorizar el estado local si existe, sino usar el del contexto
-        return Object.prototype.hasOwnProperty.call(favoriteState, petId) ? favoriteState[petId] : isFavorite(petId);
+        return favoriteState.hasOwnProperty(petId) ? favoriteState[petId] : isFavorite(petId);
     }, [favoriteState, isFavorite]);
 
     // Función optimizada para manejar favoritos
@@ -633,8 +633,7 @@ export default function CarouselModal({ isOpen, onClose, items, initialIndex }: 
                             </div>
                         </div>
                     </motion.div>
-                </motion.div>
-                )}
+                </motion.div>                )}
             </AnimatePresence>
             
             {/* Formulario de Adopción */}
