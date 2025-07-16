@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\ShelterController;
 use App\Http\Controllers\SolicitudesController;
+use App\Http\Controllers\SharedController;
 
 
 Route::get('/', function () {
@@ -42,9 +43,17 @@ Route::get('/productos', [ProductController::class, 'indexPublic'])->name('produ
 Route::get('/refugios', [ShelterController::class, 'index'])->name('refugios');
 Route::post('/shelters', [ShelterController::class, 'store'])->middleware(['auth', 'verified'])->name('shelter.store');
 
-Route::get('/comunidad', function () {
-    return Inertia::render('comunidad');
-})->name('comunidad');
+// Community routes
+Route::get('/comunidad', [App\Http\Controllers\CommunityController::class, 'index'])->name('comunidad');
+Route::post('/comunidad/posts', [App\Http\Controllers\CommunityController::class, 'store'])->middleware(['auth'])->name('posts.store');
+Route::post('/comunidad/posts/{post}/like', [App\Http\Controllers\CommunityController::class, 'toggleLike'])->middleware(['auth'])->name('posts.like');
+Route::post('/comunidad/posts/{post}/comments', [App\Http\Controllers\CommunityController::class, 'storeComment'])->middleware(['auth'])->name('posts.comments.store');
+Route::get('/comunidad/posts/{post}/comments', [App\Http\Controllers\CommunityController::class, 'getComments'])->name('posts.comments.get');
+Route::delete('/comunidad/posts/{post}', [App\Http\Controllers\CommunityController::class, 'destroy'])->middleware(['auth'])->name('posts.destroy');
+
+// Shared links routes
+Route::post('/comunidad/posts/{post}/share', [App\Http\Controllers\SharedController::class, 'create'])->middleware(['auth'])->name('posts.share');
+Route::get('/shared/{token}', [App\Http\Controllers\SharedController::class, 'show'])->name('shared.show');
 
 Route::get('/registro-opciones', function () {
     return Inertia::render('auth/registro-opciones');

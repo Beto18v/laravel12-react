@@ -9,6 +9,8 @@ use App\Models\Mascota;
 use App\Policies\MascotaPolicy;
 use App\Models\Product;
 use App\Policies\ProductPolicy;
+use App\Models\Post;
+use App\Policies\PostPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -23,6 +25,7 @@ class AuthServiceProvider extends ServiceProvider
         // AÑADIMOS ESTAS LÍNEAS PARA REGISTRAR LOS POLICIES
         Mascota::class => MascotaPolicy::class,
         Product::class => ProductPolicy::class,
+        Post::class => PostPolicy::class,
     ];
 
     /**

@@ -19,5 +19,20 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        User::factory()->create([
+            'name' => 'Fundación Huellitas Felices',
+            'email' => 'huellitas@example.com',
+        ]);
+
+        User::factory()->create([
+            'name' => 'Veterinaria El Arca',
+            'email' => 'elarca@example.com',
+        ]);
+
+        // Ejecutar el seeder de posts
+        $this->call([
+            PostSeeder::class,
+        ]);
     }
 }

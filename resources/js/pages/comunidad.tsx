@@ -6,9 +6,45 @@ import TrendingTopics from '@/components/comunidad/trending-topics';
 import Footer from '@/components/landing/footer';
 import Header from '@/components/landing/header';
 import { ThemeSwitcher } from '@/components/theme-switcher';
-import { Head } from '@inertiajs/react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Head, router } from '@inertiajs/react';
+import { CheckCircle, XCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-// Datos de ejemplo para las publicaciones
+interface User {
+    id: number;
+    name: string;
+    email: string;
+    role?: string;
+}
+
+interface Post {
+    id: number;
+    author: {
+        name: string;
+        avatarUrl: string;
+    };
+    timestamp: string;
+    content: string;
+    imageUrl?: string;
+    likes: number;
+    is_liked?: boolean;
+    comments: number;
+    category: string;
+}
+
+interface ComunidadProps {
+    auth?: {
+        user?: User;
+    };
+    posts?: Post[];
+    flash?: {
+        success?: string;
+        error?: string;
+    };
+}
+
+// Datos de ejemplo para las publicaciones (como fallback)
 const samplePosts = [
     {
         id: 1,
@@ -52,7 +88,75 @@ const samplePosts = [
     },
 ];
 
-export default function Comunidad() {
+export default function Comunidad({ auth, posts: initialPosts, flash }: ComunidadProps) {
+    const [posts, setPosts] = useState<Post[]>(initialPosts || samplePosts);
+    const [filteredPosts, setFilteredPosts] = useState<Post[]>(initialPosts || samplePosts);
+    const [showFlash, setShowFlash] = useState(true);
+    const user = auth?.user;
+
+    const handlePostDelete = (postId: number) => {
+        setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
+        setFilteredPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
+    };
+
+    // Función para agregar nuevos posts cuando se creen
+    const handleNewPost = (newPost: Post) => {
+        setPosts((prevPosts) => [newPost, ...prevPosts]);
+        setFilteredPosts((prevPosts) => [newPost, ...prevPosts]);
+    };
+
+    // Función para recargar posts desde el servidor
+    const handlePostCreated = () => {
+        router.reload({ only: ['posts'] });
+    };
+
+    // Función para manejar actualizaciones de likes
+    const handleLikeUpdate = (postId: number, liked: boolean, likesCount: number) => {
+        setPosts((prevPosts) => prevPosts.map((post) => (post.id === postId ? { ...post, likes: likesCount, is_liked: liked } : post)));
+        setFilteredPosts((prevPosts) => prevPosts.map((post) => (post.id === postId ? { ...post, likes: likesCount, is_liked: liked } : post)));
+    };
+
+    // Función para manejar actualizaciones de comentarios
+    const handleCommentUpdate = (postId: number, commentsCount: number) => {
+        setPosts((prevPosts) => prevPosts.map((post) => (post.id === postId ? { ...post, comments: commentsCount } : post)));
+        setFilteredPosts((prevPosts) => prevPosts.map((post) => (post.id === postId ? { ...post, comments: commentsCount } : post)));
+    };
+
+    // Función para manejar cambios en los filtros
+    const handleFiltersChange = (filters: { search: string; categories: string[] }) => {
+        let filtered = [...posts];
+
+        // Filtrar por búsqueda
+        if (filters.search.trim()) {
+            const searchTerm = filters.search.toLowerCase();
+            filtered = filtered.filter(
+                (post) => post.content.toLowerCase().includes(searchTerm) || post.author.name.toLowerCase().includes(searchTerm),
+            );
+        }
+
+        // Filtrar por categorías
+        if (filters.categories.length > 0) {
+            filtered = filtered.filter((post) => filters.categories.includes(post.category));
+        }
+
+        setFilteredPosts(filtered);
+    };
+
+    // Actualizar posts filtrados cuando cambien los posts originales
+    useEffect(() => {
+        setFilteredPosts(posts);
+    }, [posts]);
+
+    // Ocultar mensaje flash después de 5 segundos
+    useEffect(() => {
+        if (flash?.success || flash?.error) {
+            const timer = setTimeout(() => {
+                setShowFlash(false);
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [flash]);
+
     return (
         <div className="flex min-h-screen flex-col bg-gray-100 dark:bg-gray-800">
             <Head title="Comunidad" />
@@ -64,17 +168,56 @@ export default function Comunidad() {
                     <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
                         {/* Filtros a la izquierda (3 de 12 columnas) */}
                         <aside className="lg:col-span-3">
-                            <PostFilters />
+                            <PostFilters onFiltersChange={handleFiltersChange} />
                         </aside>
+
                         {/* Feed de publicaciones (6 de 12 columnas, el área central) */}
                         <section className="space-y-8 lg:col-span-6">
-                            <CreatePost />
+                            {/* Mensajes Flash */}
+                            {showFlash && flash?.success && (
+                                <Alert className="border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-900/50 dark:text-green-200">
+                                    <CheckCircle className="h-4 w-4" />
+                                    <AlertDescription>{flash.success}</AlertDescription>
+                                </Alert>
+                            )}
+
+                            {showFlash && flash?.error && (
+                                <Alert className="border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-900/50 dark:text-red-200">
+                                    <XCircle className="h-4 w-4" />
+                                    <AlertDescription>{flash.error}</AlertDescription>
+                                </Alert>
+                            )}
+
+                            <CreatePost user={user} onPostCreated={handlePostCreated} />
+
                             <div className="space-y-6">
-                                {samplePosts.map((post) => (
-                                    <PostCard key={post.id} post={post} />
-                                ))}
+                                {filteredPosts && filteredPosts.length > 0 ? (
+                                    filteredPosts.map((post) => (
+                                        <PostCard
+                                            key={post.id}
+                                            post={post}
+                                            user={user}
+                                            onDelete={handlePostDelete}
+                                            onLikeUpdate={handleLikeUpdate}
+                                            onCommentUpdate={handleCommentUpdate}
+                                        />
+                                    ))
+                                ) : posts && posts.length > 0 ? (
+                                    <div className="rounded-xl bg-white p-8 text-center shadow-lg dark:bg-gray-900">
+                                        <p className="text-gray-500 dark:text-gray-400">
+                                            No se encontraron publicaciones que coincidan con los filtros aplicados.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="rounded-xl bg-white p-8 text-center shadow-lg dark:bg-gray-900">
+                                        <p className="text-gray-500 dark:text-gray-400">
+                                            No hay publicaciones aún. ¡Sé el primero en compartir algo!
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         </section>
+
                         {/* Tendencias a la derecha (3 de 12 columnas) */}
                         <aside className="hidden lg:col-span-3 lg:block">
                             <TrendingTopics />

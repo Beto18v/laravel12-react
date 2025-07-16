@@ -72,4 +72,10 @@ class User extends Authenticatable
         return $this->belongsToMany(Mascota::class, 'favoritos', 'user_id', 'mascota_id')
             ->withTimestamps();
     }
+
+    // Relación entre User y Posts
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
 }
